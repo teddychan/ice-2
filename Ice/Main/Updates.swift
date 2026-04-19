@@ -33,22 +33,22 @@ final class UpdatesManager: NSObject, ObservableObject {
     /// A Boolean value that indicates whether to automatically check for updates.
     var automaticallyChecksForUpdates: Bool {
         get {
-            updater.automaticallyChecksForUpdates
+            false
         }
         set {
             objectWillChange.send()
-            updater.automaticallyChecksForUpdates = newValue
+            updater.automaticallyChecksForUpdates = false
         }
     }
 
     /// A Boolean value that indicates whether to automatically download updates.
     var automaticallyDownloadsUpdates: Bool {
         get {
-            updater.automaticallyDownloadsUpdates
+            false
         }
         set {
             objectWillChange.send()
-            updater.automaticallyDownloadsUpdates = newValue
+            updater.automaticallyDownloadsUpdates = false
         }
     }
 
@@ -56,6 +56,8 @@ final class UpdatesManager: NSObject, ObservableObject {
     func performSetup(with appState: AppState) {
         self.appState = appState
         _ = updaterController
+        updater.automaticallyChecksForUpdates = false
+        updater.automaticallyDownloadsUpdates = false
         configureCancellables()
     }
 

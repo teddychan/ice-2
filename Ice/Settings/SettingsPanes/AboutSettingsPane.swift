@@ -116,10 +116,17 @@ struct AboutSettingsPane: View {
 
     @ViewBuilder
     private var automaticallyCheckForUpdates: some View {
-        Toggle(
-            "Automatically check for updates",
-            isOn: $updatesManager.automaticallyChecksForUpdates
-        )
+        VStack(alignment: .leading, spacing: 4) {
+            Toggle(
+                "Automatically check for updates",
+                isOn: $updatesManager.automaticallyChecksForUpdates
+            )
+            .disabled(true)
+
+            Text("Automatic update checks are disabled for this local fork.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
     }
 
     @ViewBuilder
@@ -128,6 +135,7 @@ struct AboutSettingsPane: View {
             "Automatically download updates",
             isOn: $updatesManager.automaticallyDownloadsUpdates
         )
+        .disabled(true)
     }
 
     @ViewBuilder
