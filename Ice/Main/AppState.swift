@@ -98,10 +98,7 @@ final class AppState: ObservableObject {
 
     /// Relaunches the app from its current bundle location.
     func relaunch() {
-        let canonicalApplicationsURL = URL(fileURLWithPath: "/Applications/Ice.app")
-        let bundleURL = FileManager.default.fileExists(atPath: canonicalApplicationsURL.path)
-            ? canonicalApplicationsURL
-            : Bundle.main.bundleURL
+        let bundleURL = Bundle.main.bundleURL
         let configuration = NSWorkspace.OpenConfiguration()
         configuration.activates = true
 
