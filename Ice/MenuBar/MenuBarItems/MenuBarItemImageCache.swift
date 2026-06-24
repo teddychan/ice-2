@@ -264,7 +264,10 @@ final class MenuBarItemImageCache: ObservableObject {
             newImages.merge(sectionImages) { (_, new) in new }
         }
 
-        await MainActor.run { [newImages] in
+        let validTags = await Set(appState.itemManager.itemCache.managedItems.map(\.tag))
+
+        await MainActor.run { [newImages, validTags] in
+            images = images.filter { validTags.contains($0.key) }
             images.merge(newImages) { (_, new) in new }
         }
     }

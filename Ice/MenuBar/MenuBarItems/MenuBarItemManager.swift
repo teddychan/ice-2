@@ -295,7 +295,6 @@ extension MenuBarItemManager {
         for item in items where context.isValidForCaching(item) {
             if item.sourcePID == nil {
                 logger.warning("Missing sourcePID for \(item.logString, privacy: .public)")
-                context.shouldClearCachedItemWindowIDs = true
             }
 
             if let temp = temporarilyShownItemContexts.first(where: { $0.tag == item.tag }) {

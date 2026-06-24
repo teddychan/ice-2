@@ -452,8 +452,9 @@ extension NSBezierPath {
         shadow.shadowBlurRadius = radius
         shadow.shadowColor = color
 
-        // swiftlint:disable:next force_cast
-        let path = copy() as! NSBezierPath
+        guard let path = copy() as? NSBezierPath else {
+            return
+        }
 
         context.saveGraphicsState()
 
@@ -517,9 +518,8 @@ extension NSScreen {
 
     /// The display identifier of the screen.
     var displayID: CGDirectDisplayID {
-        // Value and type are guaranteed here, so force casting is okay.
-        // swiftlint:disable:next force_cast
-        deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as! CGDirectDisplayID
+        let screenNumber = deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")]
+        return (screenNumber as? NSNumber)?.uint32Value ?? 0
     }
 
     /// A Boolean value that indicates whether the screen has a notch.
@@ -553,10 +553,7 @@ extension NSScreen {
     func getApplicationMenuFrame() -> CGRect? {
         let displayBounds = CGDisplayBounds(displayID)
 
-        guard
-            let menuBar = AXHelpers.element(at: displayBounds.origin),
-            AXHelpers.role(for: menuBar) == .menuBar
-        else {
+        guard let menuBar = AXHelpers.menuBarElement(nearDisplayOrigin: displayBounds.origin) else {
             return nil
         }
 

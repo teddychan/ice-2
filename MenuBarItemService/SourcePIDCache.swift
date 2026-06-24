@@ -80,8 +80,12 @@ final class SourcePIDCache {
 
     /// State for the cache.
     private struct State {
+        /// Minimum time that must pass before retrying a failed source-PID lookup.
+        static let failedLookupTTL: TimeInterval = 30
+
         var apps = [CachedApplication]()
         var pids = [CGWindowID: pid_t]()
+        var failedLookups = [CGWindowID: Date]()
 
         /// Returns the latest bounds of the given window after ensuring
         /// that the bounds are stable (a.k.a. not currently changing).
@@ -151,9 +155,12 @@ final class SourcePIDCache {
                         continue
                     }
                     pids[window.windowID] = app.processIdentifier
+                    failedLookups.removeValue(forKey: window.windowID)
                     return
                 }
             }
+
+            failedLookups[window.windowID] = Date()
         }
     }
 
@@ -222,6 +229,10 @@ final class SourcePIDCache {
         state.withLock { state in
             if let pid = state.pids[window.windowID] {
                 return pid
+            }
+            if let failedAt = state.failedLookups[window.windowID],
+               Date().timeIntervalSince(failedAt) < State.failedLookupTTL {
+                return nil
             }
             state.updatePID(for: window)
             return state.pids[window.windowID]
