@@ -181,6 +181,13 @@ extension HIDEventManager {
             return
         }
 
+        if appState.activeSpace.isFullscreen && !screen.hasNotch {
+            let windows = WindowInfo.createWindows(option: .onScreen)
+            guard WindowInfo.menuBarWindow(from: windows, for: screen.displayID) != nil else {
+                return
+            }
+        }
+
         Task {
             if NSEvent.modifierFlags == .control {
                 handleSecondaryContextMenu(appState: appState, screen: screen)
@@ -464,6 +471,18 @@ extension HIDEventManager {
             iceIconFrame.maxY <= screen.frame.maxY,
             let mouseLocation = MouseHelpers.locationAppKit
         else {
+            return false
+        }
+
+        if !NSScreen.screensHaveSeparateSpaces && screen != NSScreen.screens.first {
+            return false
+        }
+
+        if
+            appState.activeSpace.isFullscreen,
+            !screen.hasNotch,
+            appState.menuBarManager.isMenuBarHiddenBySystem
+        {
             return false
         }
 

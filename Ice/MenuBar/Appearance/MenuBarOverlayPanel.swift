@@ -325,6 +325,11 @@ final class MenuBarOverlayPanel: NSPanel {
             return
         }
 
+        let windows = WindowInfo.createWindows(option: .onScreen)
+        guard validate(for: .showing, with: windows) else {
+            return
+        }
+
         guard let menuBarHeight = owningScreen.getMenuBarHeight() else {
             return
         }
