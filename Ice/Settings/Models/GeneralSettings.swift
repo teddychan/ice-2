@@ -4,6 +4,7 @@
 //
 
 import Combine
+import AppKit
 import OSLog
 import SwiftUI
 
@@ -30,6 +31,16 @@ final class GeneralSettings: ObservableObject {
     /// A Boolean value that indicates whether to show hidden items
     /// in a separate bar below the menu bar.
     @Published var useIceBar = false
+
+    /// A Boolean value that indicates whether Ice Bar should be toggled
+    /// automatically for the current display.
+    @Published var autoEnableIceBar = false
+
+    /// The rule used to decide whether Ice Bar should be enabled.
+    @Published var iceBarAutoEnableMode: IceBarAutoEnableMode = .screenWidth
+
+    /// The screen width below which Ice Bar should be enabled.
+    @Published var iceBarDisplayWidthThreshold: Double = 3000
 
     /// The location where the Ice Bar appears.
     @Published var iceBarLocation: IceBarLocation = .dynamic
@@ -87,6 +98,8 @@ final class GeneralSettings: ObservableObject {
         Defaults.ifPresent(key: .showIceIcon, assign: &showIceIcon)
         Defaults.ifPresent(key: .customIceIconIsTemplate, assign: &customIceIconIsTemplate)
         Defaults.ifPresent(key: .useIceBar, assign: &useIceBar)
+        Defaults.ifPresent(key: .autoEnableIceBar, assign: &autoEnableIceBar)
+        Defaults.ifPresent(key: .iceBarDisplayWidthThreshold, assign: &iceBarDisplayWidthThreshold)
         Defaults.ifPresent(key: .showOnClick, assign: &showOnClick)
         Defaults.ifPresent(key: .showOnHover, assign: &showOnHover)
         Defaults.ifPresent(key: .showOnScroll, assign: &showOnScroll)
@@ -97,6 +110,11 @@ final class GeneralSettings: ObservableObject {
         Defaults.ifPresent(key: .iceBarLocation) { rawValue in
             if let location = IceBarLocation(rawValue: rawValue) {
                 iceBarLocation = location
+            }
+        }
+        Defaults.ifPresent(key: .iceBarAutoEnableMode) { rawValue in
+            if let mode = IceBarAutoEnableMode(rawValue: rawValue) {
+                iceBarAutoEnableMode = mode
             }
         }
         Defaults.ifPresent(key: .rehideStrategy) { rawValue in
@@ -160,6 +178,37 @@ final class GeneralSettings: ObservableObject {
             }
             .store(in: &c)
 
+        $autoEnableIceBar
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] autoEnable in
+                Defaults.set(autoEnable, forKey: .autoEnableIceBar)
+                self?.updateIceBarForCurrentDisplay()
+            }
+            .store(in: &c)
+
+        $iceBarAutoEnableMode
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] mode in
+                Defaults.set(mode.rawValue, forKey: .iceBarAutoEnableMode)
+                self?.updateIceBarForCurrentDisplay()
+            }
+            .store(in: &c)
+
+        $iceBarDisplayWidthThreshold
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] threshold in
+                Defaults.set(threshold, forKey: .iceBarDisplayWidthThreshold)
+                self?.updateIceBarForCurrentDisplay()
+            }
+            .store(in: &c)
+
+        NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.updateIceBarForCurrentDisplay()
+            }
+            .store(in: &c)
+
         $iceBarLocation
             .receive(on: DispatchQueue.main)
             .sink { location in
@@ -218,6 +267,46 @@ final class GeneralSettings: ObservableObject {
             .store(in: &c)
 
         cancellables = c
+        updateIceBarForCurrentDisplay()
+    }
+
+    private func updateIceBarForCurrentDisplay() {
+        guard autoEnableIceBar else {
+            return
+        }
+
+        let screen = NSScreen.screenWithActiveMenuBar ?? NSScreen.main
+        guard let screen else {
+            return
+        }
+
+        switch iceBarAutoEnableMode {
+        case .screenWidth:
+            useIceBar = screen.frame.width < iceBarDisplayWidthThreshold
+        case .screensWithNotch:
+            useIceBar = screen.hasNotch
+        }
+    }
+}
+
+// MARK: - IceBarAutoEnableMode
+
+/// A type that determines how Ice Bar should be automatically enabled.
+enum IceBarAutoEnableMode: Int, CaseIterable, Identifiable {
+    /// Enable Ice Bar when the active menu bar screen is narrower than a threshold.
+    case screenWidth = 0
+
+    /// Enable Ice Bar when the active menu bar screen has a notch.
+    case screensWithNotch = 1
+
+    var id: Int { rawValue }
+
+    /// Localized string key representation.
+    var localized: LocalizedStringKey {
+        switch self {
+        case .screenWidth: "Screen width"
+        case .screensWithNotch: "Screen notch"
+        }
     }
 }
 

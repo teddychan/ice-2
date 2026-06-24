@@ -175,6 +175,13 @@ struct GeneralSettingsPane: View {
     @ViewBuilder
     private var iceBarOptions: some View {
         useIceBar
+        autoEnableIceBar
+        if settings.autoEnableIceBar {
+            iceBarAutoEnableModePicker
+            if settings.iceBarAutoEnableMode == .screenWidth {
+                iceBarDisplayWidthThreshold
+            }
+        }
         if settings.useIceBar {
             iceBarLocationPicker
         }
@@ -184,6 +191,51 @@ struct GeneralSettingsPane: View {
     private var useIceBar: some View {
         Toggle("Use Ice Bar", isOn: $settings.useIceBar)
             .annotation("Show hidden menu bar items in a separate bar below the menu bar.")
+            .disabled(settings.autoEnableIceBar)
+    }
+
+    @ViewBuilder
+    private var autoEnableIceBar: some View {
+        Toggle(isOn: $settings.autoEnableIceBar) {
+            HStack {
+                Text("Auto-enable Ice Bar")
+                BetaBadge()
+            }
+        }
+        .annotation("Automatically enable or disable Ice Bar based on the current display.")
+    }
+
+    @ViewBuilder
+    private var iceBarAutoEnableModePicker: some View {
+        IcePicker("Auto-enable when", selection: $settings.iceBarAutoEnableMode) {
+            ForEach(IceBarAutoEnableMode.allCases) { mode in
+                Text(mode.localized).tag(mode)
+            }
+        }
+        .annotation {
+            switch settings.iceBarAutoEnableMode {
+            case .screenWidth:
+                Text("Enable Ice Bar when the active menu bar screen is narrower than the threshold.")
+            case .screensWithNotch:
+                Text("Enable Ice Bar when the active menu bar screen has a notch.")
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var iceBarDisplayWidthThreshold: some View {
+        LabeledContent {
+            TextField(
+                "Width",
+                value: $settings.iceBarDisplayWidthThreshold,
+                format: .number.grouping(.never)
+            )
+            .textFieldStyle(.roundedBorder)
+            .frame(width: 80)
+        } label: {
+            Text("Width threshold")
+        }
+        .annotation("Ice Bar will be enabled when the active menu bar screen is narrower than this width in points.")
     }
 
     @ViewBuilder

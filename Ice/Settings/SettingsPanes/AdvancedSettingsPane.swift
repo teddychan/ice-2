@@ -88,15 +88,16 @@ struct AdvancedSettingsPane: View {
     @ViewBuilder
     private var enableSecondaryContextMenu: some View {
         Toggle(
-            "Enable secondary context menu",
+            "Enable Ice context menus on right click",
             isOn: $settings.enableSecondaryContextMenu
         )
         .annotation {
             Text(
                 """
-                Right-click in an empty area of the menu bar to display a minimal \
-                version of Ice's menu. Disable this setting if you encounter conflicts \
-                with other apps.
+                Right-click Ice's control items or an empty area of the menu bar to \
+                display Ice's menu. Disable this setting if you encounter conflicts \
+                with other menu bar utilities. When disabled, Option-Command-click \
+                in the menu bar opens Ice Settings.
                 """
             )
             .padding(.trailing, 75)

@@ -48,6 +48,9 @@ final class HIDEventManager: ObservableObject {
         guard let self, isEnabled, let appState, let screen = bestScreen(appState: appState) else {
             return event
         }
+        if handleOpenSettingsFallback(with: event, appState: appState, screen: screen) {
+            return event
+        }
         switch event.type {
         case .leftMouseDown:
             handleShowOnClick(appState: appState, screen: screen)
@@ -303,6 +306,27 @@ extension HIDEventManager {
             try await Task.sleep(for: .milliseconds(100))
             appState.menuBarManager.showSecondaryContextMenu(at: mouseLocation)
         }
+    }
+
+    // MARK: Handle Open Settings Fallback
+
+    private func handleOpenSettingsFallback(with event: NSEvent, appState: AppState, screen: NSScreen) -> Bool {
+        guard
+            !appState.settings.advanced.enableSecondaryContextMenu,
+            event.type == .leftMouseDown || event.type == .rightMouseDown,
+            isMouseInsideMenuBar(appState: appState, screen: screen)
+        else {
+            return false
+        }
+
+        let modifiers = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+        guard modifiers.contains([.option, .command]) else {
+            return false
+        }
+
+        appState.activate(withPolicy: .regular)
+        appState.openWindow(.settings)
+        return true
     }
 
     // MARK: Handle Menu Bar Item Drag Stop
