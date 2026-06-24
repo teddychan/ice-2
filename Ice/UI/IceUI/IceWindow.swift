@@ -91,7 +91,7 @@ enum IceWindowIdentifier: String, Sendable, CustomStringConvertible {
     /// - Note: Use ``titleKey`` to get the localized title.
     var titleString: String {
         switch self {
-        case .settings: "Ice"
+        case .settings: "Ice 2"
         case .permissions: "Permissions"
         }
     }

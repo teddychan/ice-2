@@ -74,7 +74,7 @@ struct SettingsView: View {
                     sidebarItem(for: identifier)
                 }
             } header: {
-                Text("Ice")
+                Text("Ice 2")
                     .font(.system(size: sidebarFontSize * 2.67, weight: .medium))
                     .foregroundStyle(sidebarTextStyle)
                     .padding(.leading, sidebarPadding)

@@ -59,7 +59,7 @@ struct MenuBarLayoutSettingsPane: View {
 
     @ViewBuilder
     private var cannotArrange: some View {
-        Text("Ice cannot arrange menu bar items in automatically hidden menu bars.")
+        Text("Ice 2 cannot arrange menu bar items in automatically hidden menu bars.")
             .font(.title3)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
     }
@@ -70,7 +70,7 @@ struct MenuBarLayoutSettingsPane: View {
             Text("Menu bar layout requires screen recording permissions.")
                 .font(.title2)
 
-            Text("On macOS 26, Ice may need to relaunch after you grant this permission.")
+            Text("On macOS 26, Ice 2 may need to relaunch after you grant this permission.")
                 .foregroundStyle(.secondary)
 
             HStack {
@@ -81,7 +81,7 @@ struct MenuBarLayoutSettingsPane: View {
                 }
                 .buttonStyle(.link)
 
-                Button("Relaunch Ice") {
+                Button("Relaunch Ice 2") {
                     appState.relaunch()
                 }
             }

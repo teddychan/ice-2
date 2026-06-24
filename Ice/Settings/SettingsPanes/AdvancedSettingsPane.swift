@@ -77,7 +77,7 @@ struct AdvancedSettingsPane: View {
             Text(
                 """
                 Make more room in the menu bar by hiding the current app menus if \
-                needed. macOS requires Ice to make itself visible in the Dock while \
+                needed. macOS requires Ice 2 to make itself visible in the Dock while \
                 this setting is in effect.
                 """
             )
@@ -88,16 +88,16 @@ struct AdvancedSettingsPane: View {
     @ViewBuilder
     private var enableSecondaryContextMenu: some View {
         Toggle(
-            "Enable Ice context menus on right click",
+            "Enable Ice 2 context menus on right click",
             isOn: $settings.enableSecondaryContextMenu
         )
         .annotation {
             Text(
                 """
-                Right-click Ice's control items or an empty area of the menu bar to \
-                display Ice's menu. Disable this setting if you encounter conflicts \
+                Right-click Ice 2's control items or an empty area of the menu bar to \
+                display Ice 2's menu. Disable this setting if you encounter conflicts \
                 with other menu bar utilities. When disabled, Option-Command-click \
-                in the menu bar opens Ice Settings.
+                in the menu bar opens Ice 2 Settings.
                 """
             )
             .padding(.trailing, 75)
@@ -160,7 +160,7 @@ struct AdvancedSettingsPane: View {
                         }
 
                         if permission.mayRequireRelaunch {
-                            Button("Relaunch Ice") {
+                            Button("Relaunch Ice 2") {
                                 appState.relaunch()
                             }
                         }
