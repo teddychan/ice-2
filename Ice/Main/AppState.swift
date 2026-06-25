@@ -34,6 +34,9 @@ final class AppState: ObservableObject {
     /// Manager for menu bar item spacing.
     let spacingManager = MenuBarItemSpacingManager()
 
+    /// Manager for individual menu bar spacer items.
+    let spacerManager = MenuBarSpacerManager()
+
     /// Manager for menu bar items.
     let itemManager = MenuBarItemManager()
 
@@ -64,6 +67,7 @@ final class AppState: ObservableObject {
             await MenuBarItemService.Connection.shared.start()
         }
 
+        spacerManager.performSetup(with: self)
         appearanceManager.performSetup(with: self)
         hidEventManager.performSetup(with: self)
         await itemManager.performSetup(with: self)

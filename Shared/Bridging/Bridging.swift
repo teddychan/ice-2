@@ -120,9 +120,19 @@ extension Bridging {
     }
 
     private static var screenWithMouseDisplayID: CGDirectDisplayID? {
-        let mouseLocation = NSEvent.mouseLocation
+        guard let mouseLocation = CGEvent(source: nil)?.unflippedLocation else {
+            return nil
+        }
         let screen = NSScreen.screens.first { $0.frame.contains(mouseLocation) }
         return getDisplayID(for: screen)
+    }
+
+    private static var activeMenuBarFallbackDisplayID: CGDirectDisplayID {
+        let mainDisplayID = getDisplayID(for: NSScreen.main) ?? CGMainDisplayID()
+        guard NSScreen.screensHaveSeparateSpaces else {
+            return mainDisplayID
+        }
+        return screenWithMouseDisplayID ?? mainDisplayID
     }
 
     // MARK: Public Display API
@@ -135,9 +145,8 @@ extension Bridging {
             return id
         }
         // CGSCopyActiveMenuBarDisplayIdentifier returns nil on recent Tahoe builds.
-        // Prefer the display under the pointer, since menu bar actions and layout
-        // editing often happen on a non-primary display.
-        let fallback = screenWithMouseDisplayID ?? getDisplayID(for: NSScreen.main) ?? CGMainDisplayID()
+        // Prefer the pointer display only when macOS can show menu bars per Space.
+        let fallback = activeMenuBarFallbackDisplayID
         logger.warning("CGSCopyActiveMenuBarDisplayIdentifier unavailable, using fallback displayID=\(fallback, privacy: .public)")
         return fallback
     }

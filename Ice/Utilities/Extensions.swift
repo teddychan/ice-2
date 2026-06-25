@@ -505,7 +505,10 @@ extension NSImage {
 extension NSScreen {
     /// The screen containing the mouse pointer.
     static var screenWithMouse: NSScreen? {
-        screens.first { $0.frame.contains(NSEvent.mouseLocation) }
+        guard let location = MouseHelpers.locationAppKit else {
+            return nil
+        }
+        return screens.first { $0.frame.contains(location) }
     }
 
     /// The screen with the active menu bar.

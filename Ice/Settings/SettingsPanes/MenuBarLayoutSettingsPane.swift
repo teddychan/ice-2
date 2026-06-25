@@ -8,6 +8,14 @@ import SwiftUI
 struct MenuBarLayoutSettingsPane: View {
     @EnvironmentObject var appState: AppState
     @ObservedObject var itemManager: MenuBarItemManager
+    @ObservedObject var profileSettings: MenuBarLayoutProfilesSettings
+    @ObservedObject var spacerManager: MenuBarSpacerManager
+    @State private var newProfileName = ""
+    @State private var newGroupName = ""
+    @State private var applyingProfileID: MenuBarLayoutProfile.ID?
+    @State private var showingGroupID: MenuBarItemGroup.ID?
+    @State private var isPresentingError = false
+    @State private var presentedError: LocalizedErrorWrapper?
 
     private var hasItems: Bool {
         !itemManager.itemCache.managedItems.isEmpty
@@ -25,6 +33,9 @@ struct MenuBarLayoutSettingsPane: View {
         } else {
             IceForm(spacing: 20) {
                 header
+                profiles
+                groups
+                spacers
                 layoutBars
             }
         }
@@ -61,6 +72,225 @@ struct MenuBarLayoutSettingsPane: View {
                 } else {
                     noMenuBarItems
                 }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var profiles: some View {
+        IceSection("Profiles") {
+            profileCreationRow
+
+            if profileSettings.profiles.isEmpty {
+                Text("No saved layout profiles.")
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(profileSettings.profiles) { profile in
+                    profileRow(profile)
+                }
+            }
+        }
+        .alert(isPresented: $isPresentingError, error: presentedError) {
+            Button("OK") {
+                presentedError = nil
+                isPresentingError = false
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var profileCreationRow: some View {
+        HStack {
+            TextField("Profile name", text: $newProfileName)
+
+            Button("Save Current Layout") {
+                profileSettings.createProfile(named: newProfileName)
+                newProfileName = ""
+            }
+            .disabled(!hasItems)
+        }
+    }
+
+    @ViewBuilder
+    private func profileRow(_ profile: MenuBarLayoutProfile) -> some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(profile.name)
+
+                Text(profileSummary(profile))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            if applyingProfileID == profile.id {
+                ProgressView()
+                    .controlSize(.small)
+            }
+
+            Button("Apply") {
+                applyProfile(profile)
+            }
+            .disabled(applyingProfileID != nil)
+
+            Button("Update") {
+                profileSettings.updateProfile(profile)
+            }
+            .disabled(!hasItems || applyingProfileID != nil)
+
+            Button("Delete", role: .destructive) {
+                profileSettings.deleteProfile(profile)
+            }
+            .disabled(applyingProfileID != nil)
+        }
+    }
+
+    private func profileSummary(_ profile: MenuBarLayoutProfile) -> LocalizedStringKey {
+        let visibleCount = profile.itemCount(for: .visible)
+        let hiddenCount = profile.itemCount(for: .hidden)
+        let alwaysHiddenCount = profile.itemCount(for: .alwaysHidden)
+        return "\(visibleCount) visible, \(hiddenCount) hidden, \(alwaysHiddenCount) always-hidden"
+    }
+
+    private func applyProfile(_ profile: MenuBarLayoutProfile) {
+        applyingProfileID = profile.id
+        Task {
+            defer {
+                applyingProfileID = nil
+            }
+            do {
+                try await profileSettings.applyProfile(profile)
+            } catch {
+                presentedError = LocalizedErrorWrapper(error)
+                isPresentingError = true
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var groups: some View {
+        IceSection("Groups") {
+            HStack {
+                TextField("Group name", text: $newGroupName)
+
+                Button("Save Hidden Items") {
+                    profileSettings.createGroup(named: newGroupName)
+                    newGroupName = ""
+                }
+                .disabled(!hasItems)
+            }
+
+            if profileSettings.groups.isEmpty {
+                Text("No saved item groups.")
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(profileSettings.groups) { group in
+                    groupRow(group)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func groupRow(_ group: MenuBarItemGroup) -> some View {
+        let availableCount = availableHiddenItemCount(for: group)
+
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(group.name)
+
+                Text(groupSummary(group, availableCount: availableCount))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            if showingGroupID == group.id {
+                ProgressView()
+                    .controlSize(.small)
+            }
+
+            Button("Show") {
+                temporarilyShowGroup(group)
+            }
+            .disabled(availableCount == 0 || showingGroupID != nil)
+
+            Button("Delete", role: .destructive) {
+                profileSettings.deleteGroup(group)
+            }
+            .disabled(showingGroupID != nil)
+        }
+    }
+
+    private func groupSummary(
+        _ group: MenuBarItemGroup,
+        availableCount: Int
+    ) -> LocalizedStringKey {
+        "\(group.itemCount) saved, \(availableCount) available to show"
+    }
+
+    private func availableHiddenItemCount(for group: MenuBarItemGroup) -> Int {
+        let tags = Set(group.itemTags)
+        let items = (
+            itemManager.itemCache.managedItems(for: .hidden) +
+            itemManager.itemCache.managedItems(for: .alwaysHidden)
+        )
+        return items.filter { tags.contains($0.tag) }.count
+    }
+
+    private func temporarilyShowGroup(_ group: MenuBarItemGroup) {
+        showingGroupID = group.id
+        Task {
+            defer {
+                showingGroupID = nil
+            }
+            _ = await profileSettings.temporarilyShowGroup(group)
+        }
+    }
+
+    @ViewBuilder
+    private var spacers: some View {
+        IceSection("Spacers") {
+            HStack {
+                Text("Add flexible space between menu bar items.")
+                    .foregroundStyle(.secondary)
+
+                Spacer()
+
+                Button("Add Spacer") {
+                    spacerManager.createSpacer()
+                }
+            }
+
+            ForEach(spacerManager.spacers) { spacer in
+                spacerRow(spacer)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func spacerRow(_ spacer: MenuBarSpacer) -> some View {
+        HStack {
+            Text(spacer.name)
+
+            Slider(
+                value: Binding(
+                    get: { spacer.width },
+                    set: { spacerManager.setWidth($0, for: spacer) }
+                ),
+                in: 8...80,
+                step: 1
+            )
+
+            Text("\(Int(spacer.width)) pt")
+                .monospacedDigit()
+                .foregroundStyle(.secondary)
+                .frame(width: 42, alignment: .trailing)
+
+            Button("Delete", role: .destructive) {
+                spacerManager.deleteSpacer(spacer)
             }
         }
     }

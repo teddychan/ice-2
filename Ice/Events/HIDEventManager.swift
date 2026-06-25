@@ -53,7 +53,7 @@ final class HIDEventManager: ObservableObject {
         }
         switch event.type {
         case .leftMouseDown:
-            handleShowOnClick(appState: appState, screen: screen)
+            handleShowOnClick(with: event, appState: appState, screen: screen)
             handleSmartRehide(with: event, appState: appState, screen: screen)
         case .rightMouseDown:
             handleSecondaryContextMenu(appState: appState, screen: screen)
@@ -176,9 +176,15 @@ extension HIDEventManager {
 
     // MARK: Handle Show On Click
 
-    private func handleShowOnClick(appState: AppState, screen: NSScreen) {
+    private func handleShowOnClick(with event: NSEvent, appState: AppState, screen: NSScreen) {
+        let modifierFlags = event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+        let alwaysHiddenSection = appState.menuBarManager.section(withName: .alwaysHidden)
+        let canOptionToggleAlwaysHidden =
+            modifierFlags == .option &&
+            alwaysHiddenSection?.isEnabled == true
+
         guard
-            appState.settings.general.showOnClick,
+            appState.settings.general.showOnClick || canOptionToggleAlwaysHidden,
             isMouseInsideEmptyMenuBarSpace(appState: appState, screen: screen)
         else {
             return
@@ -192,18 +198,14 @@ extension HIDEventManager {
         }
 
         Task {
-            if NSEvent.modifierFlags == .control {
+            if modifierFlags == .control {
                 handleSecondaryContextMenu(appState: appState, screen: screen)
                 return
             }
 
             let targetSection: MenuBarSection
 
-            if
-                NSEvent.modifierFlags == .option,
-                let alwaysHiddenSection = appState.menuBarManager.section(withName: .alwaysHidden),
-                alwaysHiddenSection.isEnabled
-            {
+            if canOptionToggleAlwaysHidden, let alwaysHiddenSection {
                 targetSection = alwaysHiddenSection
             } else if
                 let hiddenSection = appState.menuBarManager.section(withName: .hidden),
@@ -462,11 +464,16 @@ extension HIDEventManager {
             return
         }
 
-        let averageDelta = (event.scrollingDeltaX + event.scrollingDeltaY) / 2
+        let delta = if abs(event.scrollingDeltaY) >= abs(event.scrollingDeltaX) {
+            event.scrollingDeltaY
+        } else {
+            event.scrollingDeltaX
+        }
+        let threshold = event.hasPreciseScrollingDeltas ? 5.0 : 0.5
 
-        if averageDelta > 5 {
+        if delta > threshold {
             hiddenSection.show()
-        } else if averageDelta < -5 {
+        } else if delta < -threshold {
             hiddenSection.hide()
         }
     }
@@ -482,7 +489,7 @@ extension HIDEventManager {
                 return screen
             }
         }
-        return NSScreen.main
+        return NSScreen.screenWithActiveMenuBar ?? NSScreen.main
     }
 
     /// A Boolean value that indicates whether the mouse pointer is within
@@ -499,11 +506,15 @@ extension HIDEventManager {
             return false
         }
 
-        if !NSScreen.screensHaveSeparateSpaces && screen != NSScreen.screens.first {
+        if
+            !NSScreen.screensHaveSeparateSpaces,
+            let activeMenuBarScreen = NSScreen.screenWithActiveMenuBar,
+            screen.displayID != activeMenuBarScreen.displayID
+        {
             return false
         }
 
-        if NSScreen.screenWithMouse != screen {
+        if NSScreen.screenWithMouse?.displayID != screen.displayID {
             return false
         }
 

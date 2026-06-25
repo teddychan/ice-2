@@ -9,7 +9,7 @@ import SwiftUI
 @MainActor
 final class MenuBarSection {
     /// The name of a menu bar section.
-    enum Name: CaseIterable {
+    enum Name: String, CaseIterable, Codable {
         case visible
         case hidden
         case alwaysHidden
@@ -246,6 +246,13 @@ final class MenuBarSection {
             return
         }
 
+        func isMouseBelowMenuBar(on screen: NSScreen) -> Bool {
+            guard let mouseLocation = MouseHelpers.locationAppKit else {
+                return false
+            }
+            return mouseLocation.y < screen.visibleFrame.maxY
+        }
+
         rehideMonitor = EventMonitor.universal(for: .mouseMoved) { [weak self] event in
             guard
                 let self,
@@ -253,7 +260,7 @@ final class MenuBarSection {
             else {
                 return event
             }
-            if NSEvent.mouseLocation.y < screen.visibleFrame.maxY {
+            if isMouseBelowMenuBar(on: screen) {
                 if rehideTimer == nil {
                     rehideTimer = .scheduledTimer(
                         withTimeInterval: appState.settings.general.rehideInterval,
@@ -265,7 +272,7 @@ final class MenuBarSection {
                         else {
                             return
                         }
-                        if NSEvent.mouseLocation.y < screen.visibleFrame.maxY {
+                        if isMouseBelowMenuBar(on: screen) {
                             Task {
                                 await self.hide()
                             }

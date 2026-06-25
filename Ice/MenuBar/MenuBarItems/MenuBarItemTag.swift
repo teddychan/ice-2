@@ -41,6 +41,11 @@ struct MenuBarItemTag: Hashable, CustomStringConvertible {
         namespace == .controlCenter && title.hasPrefix("BentoBox")
     }
 
+    /// A Boolean value that indicates whether this item is an Ice spacer.
+    var isSpacerItem: Bool {
+        namespace == .ice && title.hasPrefix(MenuBarSpacer.autosaveNamePrefix)
+    }
+
     /// A Boolean value that indicates whether the item identified
     /// by this tag is a system-created clone of an actual item,
     /// and therefore invalid for management.
@@ -68,6 +73,9 @@ struct MenuBarItemTag: Hashable, CustomStringConvertible {
         self.init(namespace: .ice, title: identifier.rawValue)
     }
 }
+
+// MARK: MenuBarItemTag: Codable
+extension MenuBarItemTag: Codable { }
 
 // MARK: MenuBarItemTag Constants
 
@@ -219,6 +227,9 @@ extension MenuBarItemTag {
         }
     }
 }
+
+// MARK: MenuBarItemTag.Namespace: Codable
+extension MenuBarItemTag.Namespace: Codable { }
 
 // MARK: MenuBarItemTag.Namespace Constants
 extension MenuBarItemTag.Namespace {

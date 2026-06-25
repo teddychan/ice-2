@@ -639,6 +639,88 @@ private final class MenuBarOverlayPanelContentView: NSView {
         }
     }
 
+    /// Draws the current desktop wallpaper in the given rectangle.
+    private func drawDesktopWallpaper(in rect: CGRect, clippingTo clipPath: NSBezierPath? = nil, context: NSGraphicsContext) {
+        guard let desktopWallpaper = overlayPanel?.desktopWallpaper else {
+            return
+        }
+
+        context.saveGraphicsState()
+        defer {
+            context.restoreGraphicsState()
+        }
+
+        clipPath?.setClip()
+        context.cgContext.draw(desktopWallpaper, in: rect)
+    }
+
+    /// Returns a path that covers the visible menu bar content that should
+    /// remain unobscured by background removal.
+    private func menuBarContentPath(in rect: CGRect, screen: NSScreen) -> NSBezierPath {
+        let contentPath = NSBezierPath()
+
+        func localRect(for screenRect: CGRect) -> CGRect? {
+            guard let overlayPanel else {
+                return nil
+            }
+            return screenRect
+                .offsetBy(dx: -overlayPanel.frame.minX, dy: -overlayPanel.frame.minY)
+                .intersection(rect)
+        }
+
+        if
+            let applicationMenuFrame = overlayPanel?.applicationMenuFrame,
+            let localFrame = localRect(for: applicationMenuFrame)
+        {
+            contentPath.append(NSBezierPath(rect: localFrame.insetBy(dx: -4, dy: 0)))
+        }
+
+        let itemWindows = MenuBarItem.getMenuBarItemWindows(on: screen.displayID, option: .onScreen)
+        for window in itemWindows {
+            guard let localFrame = localRect(for: window.bounds) else {
+                continue
+            }
+            contentPath.append(NSBezierPath(rect: localFrame.insetBy(dx: -2, dy: 0)))
+        }
+
+        return contentPath
+    }
+
+    /// Returns a clipping path for background removal that avoids drawing
+    /// over menu bar text and item icons.
+    private func backgroundRemovalClipPath(in rect: CGRect, screen: NSScreen) -> NSBezierPath {
+        let clipPath = NSBezierPath(rect: rect)
+        clipPath.append(menuBarContentPath(in: rect, screen: screen).reversed)
+        return clipPath
+    }
+
+    /// Returns a path for the two top screen-corner cutouts.
+    private func roundedScreenCornerPath(in rect: CGRect) -> NSBezierPath {
+        let radius = min(rect.height, 18)
+        let control = radius * 0.552_284_749_8
+        let path = NSBezierPath()
+
+        path.move(to: CGPoint(x: rect.minX, y: rect.maxY))
+        path.line(to: CGPoint(x: rect.minX + radius, y: rect.maxY))
+        path.curve(
+            to: CGPoint(x: rect.minX, y: rect.maxY - radius),
+            controlPoint1: CGPoint(x: rect.minX + radius - control, y: rect.maxY),
+            controlPoint2: CGPoint(x: rect.minX, y: rect.maxY - radius + control)
+        )
+        path.close()
+
+        path.move(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        path.line(to: CGPoint(x: rect.maxX - radius, y: rect.maxY))
+        path.curve(
+            to: CGPoint(x: rect.maxX, y: rect.maxY - radius),
+            controlPoint1: CGPoint(x: rect.maxX - radius + control, y: rect.maxY),
+            controlPoint2: CGPoint(x: rect.maxX, y: rect.maxY - radius + control)
+        )
+        path.close()
+
+        return path
+    }
+
     override func draw(_ dirtyRect: NSRect) {
         guard
             let overlayPanel,
@@ -668,7 +750,24 @@ private final class MenuBarOverlayPanelContentView: NSView {
             )
         }
 
+        let removesMenuBarBackground = fullConfiguration.removesMenuBarBackground
         var hasBorder = false
+
+        if removesMenuBarBackground {
+            drawDesktopWallpaper(
+                in: drawableBounds,
+                clippingTo: backgroundRemovalClipPath(in: drawableBounds, screen: overlayPanel.owningScreen),
+                context: context
+            )
+        }
+
+        if fullConfiguration.roundsScreenCorners {
+            drawDesktopWallpaper(
+                in: drawableBounds,
+                clippingTo: roundedScreenCornerPath(in: drawableBounds),
+                context: context
+            )
+        }
 
         switch fullConfiguration.shapeKind {
         case .noShape:
@@ -701,17 +800,10 @@ private final class MenuBarOverlayPanelContentView: NSView {
                 NSBezierPath(rect: borderBounds).fill()
             }
         case .full, .split:
-            if let desktopWallpaper = overlayPanel.desktopWallpaper {
-                context.saveGraphicsState()
-                defer {
-                    context.restoreGraphicsState()
-                }
-
+            if !removesMenuBarBackground {
                 let invertedClipPath = NSBezierPath(rect: drawableBounds)
                 invertedClipPath.append(shapePath.reversed)
-                invertedClipPath.setClip()
-
-                context.cgContext.draw(desktopWallpaper, in: drawableBounds)
+                drawDesktopWallpaper(in: drawableBounds, clippingTo: invertedClipPath, context: context)
             }
 
             if configuration.hasShadow {

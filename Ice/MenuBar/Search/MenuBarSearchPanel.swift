@@ -102,7 +102,7 @@ final class MenuBarSearchPanel: NSPanel {
     }
 
     /// Shows the search panel on the given screen.
-    func show(on screen: NSScreen? = nil) {
+    func show(on screen: NSScreen? = nil, mode: MenuBarSearchModel.Mode = .clickOrShow) {
         guard let appState else {
             return
         }
@@ -114,6 +114,9 @@ final class MenuBarSearchPanel: NSPanel {
 
         // Important that we set the navigation state before updating the cache.
         appState.navigationState.isSearchPresented = true
+        model.mode = mode
+        model.searchText = ""
+        model.selection = nil
 
         Task {
             await appState.imageCache.updateCache()
@@ -202,6 +205,15 @@ private struct MenuBarSearchContentView: View {
         if #available(macOS 26.0, *) { 7 } else { 5 }
     }
 
+    private var promptText: Text {
+        switch model.mode {
+        case .clickOrShow:
+            Text("Search menu bar items…")
+        case .temporarilyShow:
+            Text("Temporarily show menu bar item…")
+        }
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             searchField
@@ -221,6 +233,10 @@ private struct MenuBarSearchContentView: View {
             updateDisplayedItems()
             selectFirstDisplayedItem()
         }
+        .onChange(of: model.mode) {
+            updateDisplayedItems()
+            selectFirstDisplayedItem()
+        }
         .onChange(of: itemManager.itemCache, initial: true) {
             updateDisplayedItems()
             if model.selection == nil {
@@ -231,8 +247,6 @@ private struct MenuBarSearchContentView: View {
 
     @ViewBuilder
     private var searchField: some View {
-        let promptText = Text("Search menu bar items…")
-
         VStack(spacing: 0) {
             TextField(text: $model.searchText, prompt: promptText) {
                 promptText
@@ -280,7 +294,7 @@ private struct MenuBarSearchContentView: View {
                 let selection = model.selection,
                 let item = menuBarItem(for: selection)
             {
-                ShowItemButton(item: item) {
+                ShowItemButton(item: item, mode: model.mode) {
                     performAction(for: item)
                 }
             }
@@ -321,6 +335,9 @@ private struct MenuBarSearchContentView: View {
                 items.append(SearchItem(headerItem, name.displayString))
 
                 for item in itemManager.itemCache.managedItems(for: name).reversed() {
+                    if model.mode == .temporarilyShow, name == .visible {
+                        continue
+                    }
                     let listItem = ListItem.item(id: .item(item.windowID)) {
                         performAction(for: item)
                     } content: {
@@ -377,6 +394,10 @@ private struct MenuBarSearchContentView: View {
         closePanel()
         Task {
             try await Task.sleep(for: .milliseconds(25))
+            if model.mode == .temporarilyShow {
+                await itemManager.temporarilyShow(item: item, clickingWith: .left)
+                return
+            }
             if Bridging.isWindowOnScreen(item.windowID) {
                 try await itemManager.click(item: item, with: .left)
             } else {
@@ -402,6 +423,7 @@ private struct SettingsButton: View {
 
 private struct ShowItemButton: View {
     let item: MenuBarItem
+    let mode: MenuBarSearchModel.Mode
     let action: () -> Void
 
     private var backgroundShape: some InsettableShape {
@@ -415,7 +437,7 @@ private struct ShowItemButton: View {
     var body: some View {
         Button(action: action) {
             HStack {
-                Text("\(Bridging.isWindowOnScreen(item.windowID) ? "Click" : "Show") Item")
+                Text(actionTitle)
                     .padding(.leading, 5)
 
                 Image(systemName: "return")
@@ -433,6 +455,15 @@ private struct ShowItemButton: View {
                             .opacity(0.5)
                     }
             }
+        }
+    }
+
+    private var actionTitle: String {
+        switch mode {
+        case .clickOrShow:
+            "\(Bridging.isWindowOnScreen(item.windowID) ? "Click" : "Show") Item"
+        case .temporarilyShow:
+            "Show Item"
         }
     }
 }

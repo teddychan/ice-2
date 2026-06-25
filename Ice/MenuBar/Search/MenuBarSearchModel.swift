@@ -14,6 +14,12 @@ final class MenuBarSearchModel: ObservableObject {
         case item(CGWindowID)
     }
 
+    enum Mode {
+        case clickOrShow
+        case temporarilyShow
+    }
+
+    @Published var mode = Mode.clickOrShow
     @Published var searchText = ""
     @Published var displayedItems = [SectionedListItem<ItemID>]()
     @Published var selection: ItemID?

@@ -65,6 +65,8 @@ struct MenuBarAppearanceEditor: View {
             }
             IceSection {
                 isDynamicToggle
+                removesMenuBarBackgroundToggle
+                roundsScreenCornersToggle
             }
             if appearanceManager.configuration.isDynamic {
                 LabeledPartialEditor(configuration: $appearanceManager.configuration, appearance: .light)
@@ -118,6 +120,16 @@ struct MenuBarAppearanceEditor: View {
     private var isDynamicToggle: some View {
         Toggle("Use dynamic appearance", isOn: $appearanceManager.configuration.isDynamic)
             .annotation("Apply different settings based on the current system appearance.")
+    }
+
+    @ViewBuilder
+    private var removesMenuBarBackgroundToggle: some View {
+        Toggle("Remove menu bar background", isOn: $appearanceManager.configuration.removesMenuBarBackground)
+    }
+
+    @ViewBuilder
+    private var roundsScreenCornersToggle: some View {
+        Toggle("Round screen corners", isOn: $appearanceManager.configuration.roundsScreenCorners)
     }
 
     @ViewBuilder

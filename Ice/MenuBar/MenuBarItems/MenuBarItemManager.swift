@@ -1308,9 +1308,97 @@ extension MenuBarItemManager {
     }
 }
 
+// MARK: - Layout Profiles
+
+extension MenuBarItemManager {
+    /// Applies a saved menu bar layout profile to the current menu bar items.
+    ///
+    /// Profiles are intentionally matched by ``MenuBarItemTag`` and applied
+    /// through normal move operations. Items that are not currently available
+    /// are skipped so profiles remain useful when apps are not running.
+    func applyLayoutProfile(_ profile: MenuBarLayoutProfile) async throws {
+        await cacheItemsRegardless()
+
+        let items = await MenuBarItem.getMenuBarItems(option: .activeSpace)
+        guard let hiddenControlItem = items.first(matching: .hiddenControlItem) else {
+            throw EventError.cannotComplete
+        }
+
+        let alwaysHiddenControlItem = items.first(matching: .alwaysHiddenControlItem)
+        var availableItems = itemCache.managedItems
+
+        func takeItem(matching tag: MenuBarItemTag) -> MenuBarItem? {
+            guard let index = availableItems.firstIndex(matching: tag) else {
+                return nil
+            }
+            return availableItems.remove(at: index)
+        }
+
+        let visibleItems = profile.itemTags(for: .visible).compactMap(takeItem)
+        try await applyVisibleLayout(visibleItems, hiddenControlItem: hiddenControlItem)
+
+        let hiddenItems = profile.itemTags(for: .hidden).compactMap(takeItem)
+        try await applyHiddenLayout(hiddenItems, controlItem: hiddenControlItem)
+
+        if let alwaysHiddenControlItem {
+            let alwaysHiddenItems = profile.itemTags(for: .alwaysHidden).compactMap(takeItem)
+            try await applyHiddenLayout(alwaysHiddenItems, controlItem: alwaysHiddenControlItem)
+        }
+
+        await cacheItemsRegardless()
+    }
+
+    private func applyVisibleLayout(
+        _ items: [MenuBarItem],
+        hiddenControlItem: MenuBarItem
+    ) async throws {
+        var previousItem = hiddenControlItem
+        for item in items where item.isMovable {
+            try await move(item: item, to: .rightOfItem(previousItem))
+            previousItem = item
+        }
+    }
+
+    private func applyHiddenLayout(
+        _ items: [MenuBarItem],
+        controlItem: MenuBarItem
+    ) async throws {
+        var nextItem = controlItem
+        for item in items.reversed() where item.isMovable {
+            try await move(item: item, to: .leftOfItem(nextItem))
+            nextItem = item
+        }
+    }
+}
+
 // MARK: - Temporarily Showing Items
 
 extension MenuBarItemManager {
+    /// Temporarily shows every currently hidden item in the given group.
+    ///
+    /// Group membership is stored by tag, so items that are not currently
+    /// available are skipped. Visible items are skipped because they do not
+    /// need to be temporarily revealed.
+    func temporarilyShowItems(
+        in group: MenuBarItemGroup,
+        clickingWith mouseButton: CGMouseButton
+    ) async -> Int {
+        await cacheItemsRegardless()
+
+        let tags = Set(group.itemTags)
+        let items = (
+            itemCache.managedItems(for: .hidden) +
+            itemCache.managedItems(for: .alwaysHidden)
+        )
+        .filter { tags.contains($0.tag) }
+
+        for item in items {
+            await temporarilyShow(item: item, clickingWith: mouseButton)
+        }
+
+        return items.count
+    }
+
     /// Context for a temporarily shown menu bar item.
     private final class TemporarilyShownItemContext {
         /// The tag associated with the item.

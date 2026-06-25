@@ -92,6 +92,10 @@ struct MenuBarItem: CustomStringConvertible {
             return Constants.displayName
         }
 
+        if tag.isSpacerItem {
+            return "Spacer"
+        }
+
         lazy var fallbackName = "Menu Bar Item"
 
         guard let sourceApplication else {

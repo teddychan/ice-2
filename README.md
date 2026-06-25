@@ -50,8 +50,8 @@ brew install --cask jordanbaird-ice
 - [x] Display hidden menu bar items in a separate bar (e.g. for MacBooks with the notch)
 - [x] Search menu bar items
 - [x] Menu bar item spacing (BETA)
-- [ ] Profiles for menu bar layout
-- [ ] Individual spacer items
+- [x] Profiles for menu bar layout
+- [x] Individual spacer items
 - [ ] Menu bar item groups
 - [ ] Show menu bar items when trigger conditions are met
 
@@ -61,9 +61,9 @@ brew install --cask jordanbaird-ice
 - [x] Menu bar shadow
 - [x] Menu bar border
 - [x] Custom menu bar shapes (rounded and/or split)
-- [ ] Remove background behind menu bar
-- [ ] Rounded screen corners
-- [ ] Different settings for light/dark mode
+- [x] Different settings for light/dark mode
+- [x] Remove background behind menu bar
+- [x] Rounded screen corners
 
 ### Hotkeys
 
@@ -72,8 +72,8 @@ brew install --cask jordanbaird-ice
 - [x] Enable/disable the Ice Bar
 - [x] Show/hide section divider icons
 - [x] Toggle application menus
-- [ ] Enable/disable auto rehide
-- [ ] Temporarily show individual menu bar items
+- [x] Enable/disable auto rehide
+- [x] Temporarily show individual menu bar items
 
 ### Other
 

@@ -14,6 +14,8 @@ struct MenuBarAppearanceConfigurationV2: Hashable {
     var splitShapeInfo: MenuBarSplitShapeInfo
     var isInset: Bool
     var isDynamic: Bool
+    var removesMenuBarBackground: Bool
+    var roundsScreenCorners: Bool
 
     var hasRoundedShape: Bool {
         switch shapeKind {
@@ -45,7 +47,9 @@ extension MenuBarAppearanceConfigurationV2 {
         fullShapeInfo: .default,
         splitShapeInfo: .default,
         isInset: true,
-        isDynamic: false
+        isDynamic: false,
+        removesMenuBarBackground: false,
+        roundsScreenCorners: false
     )
 }
 
@@ -59,6 +63,8 @@ extension MenuBarAppearanceConfigurationV2: Codable {
         case splitShapeInfo
         case isInset
         case isDynamic
+        case removesMenuBarBackground
+        case roundsScreenCorners
     }
 
     init(from decoder: any Decoder) throws {
@@ -71,7 +77,9 @@ extension MenuBarAppearanceConfigurationV2: Codable {
             fullShapeInfo: container.decodeIfPresent(MenuBarFullShapeInfo.self, forKey: .fullShapeInfo) ?? Self.defaultConfiguration.fullShapeInfo,
             splitShapeInfo: container.decodeIfPresent(MenuBarSplitShapeInfo.self, forKey: .splitShapeInfo) ?? Self.defaultConfiguration.splitShapeInfo,
             isInset: container.decodeIfPresent(Bool.self, forKey: .isInset) ?? Self.defaultConfiguration.isInset,
-            isDynamic: container.decodeIfPresent(Bool.self, forKey: .isDynamic) ?? Self.defaultConfiguration.isDynamic
+            isDynamic: container.decodeIfPresent(Bool.self, forKey: .isDynamic) ?? Self.defaultConfiguration.isDynamic,
+            removesMenuBarBackground: container.decodeIfPresent(Bool.self, forKey: .removesMenuBarBackground) ?? Self.defaultConfiguration.removesMenuBarBackground,
+            roundsScreenCorners: container.decodeIfPresent(Bool.self, forKey: .roundsScreenCorners) ?? Self.defaultConfiguration.roundsScreenCorners
         )
     }
 
@@ -85,6 +93,8 @@ extension MenuBarAppearanceConfigurationV2: Codable {
         try container.encode(splitShapeInfo, forKey: .splitShapeInfo)
         try container.encode(isInset, forKey: .isInset)
         try container.encode(isDynamic, forKey: .isDynamic)
+        try container.encode(removesMenuBarBackground, forKey: .removesMenuBarBackground)
+        try container.encode(roundsScreenCorners, forKey: .roundsScreenCorners)
     }
 }
 
