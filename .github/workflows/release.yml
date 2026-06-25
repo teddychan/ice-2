@@ -23,9 +23,23 @@ permissions:
 
 jobs:
   build:
-    runs-on: [self-hosted, macOS, ARM64]
+    # GitHub-hosted macOS runner. Public repos get free Actions minutes, so no
+    # self-hosted runner is needed. The image MUST ship an Xcode new enough for
+    # Ice's deployment target (Xcode 26 / current macOS SDK) — the "Select Xcode"
+    # step below picks the newest installed Xcode. If a build fails on the SDK,
+    # bump this label to `macos-26` once that image is generally available.
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: |
+          set -euo pipefail
+          # Pick the newest Xcode installed on the hosted image (avoids pinning a
+          # path that drifts between runner image versions).
+          latest="$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1)"
+          if [ -n "$latest" ]; then sudo xcode-select -s "$latest/Contents/Developer"; fi
+          xcodebuild -version
 
       - name: Resolve version
         run: |

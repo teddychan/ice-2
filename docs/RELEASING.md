@@ -23,9 +23,12 @@ Reuse the same values already on `clipmenu-2-premium` (same Apple Team
 - `SPARKLE_EDDSA_PRIVATE_KEY` (the shared EdDSA private key; its public half
   `p+F/ivF5bAYcmuNuCMNHcRv123A6LHFpCBagFm7Adu8=` is in `Ice/Resources/Info.plist`)
 
-### 2. Self-hosted runner
-Register a macOS/ARM64 self-hosted runner to this repo with Xcode 26 (macOS 26
-SDK). The workflow targets `runs-on: [self-hosted, macOS, ARM64]`.
+### 2. Runner
+The workflow runs on a **GitHub-hosted** macOS runner (`runs-on: macos-15`) —
+public repos get free Actions minutes, so no self-hosted runner is required. The
+"Select Xcode" step picks the newest Xcode on the image; the build needs Xcode 26
+(current macOS SDK). If the hosted image's Xcode is too old, bump the label to
+`macos-26` once that image is generally available.
 
 ## Cutting a release
 1. Bump `MARKETING_VERSION` in `Ice.xcodeproj` and commit.
