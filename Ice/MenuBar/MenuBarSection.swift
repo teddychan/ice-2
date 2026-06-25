@@ -253,6 +253,23 @@ final class MenuBarSection {
             return mouseLocation.y < screen.visibleFrame.maxY
         }
 
+        func isMouseInsideIceBar(useIceBar: Bool, panel: NSPanel?) -> Bool {
+            guard
+                useIceBar,
+                let panel,
+                panel.isVisible,
+                let mouseLocation = MouseHelpers.locationAppKit
+            else {
+                return false
+            }
+            return panel.frame.insetBy(dx: -8, dy: -8).contains(mouseLocation)
+        }
+
+        func shouldRehide(on screen: NSScreen, useIceBar: Bool, iceBarPanel: NSPanel?) -> Bool {
+            isMouseBelowMenuBar(on: screen)
+                && !isMouseInsideIceBar(useIceBar: useIceBar, panel: iceBarPanel)
+        }
+
         rehideMonitor = EventMonitor.universal(for: .mouseMoved) { [weak self] event in
             guard
                 let self,
@@ -260,7 +277,11 @@ final class MenuBarSection {
             else {
                 return event
             }
-            if isMouseBelowMenuBar(on: screen) {
+            if shouldRehide(
+                on: screen,
+                useIceBar: useIceBar,
+                iceBarPanel: menuBarManager?.iceBarPanel
+            ) {
                 if rehideTimer == nil {
                     rehideTimer = .scheduledTimer(
                         withTimeInterval: appState.settings.general.rehideInterval,
@@ -272,7 +293,11 @@ final class MenuBarSection {
                         else {
                             return
                         }
-                        if isMouseBelowMenuBar(on: screen) {
+                        if shouldRehide(
+                            on: screen,
+                            useIceBar: useIceBar,
+                            iceBarPanel: menuBarManager?.iceBarPanel
+                        ) {
                             Task {
                                 await self.hide()
                             }
