@@ -1,0 +1,221 @@
+name: Release
+
+# Build, sign (Developer ID + hardened runtime), notarize, staple, and publish
+# Ice 2 whenever a v* tag is pushed. Also publishes the Sparkle appcast to the
+# marketing site and bumps the Homebrew cask.
+#
+# Required repository secrets (Settings -> Secrets and variables -> Actions):
+#   DEVELOPER_ID_CERT_P12_BASE64  base64 of the "Developer ID Application" .p12
+#   DEVELOPER_ID_CERT_PASSWORD    password set when exporting the .p12
+#   NOTARY_KEY_P8_BASE64          base64 of the App Store Connect API key (.p8)
+#   NOTARY_KEY_ID                 the API key's Key ID
+#   NOTARY_ISSUER_ID              the API key's Issuer ID
+#   PUBLIC_RELEASE_TOKEN          PAT scoped to teddychan/www.dragonapp.com + homebrew-tap
+#   SPARKLE_EDDSA_PRIVATE_KEY     the shared Sparkle EdDSA private key
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: [self-hosted, macOS, ARM64]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve version
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          echo "TAG=${TAG}" >> "$GITHUB_ENV"
+          echo "VERSION=${TAG#v}" >> "$GITHUB_ENV"
+
+      - name: Import Developer ID certificate
+        env:
+          CERT_P12_BASE64: ${{ secrets.DEVELOPER_ID_CERT_P12_BASE64 }}
+          CERT_PASSWORD: ${{ secrets.DEVELOPER_ID_CERT_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CERT_P12_BASE64:-}" ]; then
+            echo "::error::DEVELOPER_ID_CERT_P12_BASE64 secret is not set." >&2
+            exit 1
+          fi
+          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(openssl rand -base64 24)"
+          CERT_PATH="$RUNNER_TEMP/developer_id.p12"
+          echo "$CERT_P12_BASE64" | base64 --decode > "$CERT_PATH"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$CERT_PATH" -P "$CERT_PASSWORD" -A -t cert -f pkcs12 \
+            -k "$KEYCHAIN_PATH" -T /usr/bin/codesign
+          for url in \
+            https://www.apple.com/certificateauthority/DeveloperIDG2CA.cer \
+            https://www.apple.com/certificateauthority/DeveloperIDCA.cer \
+            https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer; do
+            f="$RUNNER_TEMP/$(basename "$url")"
+            curl -fsSL -o "$f" "$url" && security import "$f" -k "$KEYCHAIN_PATH" >/dev/null 2>&1 || true
+          done
+          security set-key-partition-list -S apple-tool:,apple:,codesign: \
+            -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH" >/dev/null
+          security list-keychains -d user -s "$KEYCHAIN_PATH" \
+            $(security list-keychains -d user | sed s/\"//g)
+          IDENTITY="$(security find-identity -v -p codesigning "$KEYCHAIN_PATH" \
+            | grep 'Developer ID Application' | head -1 | awk '{print $2}')"
+          if [ -z "$IDENTITY" ]; then
+            echo "::error::No 'Developer ID Application' identity found." >&2
+            exit 1
+          fi
+          echo "SIGN_IDENTITY=$IDENTITY" >> "$GITHUB_ENV"
+          echo "KEYCHAIN_PATH=$KEYCHAIN_PATH" >> "$GITHUB_ENV"
+
+      - name: Archive + export (Developer ID)
+        run: |
+          set -euo pipefail
+          ARCHIVE="$RUNNER_TEMP/Ice.xcarchive"
+          EXPORT_DIR="$RUNNER_TEMP/export"
+          xcodebuild archive \
+            -project Ice.xcodeproj \
+            -scheme Ice \
+            -configuration Release \
+            -archivePath "$ARCHIVE" \
+            -derivedDataPath "$RUNNER_TEMP/dd" \
+            OTHER_CODE_SIGN_FLAGS="--keychain $KEYCHAIN_PATH" \
+            CODE_SIGN_IDENTITY="$SIGN_IDENTITY" \
+            CODE_SIGN_STYLE=Manual \
+            DEVELOPMENT_TEAM=4AF3KGGV29
+          xcodebuild -exportArchive \
+            -archivePath "$ARCHIVE" \
+            -exportPath "$EXPORT_DIR" \
+            -exportOptionsPlist .github/release/exportOptions.plist
+          APP="$(find "$EXPORT_DIR" -maxdepth 1 -name '*.app' | head -1)"
+          if [ -z "$APP" ]; then
+            echo "::error::No .app produced by exportArchive." >&2
+            exit 1
+          fi
+          echo "APP=$APP" >> "$GITHUB_ENV"
+          echo "DD=$RUNNER_TEMP/dd" >> "$GITHUB_ENV"
+          codesign --verify --strict --verbose=2 "$APP"
+
+      - name: Notarize and staple
+        env:
+          NOTARY_KEY_P8_BASE64: ${{ secrets.NOTARY_KEY_P8_BASE64 }}
+          NOTARY_KEY_ID: ${{ secrets.NOTARY_KEY_ID }}
+          NOTARY_ISSUER_ID: ${{ secrets.NOTARY_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          KEY_PATH="$RUNNER_TEMP/notary_key.p8"
+          echo "$NOTARY_KEY_P8_BASE64" | base64 --decode > "$KEY_PATH"
+          NOTARIZE_ZIP="$RUNNER_TEMP/notarize.zip"
+          ditto -c -k --sequesterRsrc --keepParent "$APP" "$NOTARIZE_ZIP"
+          CREDS=(--key "$KEY_PATH" --key-id "$NOTARY_KEY_ID" --issuer "$NOTARY_ISSUER_ID")
+          SUBMIT_JSON="$RUNNER_TEMP/submit.json"
+          xcrun notarytool submit "$NOTARIZE_ZIP" "${CREDS[@]}" --output-format json > "$SUBMIT_JSON"
+          SUBMISSION_ID="$(plutil -extract id raw -o - "$SUBMIT_JSON")"
+          echo "Notarization submission: $SUBMISSION_ID"
+          DEADLINE=$(( SECONDS + 3600 )); STATUS="In Progress"
+          while [ "$STATUS" = "In Progress" ]; do
+            if [ "$SECONDS" -ge "$DEADLINE" ]; then
+              echo "::error::Notarization timed out. Submission: $SUBMISSION_ID" >&2; exit 1
+            fi
+            sleep 30
+            if xcrun notarytool info "$SUBMISSION_ID" "${CREDS[@]}" --output-format json > "$RUNNER_TEMP/info.json" 2>/dev/null; then
+              STATUS="$(plutil -extract status raw -o - "$RUNNER_TEMP/info.json")"
+              echo "Status: $STATUS"
+            else
+              echo "::warning::poll failed (transient); re-polling $SUBMISSION_ID"
+            fi
+          done
+          if [ "$STATUS" != "Accepted" ]; then
+            echo "::error::Notarization status: $STATUS" >&2
+            xcrun notarytool log "$SUBMISSION_ID" "${CREDS[@]}" || true
+            exit 1
+          fi
+          xcrun stapler staple "$APP"
+          xcrun stapler validate "$APP"
+
+      - name: Zip notarized app
+        run: |
+          set -euo pipefail
+          ZIP="Ice-2-${TAG}.zip"
+          ditto -c -k --sequesterRsrc --keepParent "$APP" "${GITHUB_WORKSPACE}/${ZIP}"
+          echo "ZIP=${ZIP}" >> "$GITHUB_ENV"
+
+      - name: Upload to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 \
+            || gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --title "Ice 2 $TAG" --generate-notes
+          gh release upload "$TAG" "$ZIP" --repo "$GITHUB_REPOSITORY" --clobber
+
+      - name: Publish appcast (Sparkle auto-update)
+        env:
+          PUBLIC_RELEASE_TOKEN: ${{ secrets.PUBLIC_RELEASE_TOKEN }}
+          SPARKLE_EDDSA_PRIVATE_KEY: ${{ secrets.SPARKLE_EDDSA_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          SITE_REPO="teddychan/www.dragonapp.com"
+          if [ -z "${PUBLIC_RELEASE_TOKEN:-}" ] || [ -z "${SPARKLE_EDDSA_PRIVATE_KEY:-}" ]; then
+            echo "::warning::PUBLIC_RELEASE_TOKEN and/or SPARKLE_EDDSA_PRIVATE_KEY not set — skipping appcast."
+            exit 0
+          fi
+          GEN="$(find "$DD/SourcePackages/artifacts" -path '*sparkle/Sparkle/bin/generate_appcast' -type f | head -1)"
+          if [ -z "$GEN" ]; then
+            echo "::error::generate_appcast not found under DerivedData SourcePackages." >&2
+            exit 1
+          fi
+          WORK="$RUNNER_TEMP/appcast"; mkdir -p "$WORK"
+          cp "$ZIP" "$WORK/"
+          KEY_FILE="$RUNNER_TEMP/sparkle_ed_key"
+          printf '%s\n' "$SPARKLE_EDDSA_PRIVATE_KEY" > "$KEY_FILE"
+          "$GEN" --ed-key-file "$KEY_FILE" \
+            --download-url-prefix "https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/" \
+            "$WORK"
+          PAGES="$RUNNER_TEMP/pages"
+          REMOTE="https://x-access-token:${PUBLIC_RELEASE_TOKEN}@github.com/${SITE_REPO}.git"
+          git clone --depth 1 "$REMOTE" "$PAGES"
+          mkdir -p "$PAGES/docs/ice-2"
+          cp "$WORK/appcast.xml" "$PAGES/docs/ice-2/appcast.xml"
+          ( cd "$PAGES"
+            git config user.name "Ice 2 Release Bot"
+            git config user.email "release-bot@users.noreply.github.com"
+            git add docs/ice-2/appcast.xml
+            git commit -m "appcast: ice-2 ${TAG}" || { echo "appcast unchanged"; exit 0; }
+            git push origin HEAD:main )
+          echo "Published appcast → https://www.dragonapp.com/ice-2/appcast.xml"
+
+      - name: Bump Homebrew cask
+        env:
+          PUBLIC_RELEASE_TOKEN: ${{ secrets.PUBLIC_RELEASE_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAP_REPO="teddychan/homebrew-tap"
+          ASSET_URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/${ZIP}"
+          if [ -z "${PUBLIC_RELEASE_TOKEN:-}" ]; then
+            echo "::warning::PUBLIC_RELEASE_TOKEN not set — skipping cask bump."; exit 0
+          fi
+          if [ "$(curl -sI -L -o /dev/null -w '%{http_code}' "$ASSET_URL")" != "200" ]; then
+            echo "::warning::Public asset not live ($ASSET_URL) — skipping cask bump."; exit 0
+          fi
+          SHA="$(shasum -a 256 "${GITHUB_WORKSPACE}/${ZIP}" | awk '{print $1}')"
+          TAP_DIR="$RUNNER_TEMP/homebrew-tap"
+          REMOTE="https://x-access-token:${PUBLIC_RELEASE_TOKEN}@github.com/${TAP_REPO}.git"
+          git clone --depth 1 "$REMOTE" "$TAP_DIR"
+          CASK="$TAP_DIR/Casks/ice-2.rb"
+          /usr/bin/sed -i '' -E \
+            -e "s/^  version \".*\"/  version \"${VERSION}\"/" \
+            -e "s/^  sha256 \".*\"/  sha256 \"${SHA}\"/" \
+            "$CASK"
+          ( cd "$TAP_DIR"
+            git config user.name "Ice 2 Release Bot"
+            git config user.email "release-bot@users.noreply.github.com"
+            git add Casks/ice-2.rb
+            git commit -m "ice-2 ${VERSION}" || { echo "cask unchanged"; exit 0; }
+            git push origin HEAD:main )
+          echo "Bumped Homebrew cask → ice-2 ${VERSION} (${SHA})"
