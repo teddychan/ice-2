@@ -334,11 +334,19 @@ final class MenuBarOverlayPanel: NSPanel {
             return
         }
 
+        // `menuBarWindow.bounds` comes from `kCGWindowBounds`, which is in
+        // CoreGraphics global coordinates (origin at the top-left of the main
+        // display, Y increasing downward). `setFrame` expects AppKit
+        // coordinates (origin at the bottom-left, Y increasing upward), so the
+        // vertical origin must be converted. The horizontal extent (minX/width)
+        // is shared between both coordinate systems, so we keep it from the
+        // window bounds to track the real menu bar (e.g. on notched displays).
+        let menuBarHeight = menuBarWindow.bounds.height
         let newFrame = CGRect(
             x: menuBarWindow.bounds.minX,
-            y: menuBarWindow.bounds.minY - 5,
+            y: (owningScreen.frame.maxY - menuBarHeight) - 5,
             width: menuBarWindow.bounds.width,
-            height: menuBarWindow.bounds.height + 5
+            height: menuBarHeight + 5
         )
 
         alphaValue = 0

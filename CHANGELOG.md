@@ -34,6 +34,10 @@ This release focuses on stability fixes for Tahoe/macOS 26 and early macOS 27 be
 - Fixed hide-application-menus behavior so it can still run when Ice Bar is enabled. References upstream issue #879.
 - Fixed Option-click behavior so the always-hidden section can still be shown when regular Show on Click is disabled, and control-item Option-click falls back to normal expansion when the always-hidden section is disabled. References upstream issues #634 and #595.
 - Fixed Show on Scroll so discrete mouse-wheel events can toggle hidden menu bar items instead of only high-delta trackpad swipes. References upstream issue #717.
+- Excluded Ice's own spacer items from layout profiles, item groups, and trigger-based showing, so applying a profile or trigger no longer moves or clicks the app's spacer status items.
+- Fixed menu bar appearance overlay placement by converting the WindowServer menu bar bounds from CoreGraphics to AppKit coordinates, correcting the overlay's vertical position on non-primary displays.
+- Added a tag-based fallback when rehiding temporarily shown items, so an item is still returned to its original location if its owning app recreates its status window while shown.
+- Ensured default layout profile and item group names stay unique even after earlier profiles/groups are deleted.
 
 ### Known Limitations
 

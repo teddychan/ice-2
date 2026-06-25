@@ -177,7 +177,13 @@ final class MenuBarLayoutProfilesSettings: ObservableObject {
         let sections = MenuBarSection.Name.allCases.map { section in
             MenuBarLayoutProfile.SectionSnapshot(
                 section: section,
-                itemTags: appState.itemManager.itemCache.managedItems(for: section).map(\.tag)
+                // Exclude Ice's own spacer items: they are positioned by AppKit
+                // via their status-item autosave names, not by the layout system,
+                // so capturing them would have profile-apply synthetically move
+                // them (and surface phantom "Spacer" entries to the user).
+                itemTags: appState.itemManager.itemCache.managedItems(for: section)
+                    .filter { !$0.isSpacerItem }
+                    .map(\.tag)
             )
         }
         return MenuBarLayoutProfile(
@@ -224,7 +230,10 @@ final class MenuBarLayoutProfilesSettings: ObservableObject {
     private func uniqueItemTags(from items: [MenuBarItem]) -> [MenuBarItemTag] {
         var seen = Set<MenuBarItemTag>()
         return items.compactMap { item in
-            guard !item.isControlItem, !seen.contains(item.tag) else {
+            // Skip control items and Ice's own spacers: item groups are meant to
+            // temporarily reveal real third-party items, and clicking a spacer is
+            // a no-op that would only pollute the group with phantom entries.
+            guard !item.isControlItem, !item.isSpacerItem, !seen.contains(item.tag) else {
                 return nil
             }
             seen.insert(item.tag)
@@ -234,12 +243,29 @@ final class MenuBarLayoutProfilesSettings: ObservableObject {
 
     private func normalizedProfileName(_ name: String) -> String {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        return trimmed.isEmpty ? "Layout Profile \(profiles.count + 1)" : trimmed
+        guard trimmed.isEmpty else {
+            return trimmed
+        }
+        return uniqueDefaultName(prefix: "Layout Profile", existing: profiles.map(\.name))
     }
 
     private func normalizedGroupName(_ name: String) -> String {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        return trimmed.isEmpty ? "Item Group \(groups.count + 1)" : trimmed
+        guard trimmed.isEmpty else {
+            return trimmed
+        }
+        return uniqueDefaultName(prefix: "Item Group", existing: groups.map(\.name))
+    }
+
+    /// Returns "<prefix> N" using the smallest N that is not already taken,
+    /// so default names stay unique even after profiles/groups are deleted.
+    private func uniqueDefaultName(prefix: String, existing: [String]) -> String {
+        let taken = Set(existing)
+        var index = 1
+        while taken.contains("\(prefix) \(index)") {
+            index += 1
+        }
+        return "\(prefix) \(index)"
     }
 }
 

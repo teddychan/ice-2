@@ -1353,7 +1353,7 @@ extension MenuBarItemManager {
         hiddenControlItem: MenuBarItem
     ) async throws {
         var previousItem = hiddenControlItem
-        for item in items where item.isMovable {
+        for item in items where item.isMovable && !item.isSpacerItem {
             try await move(item: item, to: .rightOfItem(previousItem))
             previousItem = item
         }
@@ -1364,7 +1364,7 @@ extension MenuBarItemManager {
         controlItem: MenuBarItem
     ) async throws {
         var nextItem = controlItem
-        for item in items.reversed() where item.isMovable {
+        for item in items.reversed() where item.isMovable && !item.isSpacerItem {
             try await move(item: item, to: .leftOfItem(nextItem))
             nextItem = item
         }
@@ -1390,7 +1390,7 @@ extension MenuBarItemManager {
             itemCache.managedItems(for: .hidden) +
             itemCache.managedItems(for: .alwaysHidden)
         )
-        .filter { tags.contains($0.tag) }
+        .filter { tags.contains($0.tag) && !$0.isSpacerItem }
 
         for item in items {
             await temporarilyShow(item: item, clickingWith: mouseButton)
@@ -1625,7 +1625,15 @@ extension MenuBarItemManager {
         }
 
         while let context = currentContexts.popLast() {
-            guard let item = items.first(where: { $0.windowID == context.windowID }) else {
+            // Prefer the precise window identifier, but fall back to the tag if
+            // the owning process recreated the item's status window (which gives
+            // it a new CGWindowID) while it was temporarily shown. Without the
+            // fallback the item would be stranded in its shown position and
+            // never returned to its original location.
+            guard
+                let item = items.first(where: { $0.windowID == context.windowID })
+                    ?? items.first(where: { $0.tag == context.tag })
+            else {
                 continue
             }
             do {

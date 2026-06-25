@@ -356,26 +356,6 @@ final class MenuBarItemImageCache: ObservableObject {
         await updateCache(sections: sectionsNeedingDisplay)
     }
 
-    // MARK: Cache Failed
-
-    /// Returns a Boolean value that indicates whether caching menu bar items
-    /// failed for the given section.
-    @MainActor
-    func cacheFailed(for section: MenuBarSection.Name) -> Bool {
-        guard ScreenCapture.cachedCheckPermissions() else {
-            return true
-        }
-        let items = appState?.itemManager.itemCache[section] ?? []
-        guard !items.isEmpty else {
-            return false
-        }
-        let keys = Set(images.keys)
-        for item in items where keys.contains(ImageKey(item: item)) {
-            return false
-        }
-        return true
-    }
-
     /// Returns the captured image for the given menu bar item.
     func image(for item: MenuBarItem) -> CapturedImage? {
         images[ImageKey(item: item)]

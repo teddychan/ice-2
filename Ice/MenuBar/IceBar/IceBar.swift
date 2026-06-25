@@ -486,8 +486,7 @@ private struct IceBarItemView: View {
     }
 
     private var fallbackLabel: String {
-        let trimmed = item.displayName.trimmingCharacters(in: .whitespacesAndNewlines)
-        return String((trimmed.isEmpty ? "?" : trimmed).prefix(2)).uppercased()
+        item.fallbackAbbreviation
     }
 
     private var fallbackSize: CGSize {

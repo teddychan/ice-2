@@ -52,8 +52,7 @@ final class LayoutBarItemView: NSView {
 
     /// A short label to draw when no captured image exists for the item.
     private var fallbackLabel: String {
-        let trimmed = item.displayName.trimmingCharacters(in: .whitespacesAndNewlines)
-        return String((trimmed.isEmpty ? "?" : trimmed).prefix(2)).uppercased()
+        item.fallbackAbbreviation
     }
 
     /// A Boolean value that indicates whether the item view is a dragging placeholder.
