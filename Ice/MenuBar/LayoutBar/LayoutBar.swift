@@ -46,11 +46,6 @@ struct LayoutBar: View {
 
     @ViewBuilder
     private var mainContent: some View {
-        if imageCache.cacheFailed(for: section) {
-            Text("Unable to display menu bar items")
-                .font(.body)
-        } else {
-            Representable(appState: appState, section: section)
-        }
+        Representable(appState: appState, section: section)
     }
 }

@@ -156,13 +156,11 @@ final class MenuBarManager: ObservableObject {
 
                 // Don't continue if:
                 //   * The "HideApplicationMenus" setting isn't enabled.
-                //   * Using the Ice Bar.
                 //   * The menu bar is hidden by the system.
                 //   * The active space is fullscreen.
                 //   * The settings window is visible.
                 guard
                     appState.settings.advanced.hideApplicationMenus,
-                    !appState.settings.general.useIceBar,
                     !isMenuBarHiddenBySystem,
                     !appState.activeSpace.isFullscreen,
                     !appState.navigationState.isSettingsPresented
@@ -171,7 +169,7 @@ final class MenuBarManager: ObservableObject {
                 }
 
                 if sections.contains(where: { $0.controlItem.state == .showSection }) {
-                    guard let screen = NSScreen.main else {
+                    guard let screen = appState.hidEventManager.bestScreen(appState: appState) else {
                         return
                     }
 

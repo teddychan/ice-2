@@ -44,6 +44,12 @@ struct MenuBarItem: CustomStringConvertible {
         tag.isControlItem
     }
 
+    /// A Boolean value that indicates whether this item is one of Ice's
+    /// own spacer items.
+    var isSpacerItem: Bool {
+        tag.isSpacerItem
+    }
+
     /// A Boolean value that indicates whether this item is a "BentoBox"
     /// item owned by the Control Center.
     var isBentoBox: Bool {
@@ -90,6 +96,10 @@ struct MenuBarItem: CustomStringConvertible {
 
         guard !isControlItem else {
             return Constants.displayName
+        }
+
+        if tag.isSpacerItem {
+            return "Spacer"
         }
 
         lazy var fallbackName = "Menu Bar Item"
@@ -147,6 +157,13 @@ struct MenuBarItem: CustomStringConvertible {
         }
 
         return displayName
+    }
+
+    /// A short, two-character label suited for display when no captured
+    /// image is available for the item (e.g. in the Ice Bar or layout editor).
+    var fallbackAbbreviation: String {
+        let trimmed = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+        return String((trimmed.isEmpty ? "?" : trimmed).prefix(2)).uppercased()
     }
 
     /// A textual representation of the item.
@@ -368,6 +385,14 @@ private extension MenuBarItemTag.Namespace {
 
         if let title = itemWindow.title, title.hasPrefix("Ice.ControlItem.") {
             self = .ice
+            return
+        }
+
+        if
+            itemWindow.owningApplication?.bundleIdentifier == "com.apple.controlcenter",
+            itemWindow.title?.isEmpty == false
+        {
+            self = .controlCenter
             return
         }
 

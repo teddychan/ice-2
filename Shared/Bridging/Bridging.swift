@@ -109,6 +109,32 @@ extension Bridging {
         return uuid.takeRetainedValue()
     }
 
+    private static func getDisplayID(for screen: NSScreen?) -> CGDirectDisplayID? {
+        guard
+            let screen,
+            let screenNumber = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber
+        else {
+            return nil
+        }
+        return screenNumber.uint32Value
+    }
+
+    private static var screenWithMouseDisplayID: CGDirectDisplayID? {
+        guard let mouseLocation = CGEvent(source: nil)?.unflippedLocation else {
+            return nil
+        }
+        let screen = NSScreen.screens.first { $0.frame.contains(mouseLocation) }
+        return getDisplayID(for: screen)
+    }
+
+    private static var activeMenuBarFallbackDisplayID: CGDirectDisplayID {
+        let mainDisplayID = getDisplayID(for: NSScreen.main) ?? CGMainDisplayID()
+        guard NSScreen.screensHaveSeparateSpaces else {
+            return mainDisplayID
+        }
+        return screenWithMouseDisplayID ?? mainDisplayID
+    }
+
     // MARK: Public Display API
 
     /// Returns the identifier of the display with the active menu bar.
@@ -118,9 +144,10 @@ extension Bridging {
            let id = getActiveDisplayList().first(where: { getDisplayUUID(for: $0) == uuid }) {
             return id
         }
-        // CGSCopyActiveMenuBarDisplayIdentifier returns nil on macOS 26.4.1.
-        let fallback = CGMainDisplayID()
-        logger.warning("CGSCopyActiveMenuBarDisplayIdentifier unavailable, using CGMainDisplayID=\(fallback, privacy: .public)")
+        // CGSCopyActiveMenuBarDisplayIdentifier returns nil on recent Tahoe builds.
+        // Prefer the pointer display only when macOS can show menu bars per Space.
+        let fallback = activeMenuBarFallbackDisplayID
+        logger.warning("CGSCopyActiveMenuBarDisplayIdentifier unavailable, using fallback displayID=\(fallback, privacy: .public)")
         return fallback
     }
 }

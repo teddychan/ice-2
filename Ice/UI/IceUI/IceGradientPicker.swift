@@ -266,8 +266,15 @@ private struct IceGradientPickerRoot: View {
     }
 
     private func openColorPanel() {
+        NSColorPanel.shared.hidesOnDeactivate = false
+        NSColorPanel.shared.isContinuous = true
+        if NSColorPanel.shared.showsAlpha != supportsOpacity {
+            NSColorPanel.shared.showsAlpha = supportsOpacity
+        }
         if !NSColorPanel.shared.isVisible {
-            NSColorPanel.shared.orderFrontRegardless()
+            NSColorPanel.shared.makeKeyAndOrderFront(nil)
+        } else {
+            NSColorPanel.shared.makeKey()
         }
     }
 

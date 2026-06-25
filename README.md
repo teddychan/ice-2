@@ -35,6 +35,28 @@ Install Ice 2 using the following command:
 brew install --cask teddychan/tap/ice-2
 ```
 
+## Uninstall
+
+Quit Ice 2 before uninstalling.
+
+If you installed with Homebrew:
+
+```sh
+brew uninstall --cask teddychan/tap/ice-2
+```
+
+If you installed manually, delete `Ice 2.app` from your `Applications` folder.
+
+To also remove Ice 2 settings and cached data:
+
+```sh
+rm -rf ~/Library/Application\ Support/com.jordanbaird.Ice \
+       ~/Library/Caches/com.jordanbaird.Ice \
+       ~/Library/HTTPStorages/com.jordanbaird.Ice \
+       ~/Library/Preferences/com.jordanbaird.Ice.plist \
+       ~/Library/Saved\ Application\ State/com.jordanbaird.Ice.savedState
+```
+
 ## Features/Roadmap
 
 ### Menu bar item management
@@ -50,10 +72,10 @@ brew install --cask teddychan/tap/ice-2
 - [x] Display hidden menu bar items in a separate bar (e.g. for MacBooks with the notch)
 - [x] Search menu bar items
 - [x] Menu bar item spacing (BETA)
-- [ ] Profiles for menu bar layout
-- [ ] Individual spacer items
-- [ ] Menu bar item groups
-- [ ] Show menu bar items when trigger conditions are met
+- [x] Profiles for menu bar layout
+- [x] Individual spacer items
+- [x] Menu bar item groups
+- [x] Show menu bar items when trigger conditions are met
 
 ### Menu bar appearance
 
@@ -61,9 +83,9 @@ brew install --cask teddychan/tap/ice-2
 - [x] Menu bar shadow
 - [x] Menu bar border
 - [x] Custom menu bar shapes (rounded and/or split)
-- [ ] Remove background behind menu bar
-- [ ] Rounded screen corners
-- [ ] Different settings for light/dark mode
+- [x] Different settings for light/dark mode
+- [x] Remove background behind menu bar
+- [x] Rounded screen corners
 
 ### Hotkeys
 
@@ -72,8 +94,8 @@ brew install --cask teddychan/tap/ice-2
 - [x] Enable/disable the Ice 2 Bar
 - [x] Show/hide section divider icons
 - [x] Toggle application menus
-- [ ] Enable/disable auto rehide
-- [ ] Temporarily show individual menu bar items
+- [x] Enable/disable auto rehide
+- [x] Temporarily show individual menu bar items
 
 ### Other
 

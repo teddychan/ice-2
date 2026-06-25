@@ -81,8 +81,16 @@ class Permission: ObservableObject, Identifiable {
                 guard let self else {
                     return
                 }
-                hasPermission = check()
+                refresh()
             }
+    }
+
+    /// Rechecks whether the app has this permission.
+    @discardableResult
+    func refresh() -> Bool {
+        let hasPermission = check()
+        self.hasPermission = hasPermission
+        return hasPermission
     }
 
     /// Performs the request and opens the System Settings app to the appropriate pane.
@@ -170,7 +178,10 @@ final class AccessibilityPermission: Permission {
             ],
             isRequired: true,
             mayRequireRelaunch: false,
-            settingsURLs: [],
+            settingsURLs: [
+                URL(string: "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_Accessibility"),
+                URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"),
+            ].compactMap { $0 },
             check: {
                 AXHelpers.isProcessTrusted()
             },

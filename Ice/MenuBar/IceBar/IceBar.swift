@@ -19,6 +19,9 @@ final class IceBarPanel: NSPanel {
     /// The currently displayed section.
     private(set) var currentSection: MenuBarSection.Name?
 
+    /// The timestamp of the most recent show operation.
+    private var lastShowTimestamp: ContinuousClock.Instant?
+
     /// Storage for internal observers.
     private var cancellables = Set<AnyCancellable>()
 
@@ -93,6 +96,20 @@ final class IceBarPanel: NSPanel {
                     // Icon is not vertically visible. We can infer that the
                     // menu bar is hidden.
                     if frame.maxY > screen.frame.maxY {
+                        guard !recentlyShown(within: .milliseconds(500)) else {
+                            Task {
+                                try? await Task.sleep(for: .milliseconds(500))
+                                guard
+                                    let frame = controlItem.frame,
+                                    let screen = controlItem.screen,
+                                    frame.maxY > screen.frame.maxY
+                                else {
+                                    return
+                                }
+                                self.hide()
+                            }
+                            return
+                        }
                         hide()
                     }
                 }
@@ -102,18 +119,26 @@ final class IceBarPanel: NSPanel {
         cancellables = c
     }
 
-    /// Updates the panel's frame origin for display on the given screen.
-    private func updateOrigin(for screen: NSScreen) {
+    /// Returns whether the panel was recently shown within the given duration.
+    private func recentlyShown(within duration: Duration) -> Bool {
+        guard let lastShowTimestamp else {
+            return false
+        }
+        return lastShowTimestamp.duration(to: .now) <= duration
+    }
+
+    /// Returns the panel's frame origin for display on the given screen.
+    private func origin(for screen: NSScreen, size: CGSize) -> CGPoint? {
         guard let appState else {
-            return
+            return nil
         }
 
         func getOrigin(for iceBarLocation: IceBarLocation) -> CGPoint {
             let menuBarHeight = screen.getMenuBarHeight() ?? 0
-            let originY = ((screen.frame.maxY - 1) - menuBarHeight) - frame.height
+            let originY = ((screen.frame.maxY - 1) - menuBarHeight) - size.height
 
             var originForRightOfScreen: CGPoint {
-                CGPoint(x: screen.frame.maxX - frame.width, y: originY)
+                CGPoint(x: screen.frame.maxX - size.width, y: originY)
             }
 
             switch iceBarLocation {
@@ -128,16 +153,16 @@ final class IceBarPanel: NSPanel {
                 }
 
                 let lowerBound = screen.frame.minX
-                let upperBound = screen.frame.maxX - frame.width
+                let upperBound = screen.frame.maxX - size.width
 
                 guard lowerBound <= upperBound else {
                     return originForRightOfScreen
                 }
 
-                return CGPoint(x: (location.x - frame.width / 2).clamped(to: lowerBound...upperBound), y: originY)
+                return CGPoint(x: (location.x - size.width / 2).clamped(to: lowerBound...upperBound), y: originY)
             case .iceIcon:
                 let lowerBound = screen.frame.minX
-                let upperBound = screen.frame.maxX - frame.width
+                let upperBound = screen.frame.maxX - size.width
 
                 guard
                     lowerBound <= upperBound,
@@ -149,11 +174,19 @@ final class IceBarPanel: NSPanel {
                     return originForRightOfScreen
                 }
 
-                return CGPoint(x: (itemBounds.midX - frame.width / 2).clamped(to: lowerBound...upperBound), y: originY)
+                return CGPoint(x: (itemBounds.midX - size.width / 2).clamped(to: lowerBound...upperBound), y: originY)
             }
         }
 
-        setFrameOrigin(getOrigin(for: appState.settings.general.iceBarLocation))
+        return getOrigin(for: appState.settings.general.iceBarLocation)
+    }
+
+    /// Updates the panel's frame origin for display on the given screen.
+    private func updateOrigin(for screen: NSScreen) {
+        guard let origin = origin(for: screen, size: frame.size) else {
+            return
+        }
+        setFrameOrigin(origin)
     }
 
     /// Shows the panel on the given screen, displaying the given
@@ -167,6 +200,7 @@ final class IceBarPanel: NSPanel {
         // before updating the caches.
         appState.navigationState.isIceBarPresented = true
         currentSection = section
+        lastShowTimestamp = .now
 
         let cacheTask = Task(timeout: .seconds(1)) {
             await appState.itemManager.cacheItemsIfNeeded()
@@ -179,14 +213,22 @@ final class IceBarPanel: NSPanel {
             Logger.default.error("Cache update failed when showing IceBarPanel - \(error)")
         }
 
-        contentView = IceBarHostingView(
+        let hostingView = IceBarHostingView(
             appState: appState,
             colorManager: colorManager,
             screen: screen,
             section: section
         )
+        hostingView.setFrameSize(hostingView.intrinsicContentSize)
 
-        updateOrigin(for: screen)
+        let size = hostingView.frame.size
+        let origin = origin(for: screen, size: size) ?? CGPoint(
+            x: screen.frame.maxX - size.width,
+            y: screen.visibleFrame.maxY - size.height
+        )
+        setFrame(CGRect(origin: origin, size: size), display: true)
+
+        contentView = hostingView
 
         // Color manager must be updated after updating the panel's origin,
         // but before it is shown.
@@ -368,9 +410,6 @@ private struct IceBarContentView: View {
                     .controlSize(.small)
             }
             .padding(.horizontal, 10)
-        } else if imageCache.cacheFailed(for: section) {
-            Text("Unable to display menu bar items")
-                .padding(.horizontal, 10)
         } else {
             ScrollView(.horizontal) {
                 HStack(spacing: 0) {
@@ -440,26 +479,47 @@ private struct IceBarItemView: View {
     }
 
     private var image: NSImage? {
-        guard let cachedImage = imageCache.images[item.tag] else {
+        guard let cachedImage = imageCache.image(for: item) else {
             return nil
         }
         return cachedImage.nsImage
     }
 
+    private var fallbackLabel: String {
+        item.fallbackAbbreviation
+    }
+
+    private var fallbackSize: CGSize {
+        let width = item.bounds.width.clamped(min: 20, max: 42)
+        let height = item.bounds.height.clamped(min: 20, max: 28)
+        return CGSize(width: width, height: height)
+    }
+
     var body: some View {
+        itemContent
+            .contentShape(Rectangle())
+            .overlay {
+                IceBarItemClickView(
+                    item: item,
+                    leftClickAction: leftClickAction,
+                    rightClickAction: rightClickAction
+                )
+            }
+            .accessibilityLabel(item.displayName)
+            .accessibilityAction(named: "left click", leftClickAction)
+            .accessibilityAction(named: "right click", rightClickAction)
+    }
+
+    @ViewBuilder
+    private var itemContent: some View {
         if let image {
             Image(nsImage: image)
-                .contentShape(Rectangle())
-                .overlay {
-                    IceBarItemClickView(
-                        item: item,
-                        leftClickAction: leftClickAction,
-                        rightClickAction: rightClickAction
-                    )
-                }
-                .accessibilityLabel(item.displayName)
-                .accessibilityAction(named: "left click", leftClickAction)
-                .accessibilityAction(named: "right click", rightClickAction)
+        } else {
+            Text(fallbackLabel)
+                .font(.system(size: 10, weight: .semibold))
+                .foregroundStyle(.primary)
+                .frame(width: fallbackSize.width, height: fallbackSize.height)
+                .background(.quaternary, in: RoundedRectangle(cornerRadius: 4, style: .continuous))
         }
     }
 }

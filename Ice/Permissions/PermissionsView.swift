@@ -6,6 +6,8 @@
 import SwiftUI
 
 struct PermissionsView: View {
+    @Environment(\.scenePhase) private var scenePhase
+
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var manager: AppPermissions
 
@@ -41,6 +43,15 @@ struct PermissionsView: View {
         .padding(.horizontal)
         .frame(width: 550)
         .fixedSize()
+        .onAppear {
+            manager.refreshAllPermissions()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            guard newPhase == .active else {
+                return
+            }
+            manager.refreshAllPermissions()
+        }
     }
 
     @ViewBuilder
@@ -87,6 +98,7 @@ struct PermissionsView: View {
     private var footerView: some View {
         HStack {
             quitButton
+            recheckButton
             continueButton
         }
         .controlSize(.large)
@@ -98,6 +110,16 @@ struct PermissionsView: View {
             NSApp.terminate(nil)
         } label: {
             Text("Quit")
+                .frame(maxWidth: .infinity)
+        }
+    }
+
+    @ViewBuilder
+    private var recheckButton: some View {
+        Button {
+            manager.refreshAllPermissions()
+        } label: {
+            Text("Check Again")
                 .frame(maxWidth: .infinity)
         }
     }
@@ -151,10 +173,7 @@ struct PermissionsView: View {
 
                 Button {
                     permission.performRequest()
-                    if permission.mayRequireRelaunch {
-                        appState.activate(withPolicy: .regular)
-                        appState.openWindow(.permissions)
-                    } else {
+                    if !permission.mayRequireRelaunch {
                         Task {
                             await permission.waitForPermission()
                             appState.activate(withPolicy: .regular)

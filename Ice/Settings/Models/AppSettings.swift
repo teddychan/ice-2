@@ -17,6 +17,12 @@ final class AppSettings: ObservableObject {
     /// The model for the app's Hotkeys settings.
     let hotkeys = HotkeysSettings()
 
+    /// The model for the app's menu bar layout profile settings.
+    let layoutProfiles = MenuBarLayoutProfilesSettings()
+
+    /// The model for menu bar trigger settings.
+    let triggers = MenuBarTriggerSettings()
+
     /// Storage for internal observers.
     private var cancellables = Set<AnyCancellable>()
 
@@ -25,6 +31,8 @@ final class AppSettings: ObservableObject {
         advanced.performSetup(with: appState)
         general.performSetup(with: appState)
         hotkeys.performSetup(with: appState)
+        layoutProfiles.performSetup(with: appState)
+        triggers.performSetup(with: appState)
         configureCancellables()
     }
 
@@ -42,6 +50,16 @@ final class AppSettings: ObservableObject {
             }
             .store(in: &c)
         hotkeys.objectWillChange
+            .sink { [weak self] in
+                self?.objectWillChange.send()
+            }
+            .store(in: &c)
+        layoutProfiles.objectWillChange
+            .sink { [weak self] in
+                self?.objectWillChange.send()
+            }
+            .store(in: &c)
+        triggers.objectWillChange
             .sink { [weak self] in
                 self?.objectWillChange.send()
             }

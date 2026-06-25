@@ -105,6 +105,12 @@ final class MenuBarAppearanceManager: ObservableObject {
     /// is needed for the given configuration.
     private func needsOverlayPanels(for configuration: MenuBarAppearanceConfigurationV2) -> Bool {
         let current = configuration.current
+        if configuration.removesMenuBarBackground {
+            return true
+        }
+        if configuration.roundsScreenCorners {
+            return true
+        }
         if current.hasShadow {
             return true
         }

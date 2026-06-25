@@ -7,12 +7,15 @@ enum HotkeyAction: String, Codable, CaseIterable {
     // Menu Bar Sections
     case toggleHiddenSection = "ToggleHiddenSection"
     case toggleAlwaysHiddenSection = "ToggleAlwaysHiddenSection"
+    case toggleSectionDividerIcons = "ToggleSectionDividerIcons"
 
     // Menu Bar Items
     case searchMenuBarItems = "SearchMenuBarItems"
+    case temporarilyShowMenuBarItem = "TemporarilyShowMenuBarItem"
 
     // Other
     case enableIceBar = "EnableIceBar"
+    case toggleAutoRehide = "ToggleAutoRehide"
     case toggleApplicationMenus = "ToggleApplicationMenus"
 
     @MainActor
@@ -36,10 +39,17 @@ enum HotkeyAction: String, Codable, CaseIterable {
             if !section.isHidden {
                 appState.menuBarManager.showOnHoverAllowed = false
             }
+        case .toggleSectionDividerIcons:
+            let settings = appState.settings.advanced
+            settings.sectionDividerStyle = settings.sectionDividerStyle == .noDivider ? .chevron : .noDivider
         case .searchMenuBarItems:
             appState.menuBarManager.searchPanel.toggle()
+        case .temporarilyShowMenuBarItem:
+            appState.menuBarManager.searchPanel.show(mode: .temporarilyShow)
         case .enableIceBar:
             appState.settings.general.useIceBar.toggle()
+        case .toggleAutoRehide:
+            appState.settings.general.autoRehide.toggle()
         case .toggleApplicationMenus:
             appState.menuBarManager.toggleApplicationMenus()
         }

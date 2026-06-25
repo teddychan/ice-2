@@ -129,6 +129,13 @@ final class SourcePIDCache {
             apps = lhs + rhs
         }
 
+        /// Returns whether an accessibility menu extra frame matches a
+        /// menu bar item window frame. AX and CGWindow frames can differ
+        /// by a pixel or two while apps are finishing launch.
+        private func framesMatch(_ lhs: CGRect, _ rhs: CGRect) -> Bool {
+            lhs.center.distance(to: rhs.center) <= 2
+        }
+
         /// Updates the cached process identifier for the given window.
         mutating func updatePID(for window: WindowInfo) {
             guard
@@ -150,7 +157,7 @@ final class SourcePIDCache {
                     }
                     guard
                         let childFrame = AXHelpers.frame(for: child),
-                        childFrame.center.distance(to: windowBounds.center) <= 1
+                        framesMatch(childFrame, windowBounds)
                     else {
                         continue
                     }
