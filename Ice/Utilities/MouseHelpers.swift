@@ -4,10 +4,17 @@
 //
 
 import CoreGraphics
+import Foundation
 import OSLog
 
 /// A namespace for mouse helper operations.
 enum MouseHelpers {
+    /// Lock protecting cursor hide depth.
+    private static let cursorLock = NSLock()
+
+    /// The number of Ice operations currently requesting a hidden cursor.
+    private static var cursorHideDepth = 0
+
     /// Returns the location of the mouse cursor in the coordinate
     /// space used by `AppKit`, with the origin at the bottom left
     /// of the screen.
@@ -24,15 +31,37 @@ enum MouseHelpers {
 
     /// Hides the mouse cursor and increments the hide cursor count.
     static func hideCursor() {
-        let result = CGDisplayHideCursor(CGMainDisplayID())
-        if result != .success {
-            Logger.default.error("CGDisplayHideCursor failed with error \(result.logString, privacy: .public)")
+        cursorLock.lock()
+        defer {
+            cursorLock.unlock()
         }
+
+        if cursorHideDepth == 0 {
+            let result = CGDisplayHideCursor(CGMainDisplayID())
+            if result != .success {
+                Logger.default.error("CGDisplayHideCursor failed with error \(result.logString, privacy: .public)")
+            }
+        }
+        cursorHideDepth += 1
     }
 
     /// Decrements the hide cursor count and shows the mouse cursor
     /// if the count is `0`.
     static func showCursor() {
+        cursorLock.lock()
+        defer {
+            cursorLock.unlock()
+        }
+
+        guard cursorHideDepth > 0 else {
+            return
+        }
+
+        cursorHideDepth -= 1
+        guard cursorHideDepth == 0 else {
+            return
+        }
+
         let result = CGDisplayShowCursor(CGMainDisplayID())
         if result != .success {
             Logger.default.error("CGDisplayShowCursor failed with error \(result.logString, privacy: .public)")

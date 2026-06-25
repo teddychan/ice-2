@@ -372,6 +372,14 @@ private extension MenuBarItemTag.Namespace {
         }
 
         if
+            itemWindow.owningApplication?.bundleIdentifier == "com.apple.controlcenter",
+            itemWindow.title?.isEmpty == false
+        {
+            self = .controlCenter
+            return
+        }
+
+        if
             let app = itemWindow.owningApplication,
             app.bundleIdentifier != "com.apple.controlcenter"
         {

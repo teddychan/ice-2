@@ -27,7 +27,7 @@ final class MenuBarAppearanceEditorPanel: NSPanel {
     init() {
         super.init(
             contentRect: .zero,
-            styleMask: [.titled, .closable, .fullSizeContentView, .nonactivatingPanel],
+            styleMask: [.titled, .closable, .fullSizeContentView],
             backing: .buffered,
             defer: false
         )
@@ -88,6 +88,7 @@ final class MenuBarAppearanceEditorPanel: NSPanel {
 
     /// Shows the panel on the given screen.
     func show(on screen: NSScreen) {
+        appState?.activate(withPolicy: .regular)
         updatePosition(for: screen)
         makeKeyAndOrderFront(nil)
     }

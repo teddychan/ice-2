@@ -19,6 +19,9 @@ final class IceBarPanel: NSPanel {
     /// The currently displayed section.
     private(set) var currentSection: MenuBarSection.Name?
 
+    /// The timestamp of the most recent show operation.
+    private var lastShowTimestamp: ContinuousClock.Instant?
+
     /// Storage for internal observers.
     private var cancellables = Set<AnyCancellable>()
 
@@ -93,6 +96,20 @@ final class IceBarPanel: NSPanel {
                     // Icon is not vertically visible. We can infer that the
                     // menu bar is hidden.
                     if frame.maxY > screen.frame.maxY {
+                        guard !recentlyShown(within: .milliseconds(500)) else {
+                            Task {
+                                try? await Task.sleep(for: .milliseconds(500))
+                                guard
+                                    let frame = controlItem.frame,
+                                    let screen = controlItem.screen,
+                                    frame.maxY > screen.frame.maxY
+                                else {
+                                    return
+                                }
+                                self.hide()
+                            }
+                            return
+                        }
                         hide()
                     }
                 }
@@ -100,6 +117,14 @@ final class IceBarPanel: NSPanel {
         }
 
         cancellables = c
+    }
+
+    /// Returns whether the panel was recently shown within the given duration.
+    private func recentlyShown(within duration: Duration) -> Bool {
+        guard let lastShowTimestamp else {
+            return false
+        }
+        return lastShowTimestamp.duration(to: .now) <= duration
     }
 
     /// Updates the panel's frame origin for display on the given screen.
@@ -167,6 +192,7 @@ final class IceBarPanel: NSPanel {
         // before updating the caches.
         appState.navigationState.isIceBarPresented = true
         currentSection = section
+        lastShowTimestamp = .now
 
         let cacheTask = Task(timeout: .seconds(1)) {
             await appState.itemManager.cacheItemsIfNeeded()
@@ -368,9 +394,6 @@ private struct IceBarContentView: View {
                     .controlSize(.small)
             }
             .padding(.horizontal, 10)
-        } else if imageCache.cacheFailed(for: section) {
-            Text("Unable to display menu bar items")
-                .padding(.horizontal, 10)
         } else {
             ScrollView(.horizontal) {
                 HStack(spacing: 0) {
@@ -440,26 +463,48 @@ private struct IceBarItemView: View {
     }
 
     private var image: NSImage? {
-        guard let cachedImage = imageCache.images[item.tag] else {
+        guard let cachedImage = imageCache.image(for: item) else {
             return nil
         }
         return cachedImage.nsImage
     }
 
+    private var fallbackLabel: String {
+        let trimmed = item.displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+        return String((trimmed.isEmpty ? "?" : trimmed).prefix(2)).uppercased()
+    }
+
+    private var fallbackSize: CGSize {
+        let width = item.bounds.width.clamped(min: 20, max: 42)
+        let height = item.bounds.height.clamped(min: 20, max: 28)
+        return CGSize(width: width, height: height)
+    }
+
     var body: some View {
+        itemContent
+            .contentShape(Rectangle())
+            .overlay {
+                IceBarItemClickView(
+                    item: item,
+                    leftClickAction: leftClickAction,
+                    rightClickAction: rightClickAction
+                )
+            }
+            .accessibilityLabel(item.displayName)
+            .accessibilityAction(named: "left click", leftClickAction)
+            .accessibilityAction(named: "right click", rightClickAction)
+    }
+
+    @ViewBuilder
+    private var itemContent: some View {
         if let image {
             Image(nsImage: image)
-                .contentShape(Rectangle())
-                .overlay {
-                    IceBarItemClickView(
-                        item: item,
-                        leftClickAction: leftClickAction,
-                        rightClickAction: rightClickAction
-                    )
-                }
-                .accessibilityLabel(item.displayName)
-                .accessibilityAction(named: "left click", leftClickAction)
-                .accessibilityAction(named: "right click", rightClickAction)
+        } else {
+            Text(fallbackLabel)
+                .font(.system(size: 10, weight: .semibold))
+                .foregroundStyle(.primary)
+                .frame(width: fallbackSize.width, height: fallbackSize.height)
+                .background(.quaternary, in: RoundedRectangle(cornerRadius: 4, style: .continuous))
         }
     }
 }

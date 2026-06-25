@@ -69,7 +69,7 @@ final class MenuBarSection {
         guard let appState else {
             return nil
         }
-        if appState.activeSpace.isFullscreen {
+        if appState.activeSpace.isFullscreen || NSScreen.screensHaveSeparateSpaces {
             return NSScreen.screenWithMouse ?? NSScreen.main
         } else {
             return NSScreen.main
@@ -249,7 +249,7 @@ final class MenuBarSection {
         rehideMonitor = EventMonitor.universal(for: .mouseMoved) { [weak self] event in
             guard
                 let self,
-                let screen = NSScreen.main
+                let screen = NSScreen.screenWithMouse ?? NSScreen.main
             else {
                 return event
             }
@@ -261,7 +261,7 @@ final class MenuBarSection {
                     ) { [weak self] _ in
                         guard
                             let self,
-                            let screen = NSScreen.main
+                            let screen = NSScreen.screenWithMouse ?? NSScreen.main
                         else {
                             return
                         }

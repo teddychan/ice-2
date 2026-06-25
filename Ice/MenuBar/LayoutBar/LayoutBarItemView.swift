@@ -37,10 +37,23 @@ final class LayoutBarItemView: NSView {
             if let image = cachedImage {
                 setFrameSize(image.scaledSize)
             } else {
-                setFrameSize(.zero)
+                setFrameSize(fallbackSize)
             }
             needsDisplay = true
         }
+    }
+
+    /// The size to use when screen capture cannot provide an item image.
+    private var fallbackSize: CGSize {
+        let width = item.bounds.width.clamped(min: 22, max: 48)
+        let height = item.bounds.height.clamped(min: 22, max: 28)
+        return CGSize(width: width, height: height)
+    }
+
+    /// A short label to draw when no captured image exists for the item.
+    private var fallbackLabel: String {
+        let trimmed = item.displayName.trimmingCharacters(in: .whitespacesAndNewlines)
+        return String((trimmed.isEmpty ? "?" : trimmed).prefix(2)).uppercased()
     }
 
     /// A Boolean value that indicates whether the item view is a dragging placeholder.
@@ -85,7 +98,7 @@ final class LayoutBarItemView: NSView {
         if let appState {
             appState.imageCache.$images
                 .sink { [weak self] images in
-                    guard let self, let cachedImage = images[item.tag] else {
+                    guard let self, let cachedImage = images[.init(item: item)] else {
                         return
                     }
                     self.cachedImage = cachedImage
@@ -94,6 +107,45 @@ final class LayoutBarItemView: NSView {
         }
 
         cancellables = c
+    }
+
+    /// Draws a visible fallback for items whose image capture failed.
+    private func drawFallback(in rect: NSRect) {
+        let insetRect = rect.insetBy(dx: 2, dy: 3)
+        let path = NSBezierPath(roundedRect: insetRect, xRadius: 5, yRadius: 5)
+        NSColor.controlAccentColor.withAlphaComponent(isEnabled ? 0.18 : 0.1).setFill()
+        path.fill()
+        NSColor.separatorColor.withAlphaComponent(0.65).setStroke()
+        path.lineWidth = 1
+        path.stroke()
+
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: NSFont.systemFont(ofSize: 10, weight: .semibold),
+            .foregroundColor: NSColor.labelColor.withAlphaComponent(isEnabled ? 0.9 : 0.5),
+            .paragraphStyle: {
+                let style = NSMutableParagraphStyle()
+                style.alignment = .center
+                return style
+            }(),
+        ]
+        let attributedLabel = NSAttributedString(string: fallbackLabel, attributes: attributes)
+        let labelSize = attributedLabel.size()
+        let labelRect = NSRect(
+            x: rect.midX - labelSize.width / 2,
+            y: rect.midY - labelSize.height / 2,
+            width: labelSize.width,
+            height: labelSize.height
+        )
+        attributedLabel.draw(in: labelRect)
+    }
+
+    /// Returns a rendered fallback image for drag sessions.
+    private func fallbackDragImage() -> NSImage {
+        let image = NSImage(size: bounds.size)
+        image.lockFocus()
+        drawFallback(in: NSRect(origin: .zero, size: bounds.size))
+        image.unlockFocus()
+        return image
     }
 
     /// Provides an alert to display when the item view is disabled.
@@ -113,12 +165,16 @@ final class LayoutBarItemView: NSView {
 
     override func draw(_ dirtyRect: NSRect) {
         if !isDraggingPlaceholder {
-            cachedImage?.nsImage.draw(
-                in: bounds,
-                from: .zero,
-                operation: .sourceOver,
-                fraction: isEnabled ? 1.0 : 0.67
-            )
+            if let cachedImage {
+                cachedImage.nsImage.draw(
+                    in: bounds,
+                    from: .zero,
+                    operation: .sourceOver,
+                    fraction: isEnabled ? 1.0 : 0.67
+                )
+            } else {
+                drawFallback(in: bounds)
+            }
             if Bridging.isProcessUnresponsive(item.ownerPID) {
                 let warningImage = NSImage.warning
                 let width: CGFloat = 15
@@ -159,7 +215,7 @@ final class LayoutBarItemView: NSView {
         pasteboardItem.setData(Data(), forType: .layoutBarItem)
 
         let draggingItem = NSDraggingItem(pasteboardWriter: pasteboardItem)
-        draggingItem.setDraggingFrame(bounds, contents: cachedImage?.nsImage)
+        draggingItem.setDraggingFrame(bounds, contents: cachedImage?.nsImage ?? fallbackDragImage())
 
         beginDraggingSession(with: [draggingItem], event: event, source: self)
     }

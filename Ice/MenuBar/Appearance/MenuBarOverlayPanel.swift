@@ -330,15 +330,15 @@ final class MenuBarOverlayPanel: NSPanel {
             return
         }
 
-        guard let menuBarHeight = owningScreen.getMenuBarHeight() else {
+        guard let menuBarWindow = WindowInfo.menuBarWindow(from: windows, for: owningScreen.displayID) else {
             return
         }
 
         let newFrame = CGRect(
-            x: owningScreen.frame.minX,
-            y: (owningScreen.frame.maxY - menuBarHeight) - 5,
-            width: owningScreen.frame.width,
-            height: menuBarHeight + 5
+            x: menuBarWindow.bounds.minX,
+            y: menuBarWindow.bounds.minY - 5,
+            width: menuBarWindow.bounds.width,
+            height: menuBarWindow.bounds.height + 5
         )
 
         alphaValue = 0
@@ -619,16 +619,21 @@ private final class MenuBarOverlayPanelContentView: NSView {
 
     /// Draws the tint defined by the given configuration in the given rectangle.
     private func drawTint(in rect: CGRect) {
+        let alpha: CGFloat = switch fullConfiguration.shapeKind {
+        case .noShape: 0.2
+        case .full, .split: 0.75
+        }
+
         switch configuration.tintKind {
         case .noTint:
             break
         case .solid:
-            if let tintColor = NSColor(cgColor: configuration.tintColor)?.withAlphaComponent(0.2) {
+            if let tintColor = NSColor(cgColor: configuration.tintColor)?.withAlphaComponent(alpha) {
                 tintColor.setFill()
                 rect.fill()
             }
         case .gradient:
-            if let tintGradient = configuration.tintGradient.withAlpha(0.2).nsGradient(using: .displayP3) {
+            if let tintGradient = configuration.tintGradient.withAlpha(alpha).nsGradient(using: .displayP3) {
                 tintGradient.draw(in: rect, angle: 0)
             }
         }

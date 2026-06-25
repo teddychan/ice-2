@@ -69,6 +69,14 @@ final class AppPermissions: ObservableObject {
         }
     }
 
+    /// Refreshes all tracked permission values.
+    func refreshAllPermissions() {
+        for permission in allPermissions {
+            permission.refresh()
+        }
+        updatePermissionsState()
+    }
+
     /// Stops running all permissions checks.
     func stopAllChecks() {
         logger.info("Stopping all permissions checks")

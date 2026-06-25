@@ -321,7 +321,7 @@ private struct MenuBarSearchContentView: View {
                 items.append(SearchItem(headerItem, name.displayString))
 
                 for item in itemManager.itemCache.managedItems(for: name).reversed() {
-                    let listItem = ListItem.item(id: .item(item.tag)) {
+                    let listItem = ListItem.item(id: .item(item.windowID)) {
                         performAction(for: item)
                     } content: {
                         MenuBarSearchItemView(item: item)
@@ -366,8 +366,8 @@ private struct MenuBarSearchContentView: View {
 
     private func menuBarItem(for selection: MenuBarSearchModel.ItemID) -> MenuBarItem? {
         switch selection {
-        case .item(let tag):
-            return itemManager.itemCache.managedItems.first(matching: tag)
+        case .item(let windowID):
+            return itemManager.itemCache.managedItems.first { $0.windowID == windowID }
         case .header:
             return nil
         }
@@ -486,7 +486,7 @@ private struct MenuBarSearchItemView: View {
 
     private var itemImage: NSImage {
         guard
-            let cached = imageCache.images[item.tag],
+            let cached = imageCache.image(for: item),
             let trimmed = cached.cgImage.trimmingTransparency(around: [.minXEdge, .maxXEdge])
         else {
             return NSImage()

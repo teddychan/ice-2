@@ -14,6 +14,9 @@ final class MenuBarItemManager: ObservableObject {
     /// The current cache of menu bar items.
     @Published private(set) var itemCache = ItemCache(displayID: nil)
 
+    /// A Boolean value indicating whether an item cache attempt has completed.
+    @Published private(set) var hasCompletedInitialCache = false
+
     /// Logger for the menu bar item manager.
     private nonisolated let logger = Logger.menuBarItemManager
 
@@ -155,11 +158,11 @@ extension MenuBarItemManager {
             self[section]
         }
 
-        /// Returns the address for the menu bar item with the given tag,
+        /// Returns the address for the menu bar item with the given identity,
         /// if it exists in the cache.
-        func address(for tag: MenuBarItemTag) -> (section: MenuBarSection.Name, index: Int)? {
+        func address(for item: MenuBarItem) -> (section: MenuBarSection.Name, index: Int)? {
             for (section, items) in storage {
-                guard let index = items.firstIndex(matching: tag) else {
+                guard let index = items.firstIndex(where: { $0.windowID == item.windowID }) else {
                     continue
                 }
                 return (section, index)
@@ -192,7 +195,7 @@ extension MenuBarItemManager {
                 return
             }
 
-            guard case (let section, var index)? = address(for: targetTag) else {
+            guard case (let section, var index)? = address(for: destination.targetItem) else {
                 return
             }
 
@@ -297,7 +300,7 @@ extension MenuBarItemManager {
                 logger.warning("Missing sourcePID for \(item.logString, privacy: .public)")
             }
 
-            if let temp = temporarilyShownItemContexts.first(where: { $0.tag == item.tag }) {
+            if let temp = temporarilyShownItemContexts.first(where: { $0.windowID == item.windowID }) {
                 // Cache temporarily shown items as if they were in their original locations.
                 // Keep track of them separately and use their return destinations to insert
                 // them into the cache once all other items have been handled.
@@ -359,11 +362,13 @@ extension MenuBarItemManager {
                 // ???: Is clearing the cache the best thing to do here?
                 logger.warning("Missing control item for hidden section, clearing menu bar item cache")
                 itemCache = ItemCache(displayID: nil)
+                hasCompletedInitialCache = true
                 return
             }
 
             await enforceControlItemOrder(controlItems: controlItems)
             await uncheckedCacheItems(items: items, controlItems: controlItems, displayID: displayID)
+            hasCompletedInitialCache = true
         }
     }
 
@@ -384,6 +389,35 @@ extension MenuBarItemManager {
 // MARK: - Event Helpers
 
 extension MenuBarItemManager {
+    /// Allows event-tap callbacks and cancellation handlers to race without
+    /// resuming the same checked continuation more than once.
+    private final class EventContinuation {
+        private let lock = NSLock()
+        private var continuation: CheckedContinuation<Void, Error>?
+
+        init(_ continuation: CheckedContinuation<Void, Error>) {
+            self.continuation = continuation
+        }
+
+        func resume() {
+            lock.lock()
+            let continuation = continuation
+            self.continuation = nil
+            lock.unlock()
+
+            continuation?.resume()
+        }
+
+        func resume(throwing error: Error) {
+            lock.lock()
+            let continuation = continuation
+            self.continuation = nil
+            lock.unlock()
+
+            continuation?.resume(throwing: error)
+        }
+    }
+
     /// An error that can occur during menu bar item event operations.
     enum EventError: CustomStringConvertible, LocalizedError {
         /// A generic indication of a failure.
@@ -602,6 +636,7 @@ extension MenuBarItemManager {
 
         let timeoutTask = Task(timeout: timeout * count) {
             try await withCheckedThrowingContinuation { continuation in
+                let resumer = EventContinuation(continuation)
                 // Listen for the following events at the first location
                 // and perform the following actions:
                 //
@@ -625,7 +660,7 @@ extension MenuBarItemManager {
                     }
                     if rEvent.matches(exitEvent, byIntegerFields: [.eventSourceUserData]) {
                         tap.disable()
-                        continuation.resume()
+                        resumer.resume()
                         return nil
                     }
                     return rEvent
@@ -666,7 +701,7 @@ extension MenuBarItemManager {
                     } onCancel: {
                         eventTap1.disable()
                         eventTap2.disable()
-                        continuation.resume(throwing: CancellationError())
+                        resumer.resume(throwing: CancellationError())
                     }
                 }
             }
@@ -721,6 +756,7 @@ extension MenuBarItemManager {
 
         let timeoutTask = Task(timeout: timeout * count) {
             try await withCheckedThrowingContinuation { continuation in
+                let resumer = EventContinuation(continuation)
                 // Listen for the following events at the first location
                 // and perform the following actions:
                 //
@@ -744,7 +780,7 @@ extension MenuBarItemManager {
                     }
                     if rEvent.matches(exitEvent, byIntegerFields: [.eventSourceUserData]) {
                         tap.disable()
-                        continuation.resume()
+                        resumer.resume()
                         return nil
                     }
                     return rEvent
@@ -809,7 +845,7 @@ extension MenuBarItemManager {
                         eventTap1.disable()
                         eventTap2.disable()
                         eventTap3.disable()
-                        continuation.resume(throwing: CancellationError())
+                        resumer.resume(throwing: CancellationError())
                     }
                 }
             }
@@ -856,9 +892,9 @@ extension MenuBarItemManager {
         if item.isBentoBox {
             // Bento Boxes (i.e. Control Center groups) generally
             // take a little longer to respond.
-            return .milliseconds(100)
+            return .milliseconds(150)
         }
-        return .milliseconds(50)
+        return .milliseconds(100)
     }
 
     /// Returns the cached timeout for move operations associated
@@ -875,7 +911,7 @@ extension MenuBarItemManager {
     private func updateMoveOperationTimeout(_ timeout: Duration, for item: MenuBarItem) {
         let current = getMoveOperationTimeout(for: item)
         let average = (timeout + current) / 2
-        let clamped = average.clamped(min: .milliseconds(25), max: .milliseconds(150))
+        let clamped = average.clamped(min: .milliseconds(50), max: .milliseconds(300))
         moveOperationTimeouts[item.tag] = clamped
     }
 
@@ -921,9 +957,10 @@ extension MenuBarItemManager {
     ) async throws -> Bool {
         let itemBounds = try await getCurrentBounds(for: item)
         let targetBounds = try await getCurrentBounds(for: destination.targetItem)
+        let tolerance: CGFloat = 1
         return switch destination {
-        case .leftOfItem: itemBounds.maxX == targetBounds.minX
-        case .rightOfItem: itemBounds.minX == targetBounds.maxX
+        case .leftOfItem: abs(itemBounds.maxX - targetBounds.minX) <= tolerance
+        case .rightOfItem: abs(itemBounds.minX - targetBounds.maxX) <= tolerance
         }
     }
 
@@ -950,6 +987,7 @@ extension MenuBarItemManager {
                 if origin != initialOrigin {
                     return origin
                 }
+                try await Task.sleep(for: .milliseconds(5))
             }
         }
         let timeoutTask = Task(timeout: timeout) {
@@ -1278,6 +1316,9 @@ extension MenuBarItemManager {
         /// The tag associated with the item.
         let tag: MenuBarItemTag
 
+        /// The window identifier associated with the item.
+        let windowID: CGWindowID
+
         /// The destination to return the item to.
         let returnDestination: MoveDestination
 
@@ -1309,8 +1350,9 @@ extension MenuBarItemManager {
             return current.isOnScreen
         }
 
-        init(tag: MenuBarItemTag, returnDestination: MoveDestination) {
-            self.tag = tag
+        init(item: MenuBarItem, returnDestination: MoveDestination) {
+            self.tag = item.tag
+            self.windowID = item.windowID
             self.returnDestination = returnDestination
         }
     }
@@ -1318,7 +1360,7 @@ extension MenuBarItemManager {
     /// Gets the destination to return the given item to after it is
     /// temporarily shown.
     private func getReturnDestination(for item: MenuBarItem, in items: [MenuBarItem]) -> MoveDestination? {
-        guard let index = items.firstIndex(matching: item.tag) else {
+        guard let index = items.firstIndex(where: { $0.windowID == item.windowID }) else {
             return nil
         }
         if items.indices.contains(index + 1) {
@@ -1424,7 +1466,7 @@ extension MenuBarItemManager {
             return
         }
 
-        let context = TemporarilyShownItemContext(tag: item.tag, returnDestination: destination)
+        let context = TemporarilyShownItemContext(item: item, returnDestination: destination)
         temporarilyShownItemContexts.append(context)
 
         rehideTimer?.invalidate()
@@ -1444,9 +1486,10 @@ extension MenuBarItemManager {
 
         await eventSleep(for: .milliseconds(250))
         let windowsAfterClick = WindowInfo.createWindows(option: .onScreen)
+        let interfaceOwnerPID = item.sourcePID ?? item.ownerPID
 
         context.shownInterfaceWindow = windowsAfterClick.first { window in
-            window.ownerPID == item.sourcePID && !idsBeforeClick.contains(window.windowID)
+            window.ownerPID == interfaceOwnerPID && !idsBeforeClick.contains(window.windowID)
         }
     }
 
@@ -1494,7 +1537,7 @@ extension MenuBarItemManager {
         }
 
         while let context = currentContexts.popLast() {
-            guard let item = items.first(matching: context.tag) else {
+            guard let item = items.first(where: { $0.windowID == context.windowID }) else {
                 continue
             }
             do {
@@ -1525,7 +1568,7 @@ extension MenuBarItemManager {
             logger.error(
                 """
                 Some items failed to rehide: \
-                \(failedContexts.map { $0.tag }, privacy: .public)
+                \(failedContexts.map { $0.windowID }, privacy: .public)
                 """
             )
             temporarilyShownItemContexts.append(contentsOf: failedContexts.reversed())
@@ -1535,12 +1578,12 @@ extension MenuBarItemManager {
 
     /// Removes a temporarily shown item from the cache, ensuring that
     /// the item is _not_ returned to its original location.
-    func removeTemporarilyShownItemFromCache(with tag: MenuBarItemTag) {
-        while let index = temporarilyShownItemContexts.firstIndex(where: { $0.tag == tag }) {
+    func removeTemporarilyShownItemFromCache(for item: MenuBarItem) {
+        while let index = temporarilyShownItemContexts.firstIndex(where: { $0.windowID == item.windowID }) {
             logger.debug(
                 """
                 Removing temporarily shown item from cache: \
-                \(tag, privacy: .public)
+                \(item.logString, privacy: .public)
                 """
             )
             temporarilyShownItemContexts.remove(at: index)

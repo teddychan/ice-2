@@ -390,7 +390,8 @@ extension HIDEventManager {
         } else {
             guard
                 !isMouseInsideMenuBar(appState: appState, screen: screen),
-                !isMouseInsideIceBar(appState: appState)
+                !isMouseInsideIceBar(appState: appState),
+                !isMouseInsideIceBarTransitArea(appState: appState, screen: screen)
             else {
                 return
             }
@@ -399,7 +400,8 @@ extension HIDEventManager {
                 // Make sure the mouse is still outside.
                 guard
                     !isMouseInsideMenuBar(appState: appState, screen: screen),
-                    !isMouseInsideIceBar(appState: appState)
+                    !isMouseInsideIceBar(appState: appState),
+                    !isMouseInsideIceBarTransitArea(appState: appState, screen: screen)
                 else {
                     return
                 }
@@ -475,13 +477,12 @@ extension HIDEventManager {
 extension HIDEventManager {
     /// Returns the best screen to use for event manager calculations.
     func bestScreen(appState: AppState) -> NSScreen? {
-        guard
-            appState.activeSpace.isFullscreen,
-            let screen = NSScreen.screenWithMouse
-        else {
-            return NSScreen.main
+        if let screen = NSScreen.screenWithMouse {
+            if appState.activeSpace.isFullscreen || NSScreen.screensHaveSeparateSpaces {
+                return screen
+            }
         }
-        return screen
+        return NSScreen.main
     }
 
     /// A Boolean value that indicates whether the mouse pointer is within
@@ -502,6 +503,10 @@ extension HIDEventManager {
             return false
         }
 
+        if NSScreen.screenWithMouse != screen {
+            return false
+        }
+
         if
             appState.activeSpace.isFullscreen,
             !screen.hasNotch,
@@ -510,11 +515,13 @@ extension HIDEventManager {
             return false
         }
 
+        let menuBarMinY = appState.activeSpace.isFullscreen ? iceIconFrame.minY - 1 : screen.visibleFrame.maxY
+
         // Infer the menu bar frame from the screen frame.
         return mouseLocation.x >= screen.frame.minX &&
         mouseLocation.x <= screen.frame.maxX &&
         mouseLocation.y <= screen.frame.maxY &&
-        mouseLocation.y >= screen.visibleFrame.maxY
+        mouseLocation.y >= menuBarMinY
     }
 
     /// A Boolean value that indicates whether the mouse pointer is within
@@ -599,6 +606,29 @@ extension HIDEventManager {
         // moves their mouse outside of the Ice Bar.
         let paddedFrame = panel.frame.insetBy(dx: -15, dy: -15)
         return paddedFrame.contains(mouseLocation)
+    }
+
+    /// A Boolean value that indicates whether the pointer is in the gap
+    /// between the menu bar and the Ice Bar while moving toward the panel.
+    func isMouseInsideIceBarTransitArea(appState: AppState, screen: NSScreen) -> Bool {
+        guard
+            appState.settings.general.useIceBar,
+            appState.navigationState.isIceBarPresented,
+            let mouseLocation = MouseHelpers.locationAppKit
+        else {
+            return false
+        }
+
+        let panelFrame = appState.menuBarManager.iceBarPanel.frame
+        guard !panelFrame.isEmpty else {
+            return false
+        }
+
+        let horizontalRange = panelFrame.insetBy(dx: -48, dy: 0)
+        return mouseLocation.x >= horizontalRange.minX &&
+        mouseLocation.x <= horizontalRange.maxX &&
+        mouseLocation.y <= screen.visibleFrame.maxY &&
+        mouseLocation.y >= panelFrame.maxY - 16
     }
 
     /// A Boolean value that indicates whether the mouse pointer is within

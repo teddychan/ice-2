@@ -109,6 +109,22 @@ extension Bridging {
         return uuid.takeRetainedValue()
     }
 
+    private static func getDisplayID(for screen: NSScreen?) -> CGDirectDisplayID? {
+        guard
+            let screen,
+            let screenNumber = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber
+        else {
+            return nil
+        }
+        return screenNumber.uint32Value
+    }
+
+    private static var screenWithMouseDisplayID: CGDirectDisplayID? {
+        let mouseLocation = NSEvent.mouseLocation
+        let screen = NSScreen.screens.first { $0.frame.contains(mouseLocation) }
+        return getDisplayID(for: screen)
+    }
+
     // MARK: Public Display API
 
     /// Returns the identifier of the display with the active menu bar.
@@ -118,9 +134,11 @@ extension Bridging {
            let id = getActiveDisplayList().first(where: { getDisplayUUID(for: $0) == uuid }) {
             return id
         }
-        // CGSCopyActiveMenuBarDisplayIdentifier returns nil on macOS 26.4.1.
-        let fallback = CGMainDisplayID()
-        logger.warning("CGSCopyActiveMenuBarDisplayIdentifier unavailable, using CGMainDisplayID=\(fallback, privacy: .public)")
+        // CGSCopyActiveMenuBarDisplayIdentifier returns nil on recent Tahoe builds.
+        // Prefer the display under the pointer, since menu bar actions and layout
+        // editing often happen on a non-primary display.
+        let fallback = screenWithMouseDisplayID ?? getDisplayID(for: NSScreen.main) ?? CGMainDisplayID()
+        logger.warning("CGSCopyActiveMenuBarDisplayIdentifier unavailable, using fallback displayID=\(fallback, privacy: .public)")
         return fallback
     }
 }

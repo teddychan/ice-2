@@ -9,6 +9,17 @@ import OSLog
 
 /// Cache for menu bar item images.
 final class MenuBarItemImageCache: ObservableObject {
+    /// A stable key for a captured menu bar item image.
+    struct ImageKey: Hashable {
+        let tag: MenuBarItemTag
+        let windowID: CGWindowID
+
+        init(item: MenuBarItem) {
+            self.tag = item.tag
+            self.windowID = item.windowID
+        }
+    }
+
     /// A representation of a captured menu bar item image.
     struct CapturedImage: Hashable {
         /// The base image.
@@ -34,14 +45,14 @@ final class MenuBarItemImageCache: ObservableObject {
     /// The result of an image capture operation.
     private struct CaptureResult {
         /// The successfully captured images.
-        var images = [MenuBarItemTag: CapturedImage]()
+        var images = [ImageKey: CapturedImage]()
 
         /// The menu bar items excluded from the capture.
         var excluded = [MenuBarItem]()
     }
 
-    /// The cached item images, keyed by their corresponding tags.
-    @Published private(set) var images = [MenuBarItemTag: CapturedImage]()
+    /// The cached item images, keyed by their corresponding item identity.
+    @Published private(set) var images = [ImageKey: CapturedImage]()
 
     /// Logger for the menu bar item image cache.
     private let logger = Logger(category: "MenuBarItemImageCache")
@@ -160,7 +171,7 @@ final class MenuBarItemImageCache: ObservableObject {
                 continue
             }
 
-            result.images[item.tag] = CapturedImage(cgImage: image, scale: scale)
+            result.images[ImageKey(item: item)] = CapturedImage(cgImage: image, scale: scale)
         }
 
         return result
@@ -179,7 +190,7 @@ final class MenuBarItemImageCache: ObservableObject {
                 result.excluded.append(item)
                 continue
             }
-            result.images[item.tag] = CapturedImage(cgImage: image, scale: scale)
+            result.images[ImageKey(item: item)] = CapturedImage(cgImage: image, scale: scale)
         }
 
         return result
@@ -216,15 +227,22 @@ final class MenuBarItemImageCache: ObservableObject {
         return individualResult
     }
 
-    /// Captures the images of the menu bar items in the given section and returns
-    /// a dictionary containing the images, keyed by their menu bar item tags.
-    private func captureImages(for section: MenuBarSection.Name, scale: CGFloat, appState: AppState) async -> [MenuBarItemTag: CapturedImage] {
-        let items = await appState.itemManager.itemCache.managedItems(for: section)
+    /// Captures the images of the given menu bar items and returns a dictionary
+    /// containing the images, keyed by their menu bar item identity.
+    private func capturedImages(of items: [MenuBarItem], scale: CGFloat, appState: AppState) async -> [ImageKey: CapturedImage] {
         let captureResult = await captureImages(of: items, scale: scale, appState: appState)
         if !captureResult.excluded.isEmpty {
             logger.error("Some items failed capture: \(captureResult.excluded, privacy: .public)")
         }
         return captureResult.images
+    }
+
+    /// Returns the screen that contains the given menu bar item.
+    private func screen(for item: MenuBarItem, preferredScreen: NSScreen?) -> NSScreen? {
+        let itemCenter = item.bounds.center
+        return NSScreen.screens.first { screen in
+            CGDisplayBounds(screen.displayID).contains(itemCenter)
+        } ?? preferredScreen
     }
 
     // MARK: Update Cache
@@ -239,22 +257,37 @@ final class MenuBarItemImageCache: ObservableObject {
             return
         }
 
-        guard
-            let displayID = await appState.itemManager.itemCache.displayID,
-            let screen = NSScreen.screens.first(where: { $0.displayID == displayID })
-        else {
-            return
-        }
+        let preferredScreen = await appState.itemManager.itemCache.displayID.flatMap { displayID in
+            NSScreen.screens.first { $0.displayID == displayID }
+        } ?? NSScreen.main
 
-        let scale = screen.backingScaleFactor
-        var newImages = [MenuBarItemTag: CapturedImage]()
+        var newImages = [ImageKey: CapturedImage]()
 
         for section in sections {
-            guard await !appState.itemManager.itemCache[section].isEmpty else {
+            let items = await appState.itemManager.itemCache[section]
+            guard !items.isEmpty else {
                 continue
             }
 
-            let sectionImages = await captureImages(for: section, scale: scale, appState: appState)
+            var sectionImages = [ImageKey: CapturedImage]()
+            let itemGroups = Dictionary(grouping: items) { item in
+                screen(for: item, preferredScreen: preferredScreen)?.displayID
+            }
+
+            for (displayID, items) in itemGroups {
+                guard
+                    let displayID,
+                    let screen = NSScreen.screens.first(where: { $0.displayID == displayID })
+                else {
+                    continue
+                }
+                let images = await capturedImages(
+                    of: items,
+                    scale: screen.backingScaleFactor,
+                    appState: appState
+                )
+                sectionImages.merge(images) { (_, new) in new }
+            }
 
             guard !sectionImages.isEmpty else {
                 logger.warning("Failed item image cache for \(section.logString, privacy: .public)")
@@ -264,10 +297,10 @@ final class MenuBarItemImageCache: ObservableObject {
             newImages.merge(sectionImages) { (_, new) in new }
         }
 
-        let validTags = await Set(appState.itemManager.itemCache.managedItems.map(\.tag))
+        let validKeys = await Set(appState.itemManager.itemCache.managedItems.map(ImageKey.init))
 
-        await MainActor.run { [newImages, validTags] in
-            images = images.filter { validTags.contains($0.key) }
+        await MainActor.run { [newImages, validKeys] in
+            images = images.filter { validKeys.contains($0.key) }
             images.merge(newImages) { (_, new) in new }
         }
     }
@@ -337,9 +370,14 @@ final class MenuBarItemImageCache: ObservableObject {
             return false
         }
         let keys = Set(images.keys)
-        for item in items where keys.contains(item.tag) {
+        for item in items where keys.contains(ImageKey(item: item)) {
             return false
         }
         return true
+    }
+
+    /// Returns the captured image for the given menu bar item.
+    func image(for item: MenuBarItem) -> CapturedImage? {
+        images[ImageKey(item: item)]
     }
 }

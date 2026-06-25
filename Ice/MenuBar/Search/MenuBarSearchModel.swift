@@ -11,7 +11,7 @@ import Ifrit
 final class MenuBarSearchModel: ObservableObject {
     enum ItemID: Hashable {
         case header(MenuBarSection.Name)
-        case item(MenuBarItemTag)
+        case item(CGWindowID)
     }
 
     @Published var searchText = ""

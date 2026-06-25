@@ -13,6 +13,10 @@ struct MenuBarLayoutSettingsPane: View {
         !itemManager.itemCache.managedItems.isEmpty
     }
 
+    private var isLoadingItems: Bool {
+        !itemManager.hasCompletedInitialCache
+    }
+
     var body: some View {
         if !ScreenCapture.cachedCheckPermissions() {
             missingScreenRecordingPermissions
@@ -52,7 +56,11 @@ struct MenuBarLayoutSettingsPane: View {
         .allowsHitTesting(hasItems)
         .overlay {
             if !hasItems {
-                loadingMenuBarItems
+                if isLoadingItems {
+                    loadingMenuBarItems
+                } else {
+                    noMenuBarItems
+                }
             }
         }
     }
@@ -95,6 +103,19 @@ struct MenuBarLayoutSettingsPane: View {
             ProgressView()
         }
         .font(.title)
+    }
+
+    @ViewBuilder
+    private var noMenuBarItems: some View {
+        VStack(spacing: 8) {
+            Text("No manageable menu bar items found.")
+            Button("Check Again") {
+                Task {
+                    await itemManager.cacheItemsRegardless()
+                }
+            }
+        }
+        .font(.title3)
     }
 
     @ViewBuilder
