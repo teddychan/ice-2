@@ -1,21 +1,21 @@
 <div align="center">
     <img src="Ice/Assets.xcassets/AppIcon.appiconset/icon_256x256.png" width=200 height=200>
-    <h1>Ice</h1>
+    <h1>Ice 2</h1>
 </div>
 
-Ice is a powerful menu bar management tool. While its primary function is hiding and showing menu bar items, it aims to cover a wide variety of additional features to make it one of the most versatile menu bar tools available.
+Ice 2 is a powerful menu bar management tool. While its primary function is hiding and showing menu bar items, it aims to cover a wide variety of additional features to make it one of the most versatile menu bar tools available.
 
 ![Banner](https://github.com/user-attachments/assets/4423085c-4e4b-4f3d-ad0f-90a217c03470)
 
-[![Download](https://img.shields.io/badge/download-latest-brightgreen?style=flat-square)](https://github.com/jordanbaird/Ice/releases/latest)
+[![Download](https://img.shields.io/badge/download-latest-brightgreen?style=flat-square)](https://github.com/teddychan/ice-2/releases/latest)
 ![Platform](https://img.shields.io/badge/platform-macOS-blue?style=flat-square)
 ![Requirements](https://img.shields.io/badge/requirements-macOS%2014%2B-fa4e49?style=flat-square)
 [![Sponsor](https://img.shields.io/badge/Sponsor%20%E2%9D%A4%EF%B8%8F-8A2BE2?style=flat-square)](https://github.com/sponsors/jordanbaird)
 [![Website](https://img.shields.io/badge/Website-015FBA?style=flat-square)](https://icemenubar.app)
-[![License](https://img.shields.io/github/license/jordanbaird/Ice?style=flat-square)](LICENSE)
+[![License](https://img.shields.io/github/license/teddychan/ice-2?style=flat-square)](LICENSE)
 
 > [!NOTE]
-> Ice is currently in active development. Some features have not yet been implemented. Download the latest release [here](https://github.com/jordanbaird/Ice/releases/latest) and see the roadmap below for upcoming features.
+> Ice 2 is currently in active development. Some features have not yet been implemented. Download the latest release [here](https://github.com/teddychan/ice-2/releases/latest) and see the roadmap below for upcoming features.
 
 <a href="https://www.buymeacoffee.com/jordanbaird" target="_blank">
     <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;">
@@ -25,14 +25,14 @@ Ice is a powerful menu bar management tool. While its primary function is hiding
 
 ### Manual Installation
 
-Download the "Ice.zip" file from the [latest release](https://github.com/jordanbaird/Ice/releases/latest) and move the unzipped app into your `Applications` folder.
+Download the "Ice-2-vX.Y.Z.zip" file from the [latest release](https://github.com/teddychan/ice-2/releases/latest) and move the unzipped app into your `Applications` folder.
 
 ### Homebrew
 
-Install Ice using the following command:
+Install Ice 2 using the following command:
 
 ```sh
-brew install --cask jordanbaird-ice
+brew install --cask teddychan/tap/ice-2
 ```
 
 ## Features/Roadmap
@@ -69,7 +69,7 @@ brew install --cask jordanbaird-ice
 
 - [x] Toggle individual menu bar sections
 - [x] Show the search panel
-- [x] Enable/disable the Ice Bar
+- [x] Enable/disable the Ice 2 Bar
 - [x] Show/hide section divider icons
 - [x] Toggle application menus
 - [x] Enable/disable auto rehide
@@ -81,15 +81,15 @@ brew install --cask jordanbaird-ice
 - [x] Automatic updates
 - [ ] Menu bar widgets
 
-## Why does Ice only support macOS 14 and later?
+## Why does Ice 2 only support macOS 14 and later?
 
-Ice uses a number of system APIs that are available starting in macOS 14. As such, there are no plans to support earlier versions of macOS.
+Ice 2 uses a number of system APIs that are available starting in macOS 14. As such, there are no plans to support earlier versions of macOS.
 
 ## Gallery
 
 #### Show hidden menu bar items below the menu bar
 
-![Ice Bar](https://github.com/user-attachments/assets/f1429589-6186-4e1b-8aef-592219d49b9b)
+![Ice 2 Bar](https://github.com/user-attachments/assets/f1429589-6186-4e1b-8aef-592219d49b9b)
 
 #### Drag-and-drop interface to arrange menu bar items
 
@@ -109,4 +109,4 @@ Ice uses a number of system APIs that are available starting in macOS 14. As suc
 
 ## License
 
-Ice is available under the [GPL-3.0 license](LICENSE).
+Ice 2 is available under the [GPL-3.0 license](LICENSE).

@@ -75,13 +75,13 @@ struct GeneralSettingsPane: View {
 
     @ViewBuilder
     private var showIceIcon: some View {
-        Toggle("Show Ice icon", isOn: $settings.showIceIcon)
-            .annotation("Click to show hidden menu bar items. Right-click to access Ice's settings.")
+        Toggle("Show Ice 2 icon", isOn: $settings.showIceIcon)
+            .annotation("Click to show hidden menu bar items. Right-click to access Ice 2's settings.")
     }
 
     @ViewBuilder
     private var iceIconPicker: some View {
-        let labelKey = LocalizedStringKey("Ice icon")
+        let labelKey = LocalizedStringKey("Ice 2 icon")
 
         IceMenu(labelKey) {
             Picker(labelKey, selection: $settings.iceIcon) {
@@ -189,7 +189,7 @@ struct GeneralSettingsPane: View {
 
     @ViewBuilder
     private var useIceBar: some View {
-        Toggle("Use Ice Bar", isOn: $settings.useIceBar)
+        Toggle("Use Ice 2 Bar", isOn: $settings.useIceBar)
             .annotation("Show hidden menu bar items in a separate bar below the menu bar.")
             .disabled(settings.autoEnableIceBar)
     }
@@ -198,11 +198,11 @@ struct GeneralSettingsPane: View {
     private var autoEnableIceBar: some View {
         Toggle(isOn: $settings.autoEnableIceBar) {
             HStack {
-                Text("Auto-enable Ice Bar")
+                Text("Auto-enable Ice 2 Bar")
                 BetaBadge()
             }
         }
-        .annotation("Automatically enable or disable Ice Bar based on the current display.")
+        .annotation("Automatically enable or disable Ice 2 Bar based on the current display.")
     }
 
     @ViewBuilder
@@ -215,9 +215,9 @@ struct GeneralSettingsPane: View {
         .annotation {
             switch settings.iceBarAutoEnableMode {
             case .screenWidth:
-                Text("Enable Ice Bar when the active menu bar screen is narrower than the threshold.")
+                Text("Enable Ice 2 Bar when the active menu bar screen is narrower than the threshold.")
             case .screensWithNotch:
-                Text("Enable Ice Bar when the active menu bar screen has a notch.")
+                Text("Enable Ice 2 Bar when the active menu bar screen has a notch.")
             }
         }
     }
@@ -235,7 +235,7 @@ struct GeneralSettingsPane: View {
         } label: {
             Text("Width threshold")
         }
-        .annotation("Ice Bar will be enabled when the active menu bar screen is narrower than this width in points.")
+        .annotation("Ice 2 Bar will be enabled when the active menu bar screen is narrower than this width in points.")
     }
 
     @ViewBuilder
@@ -248,11 +248,11 @@ struct GeneralSettingsPane: View {
         .annotation {
             switch settings.iceBarLocation {
             case .dynamic:
-                Text("The Ice Bar's location changes based on context.")
+                Text("The Ice 2 Bar's location changes based on context.")
             case .mousePointer:
-                Text("The Ice Bar is centered below the mouse pointer.")
+                Text("The Ice 2 Bar is centered below the mouse pointer.")
             case .iceIcon:
-                Text("The Ice Bar is centered below the Ice icon.")
+                Text("The Ice 2 Bar is centered below the Ice 2 icon.")
             }
         }
     }

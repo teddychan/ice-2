@@ -44,7 +44,7 @@ struct HotkeysSettingsPane: View {
                 case .temporarilyShowMenuBarItem:
                     Text("Temporarily show a menu bar item")
                 case .enableIceBar:
-                    Text("Enable the Ice Bar")
+                    Text("Enable the Ice 2 Bar")
                 case .toggleAutoRehide:
                     Text("Toggle auto rehide")
                 case .toggleApplicationMenus:

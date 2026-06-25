@@ -248,7 +248,7 @@ extension MigrationManager {
             let alert = NSAlert()
             alert.messageText = """
                 Due to a bug in a previous version of the app, the data for \
-                Ice’s menu bar sections was corrupted and had to be reset.
+                Ice 2’s menu bar sections was corrupted and had to be reset.
                 """
 
             return .successButShowAlert(alert)

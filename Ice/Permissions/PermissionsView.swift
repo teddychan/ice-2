@@ -73,7 +73,7 @@ struct PermissionsView: View {
     private var explanationBox: some View {
         IceSection {
             VStack {
-                Text("Ice needs your permission to manage the menu bar.")
+                Text("Ice 2 needs your permission to manage the menu bar.")
                     .fontWeight(.medium)
                 Text("Absolutely no personal information is collected or stored.")
                     .bold()
@@ -157,7 +157,7 @@ struct PermissionsView: View {
                     .underline()
 
                 VStack(spacing: 2) {
-                    Text("Ice needs this to:")
+                    Text("Ice 2 needs this to:")
                         .font(.title3)
                         .bold()
 
@@ -192,19 +192,19 @@ struct PermissionsView: View {
 
                 if permission.mayRequireRelaunch && !permission.hasPermission {
                     VStack(spacing: 6) {
-                        Text("After granting this permission in System Settings, relaunch Ice to enable capture on macOS 26.")
+                        Text("After granting this permission in System Settings, relaunch Ice 2 to enable capture on macOS 26.")
                             .font(.footnote)
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.secondary)
 
-                        Button("Relaunch Ice") {
+                        Button("Relaunch Ice 2") {
                             appState.relaunch()
                         }
                     }
                 }
 
                 if !permission.isRequired {
-                    CalloutBox("Ice can work in a limited mode without this permission.") {
+                    CalloutBox("Ice 2 can work in a limited mode without this permission.") {
                         Image(systemName: "checkmark.shield")
                             .foregroundStyle(.green)
                     }
