@@ -19,6 +19,7 @@ This release focuses on stability fixes for Tahoe/macOS 26 and early macOS 27 be
 - Improved permissions onboarding by adding direct Accessibility settings URLs, active-window permission refresh, and manual recheck behavior. References upstream issues #882, #770, #934.
 - Avoided stealing focus back from System Settings after permissions that may require relaunch, and clarified relaunch guidance for screen recording on macOS 26. References upstream issues #770 and #934.
 - Prevented repeated Sparkle update permission prompts by declining automatic update-check permission prompting. References upstream issues #937, #912, #837.
+- Added a Menu Bar Layout recovery action to restore the Ice 2 control icon when it has been removed. References upstream issues #919 and #860.
 - Fixed color picker usability by allowing the appearance editor and system color panel to activate normally. References upstream issue #763.
 - Improved tint alpha handling for menu bar appearance shapes so split/full shapes are visible while no-shape tint remains subtle. References upstream issue #943.
 - Kept Ice as an accessory/menu bar app at launch to avoid unwanted Dock activation. References upstream issues #808, #768, #906.

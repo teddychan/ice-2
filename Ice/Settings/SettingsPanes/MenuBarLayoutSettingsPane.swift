@@ -339,13 +339,29 @@ struct MenuBarLayoutSettingsPane: View {
     private var noMenuBarItems: some View {
         VStack(spacing: 8) {
             Text("No manageable menu bar items found.")
-            Button("Check Again") {
-                Task {
-                    await itemManager.cacheItemsRegardless()
+
+            HStack {
+                Button("Check Again") {
+                    Task {
+                        await itemManager.cacheItemsRegardless()
+                    }
+                }
+
+                Button("Restore Ice 2 Icon") {
+                    restoreIceIcon()
                 }
             }
         }
         .font(.title3)
+    }
+
+    private func restoreIceIcon() {
+        appState.settings.general.showIceIcon = false
+        appState.settings.general.showIceIcon = true
+
+        Task {
+            await itemManager.cacheItemsRegardless()
+        }
     }
 
     @ViewBuilder
