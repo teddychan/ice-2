@@ -22,6 +22,7 @@ This release focuses on stability fixes for Tahoe/macOS 26 and early macOS 27 be
 - Fixed color picker usability by allowing the appearance editor and system color panel to activate normally. References upstream issue #763.
 - Improved tint alpha handling for menu bar appearance shapes so split/full shapes are visible while no-shape tint remains subtle. References upstream issue #943.
 - Kept Ice as an accessory/menu bar app at launch to avoid unwanted Dock activation. References upstream issues #808, #768, #906.
+- Added README uninstall instructions for Homebrew, manual removal, and optional settings cleanup. References upstream issue #949.
 - Improved Tahoe source PID matching and Control Center title fallback for menu bar item identity. References upstream issues #832, #878, #887, #806.
 - Fixed hide-application-menus behavior so it can still run when Ice Bar is enabled. References upstream issue #879.
 - Fixed Option-click behavior so the always-hidden section can still be shown when regular Show on Click is disabled, and control-item Option-click falls back to normal expansion when the always-hidden section is disabled. References upstream issues #634 and #595.

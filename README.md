@@ -35,6 +35,28 @@ Install Ice 2 using the following command:
 brew install --cask teddychan/tap/ice-2
 ```
 
+## Uninstall
+
+Quit Ice 2 before uninstalling.
+
+If you installed with Homebrew:
+
+```sh
+brew uninstall --cask teddychan/tap/ice-2
+```
+
+If you installed manually, delete `Ice 2.app` from your `Applications` folder.
+
+To also remove Ice 2 settings and cached data:
+
+```sh
+rm -rf ~/Library/Application\ Support/com.jordanbaird.Ice \
+       ~/Library/Caches/com.jordanbaird.Ice \
+       ~/Library/HTTPStorages/com.jordanbaird.Ice \
+       ~/Library/Preferences/com.jordanbaird.Ice.plist \
+       ~/Library/Saved\ Application\ State/com.jordanbaird.Ice.savedState
+```
+
 ## Features/Roadmap
 
 ### Menu bar item management
