@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.1.0 - 2026-06-25
+## 2.3.0 - 2026-06-26
 
 This release focuses on stability fixes for Tahoe/macOS 26 and early macOS 27 behavior reported upstream in `jordanbaird/Ice`.
 
