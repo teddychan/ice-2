@@ -27,11 +27,7 @@ final class IceBarColorManager: ObservableObject {
             iceBarPanel.publisher(for: \.screen)
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] screen in
-                    guard
-                        let self,
-                        let screen,
-                        screen == .main
-                    else {
+                    guard let self, let screen else {
                         return
                     }
                     updateWindowImage(for: screen)
@@ -45,8 +41,7 @@ final class IceBarColorManager: ObservableObject {
                         let self,
                         let iceBarPanel,
                         let screen = iceBarPanel.screen,
-                        isVisible,
-                        screen == .main
+                        isVisible
                     else {
                         return
                     }
@@ -61,8 +56,7 @@ final class IceBarColorManager: ObservableObject {
                         let self,
                         let iceBarPanel,
                         let screen = iceBarPanel.screen,
-                        iceBarPanel.isVisible,
-                        screen == .main
+                        iceBarPanel.isVisible
                     else {
                         return
                     }
@@ -91,8 +85,7 @@ final class IceBarColorManager: ObservableObject {
                 guard
                     let self,
                     let iceBarPanel,
-                    let screen = iceBarPanel.screen,
-                    screen == .main
+                    let screen = iceBarPanel.screen
                 else {
                     return
                 }

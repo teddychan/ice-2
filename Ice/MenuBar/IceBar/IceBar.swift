@@ -127,18 +127,18 @@ final class IceBarPanel: NSPanel {
         return lastShowTimestamp.duration(to: .now) <= duration
     }
 
-    /// Updates the panel's frame origin for display on the given screen.
-    private func updateOrigin(for screen: NSScreen) {
+    /// Returns the panel's frame origin for display on the given screen.
+    private func origin(for screen: NSScreen, size: CGSize) -> CGPoint? {
         guard let appState else {
-            return
+            return nil
         }
 
         func getOrigin(for iceBarLocation: IceBarLocation) -> CGPoint {
             let menuBarHeight = screen.getMenuBarHeight() ?? 0
-            let originY = ((screen.frame.maxY - 1) - menuBarHeight) - frame.height
+            let originY = ((screen.frame.maxY - 1) - menuBarHeight) - size.height
 
             var originForRightOfScreen: CGPoint {
-                CGPoint(x: screen.frame.maxX - frame.width, y: originY)
+                CGPoint(x: screen.frame.maxX - size.width, y: originY)
             }
 
             switch iceBarLocation {
@@ -153,16 +153,16 @@ final class IceBarPanel: NSPanel {
                 }
 
                 let lowerBound = screen.frame.minX
-                let upperBound = screen.frame.maxX - frame.width
+                let upperBound = screen.frame.maxX - size.width
 
                 guard lowerBound <= upperBound else {
                     return originForRightOfScreen
                 }
 
-                return CGPoint(x: (location.x - frame.width / 2).clamped(to: lowerBound...upperBound), y: originY)
+                return CGPoint(x: (location.x - size.width / 2).clamped(to: lowerBound...upperBound), y: originY)
             case .iceIcon:
                 let lowerBound = screen.frame.minX
-                let upperBound = screen.frame.maxX - frame.width
+                let upperBound = screen.frame.maxX - size.width
 
                 guard
                     lowerBound <= upperBound,
@@ -174,11 +174,19 @@ final class IceBarPanel: NSPanel {
                     return originForRightOfScreen
                 }
 
-                return CGPoint(x: (itemBounds.midX - frame.width / 2).clamped(to: lowerBound...upperBound), y: originY)
+                return CGPoint(x: (itemBounds.midX - size.width / 2).clamped(to: lowerBound...upperBound), y: originY)
             }
         }
 
-        setFrameOrigin(getOrigin(for: appState.settings.general.iceBarLocation))
+        return getOrigin(for: appState.settings.general.iceBarLocation)
+    }
+
+    /// Updates the panel's frame origin for display on the given screen.
+    private func updateOrigin(for screen: NSScreen) {
+        guard let origin = origin(for: screen, size: frame.size) else {
+            return
+        }
+        setFrameOrigin(origin)
     }
 
     /// Shows the panel on the given screen, displaying the given
@@ -205,14 +213,22 @@ final class IceBarPanel: NSPanel {
             Logger.default.error("Cache update failed when showing IceBarPanel - \(error)")
         }
 
-        contentView = IceBarHostingView(
+        let hostingView = IceBarHostingView(
             appState: appState,
             colorManager: colorManager,
             screen: screen,
             section: section
         )
+        hostingView.setFrameSize(hostingView.intrinsicContentSize)
 
-        updateOrigin(for: screen)
+        let size = hostingView.frame.size
+        let origin = origin(for: screen, size: size) ?? CGPoint(
+            x: screen.frame.maxX - size.width,
+            y: screen.visibleFrame.maxY - size.height
+        )
+        setFrame(CGRect(origin: origin, size: size), display: true)
+
+        contentView = hostingView
 
         // Color manager must be updated after updating the panel's origin,
         // but before it is shown.
