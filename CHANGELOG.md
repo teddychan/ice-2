@@ -4,6 +4,12 @@
 
 This release focuses on stability fixes for Tahoe/macOS 26 and early macOS 27 behavior reported upstream in `jordanbaird/Ice`.
 
+### Added
+
+- Added menu bar layout profiles, item groups, spacer items, trigger-based item showing, and extra hotkey actions for section divider icons, auto rehide, and temporarily showing individual menu bar items.
+- Added an Advanced setting to disable Ice 2 right-click context menus in the menu bar. References upstream issue #892 and upstream PR #893.
+- Added an option to remove the background behind the menu bar while keeping menu bar content visible.
+
 ### Fixed
 
 - Added resilient Menu Bar Layout rendering when screen capture or item image capture fails, including per-item fallback labels instead of blank bars. References upstream issues #951, #921, #918, #916, #913, #891, #846, #833, #818, #816, #773, #762.

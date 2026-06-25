@@ -74,8 +74,8 @@ rm -rf ~/Library/Application\ Support/com.jordanbaird.Ice \
 - [x] Menu bar item spacing (BETA)
 - [x] Profiles for menu bar layout
 - [x] Individual spacer items
-- [ ] Menu bar item groups
-- [ ] Show menu bar items when trigger conditions are met
+- [x] Menu bar item groups
+- [x] Show menu bar items when trigger conditions are met
 
 ### Menu bar appearance
 
