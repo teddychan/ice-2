@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.5.1 - 2026-06-27
+
+### Changed
+
+- The always-hidden menu bar section is now enabled by default. You can still turn it off under Settings → Advanced → Menu Bar Sections.
+
 ## 2.5.0 - 2026-06-27
 
 This update makes Ice 2 an Apple Silicon–only app.
