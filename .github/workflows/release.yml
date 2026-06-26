@@ -15,6 +15,12 @@ on:
       - 'v*'
   workflow_dispatch: {}
 
+# The reusable release workflow creates the GitHub Release and uploads assets,
+# which needs contents: write. This repo's default workflow token is read-only,
+# so grant write here or the reusable call is rejected at startup.
+permissions:
+  contents: write
+
 jobs:
   release:
     uses: teddychan/dragon-release-ci/.github/workflows/release-macos.yml@v1
