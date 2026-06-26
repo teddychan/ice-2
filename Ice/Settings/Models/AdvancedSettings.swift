@@ -13,7 +13,7 @@ import SwiftUI
 final class AdvancedSettings: ObservableObject {
     /// A Boolean value that indicates whether the always-hidden section
     /// is enabled.
-    @Published var enableAlwaysHiddenSection = false
+    @Published var enableAlwaysHiddenSection = true
 
     /// A Boolean value that indicates whether to show all sections when
     /// the user is dragging items in the menu bar.
