@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.5.0 - 2026-06-27
+
+This update makes Ice 2 an Apple Silicon–only app.
+
+### Changed
+
+- **Ice 2 now runs only on Apple Silicon Macs** (the M1, M2, M3, M4 chips and newer). Support for older Intel-based Macs has been removed. If your Mac was made in late 2020 or later, it almost certainly has an Apple Silicon chip and you're all set. (You can check under  → About This Mac — look for a "Chip" line that says "Apple M…".)
+- The app is now built just for Apple Silicon, so the download is a bit smaller and runs natively on your Mac with no Intel compatibility layer.
+
+### Note
+
+- If you're on an older Intel Mac, please stay on version 2.4.1, which remains available and continues to work.
+
 ## 2.3.0 - 2026-06-26
 
 This release focuses on stability fixes for Tahoe/macOS 26 and early macOS 27 behavior reported upstream in `jordanbaird/Ice`.
