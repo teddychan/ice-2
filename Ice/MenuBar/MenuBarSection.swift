@@ -207,6 +207,39 @@ final class MenuBarSection {
         startRehideChecks()
     }
 
+    /// Shows the section in the Ice Bar without changing the user's
+    /// global Ice Bar preference.
+    func showInIceBar() {
+        guard let menuBarManager, isHidden else {
+            return
+        }
+
+        guard controlItem.isAddedToMenuBar else {
+            return
+        }
+
+        for section in menuBarManager.sections {
+            switch section.name {
+            case .visible:
+                section.controlItem.state = .showSection
+            case .hidden, .alwaysHidden:
+                section.controlItem.state = .hideSection
+            }
+        }
+
+        if let screen = screenForIceBar {
+            Task {
+                switch name {
+                case .visible, .hidden:
+                    await menuBarManager.iceBarPanel.show(section: .hidden, on: screen)
+                case .alwaysHidden:
+                    await menuBarManager.iceBarPanel.show(section: .alwaysHidden, on: screen)
+                }
+                startRehideChecks()
+            }
+        }
+    }
+
     /// Hides the section.
     func hide() {
         guard let menuBarManager, !isHidden else {
@@ -246,6 +279,8 @@ final class MenuBarSection {
             return
         }
 
+        let shouldTrackIceBar = useIceBar || menuBarManager?.iceBarPanel.currentSection != nil
+
         func isMouseBelowMenuBar(on screen: NSScreen) -> Bool {
             guard let mouseLocation = MouseHelpers.locationAppKit else {
                 return false
@@ -279,7 +314,7 @@ final class MenuBarSection {
             }
             if shouldRehide(
                 on: screen,
-                useIceBar: useIceBar,
+                useIceBar: shouldTrackIceBar,
                 iceBarPanel: menuBarManager?.iceBarPanel
             ) {
                 if rehideTimer == nil {
@@ -295,7 +330,7 @@ final class MenuBarSection {
                         }
                         if shouldRehide(
                             on: screen,
-                            useIceBar: useIceBar,
+                            useIceBar: shouldTrackIceBar,
                             iceBarPanel: menuBarManager?.iceBarPanel
                         ) {
                             Task {

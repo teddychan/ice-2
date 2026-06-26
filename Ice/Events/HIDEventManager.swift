@@ -378,16 +378,27 @@ extension HIDEventManager {
         let delay = appState.settings.advanced.showOnHoverDelay
 
         if hiddenSection.isHidden {
-            guard isMouseInsideEmptyMenuBarSpace(appState: appState, screen: screen) else {
+            let isHoveringIceIcon = isMouseInsideIceIcon(appState: appState)
+            let isHoveringEmptyMenuBarSpace = isMouseInsideEmptyMenuBarSpace(appState: appState, screen: screen)
+
+            guard isHoveringIceIcon || isHoveringEmptyMenuBarSpace else {
                 return
             }
+
             Task {
                 try await Task.sleep(for: .seconds(delay))
-                // Make sure the mouse is still inside.
-                guard isMouseInsideEmptyMenuBarSpace(appState: appState, screen: screen) else {
-                    return
+                // Make sure the mouse is still inside the original trigger area.
+                if isHoveringIceIcon {
+                    guard isMouseInsideIceIcon(appState: appState) else {
+                        return
+                    }
+                    hiddenSection.showInIceBar()
+                } else {
+                    guard isMouseInsideEmptyMenuBarSpace(appState: appState, screen: screen) else {
+                        return
+                    }
+                    hiddenSection.show()
                 }
-                hiddenSection.show()
             }
         } else {
             guard
@@ -609,7 +620,10 @@ extension HIDEventManager {
     /// A Boolean value that indicates whether the mouse pointer is within
     /// the bounds of the Ice Bar panel.
     func isMouseInsideIceBar(appState: AppState) -> Bool {
-        guard let mouseLocation = MouseHelpers.locationAppKit else {
+        guard
+            appState.menuBarManager.iceBarPanel.isVisible,
+            let mouseLocation = MouseHelpers.locationAppKit
+        else {
             return false
         }
         let panel = appState.menuBarManager.iceBarPanel
@@ -623,7 +637,6 @@ extension HIDEventManager {
     /// between the menu bar and the Ice Bar while moving toward the panel.
     func isMouseInsideIceBarTransitArea(appState: AppState, screen: NSScreen) -> Bool {
         guard
-            appState.settings.general.useIceBar,
             appState.navigationState.isIceBarPresented,
             let mouseLocation = MouseHelpers.locationAppKit
         else {
