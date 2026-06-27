@@ -419,7 +419,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1127;
+				CURRENT_PROJECT_VERSION = 1128;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_APP_SANDBOX = NO;
@@ -435,7 +435,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 2.5.1;
+				MARKETING_VERSION = 2.5.2;
 				INFOPLIST_KEY_CFBundleDisplayName = "Ice 2";
 				INFOPLIST_KEY_CFBundleName = "Ice 2";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jordanbaird.Ice;
@@ -454,7 +454,7 @@
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1127;
+				CURRENT_PROJECT_VERSION = 1128;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_APP_SANDBOX = NO;
@@ -470,7 +470,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 2.5.1;
+				MARKETING_VERSION = 2.5.2;
 				INFOPLIST_KEY_CFBundleDisplayName = "Ice 2";
 				INFOPLIST_KEY_CFBundleName = "Ice 2";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jordanbaird.Ice;

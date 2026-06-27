@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.5.2 - 2026-06-27
+
+### Changed
+
+- Maintenance release: the CI lint workflow now runs on the latest supported Node.js runtime (GitHub Actions `actions/checkout@v7`, Node 24) and lints with the current SwiftLint (0.65.0) via its official image, replacing an unmaintained 2021-era action. A couple of now-redundant SwiftLint directives were removed. No user-facing changes.
+
 ## 2.5.1 - 2026-06-27
 
 ### Changed
