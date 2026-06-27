@@ -60,6 +60,14 @@ final class GeneralSettings: ObservableObject {
     @Published var showOnHoverEmptyMenuBarDelay: TimeInterval = 0.2
 
     /// A Boolean value that indicates whether the hidden section
+    /// should be shown when the mouse pointer hovers over the Ice icon.
+    @Published var showOnHoverOverIceIcon = false
+
+    /// The delay before showing the hidden section when hovering over
+    /// the Ice icon.
+    @Published var showOnHoverOverIceIconDelay: TimeInterval = 0.2
+
+    /// A Boolean value that indicates whether the hidden section
     /// should be shown or hidden when the user scrolls in the
     /// menu bar.
     @Published var showOnScroll = true
@@ -107,6 +115,8 @@ final class GeneralSettings: ObservableObject {
         Defaults.ifPresent(key: .showOnClick, assign: &showOnClick)
         Defaults.ifPresent(key: .showOnHover, assign: &showOnHoverEmptyMenuBar)
         Defaults.ifPresent(key: .showOnHoverDelay, assign: &showOnHoverEmptyMenuBarDelay)
+        Defaults.ifPresent(key: .showOnHoverOverIceIcon, assign: &showOnHoverOverIceIcon)
+        Defaults.ifPresent(key: .showOnHoverOverIceIconDelay, assign: &showOnHoverOverIceIconDelay)
         Defaults.ifPresent(key: .showOnScroll, assign: &showOnScroll)
         Defaults.ifPresent(key: .itemSpacingOffset, assign: &itemSpacingOffset)
         Defaults.ifPresent(key: .autoRehide, assign: &autoRehide)
@@ -230,8 +240,8 @@ final class GeneralSettings: ObservableObject {
 
         $showOnHoverEmptyMenuBar
             .receive(on: DispatchQueue.main)
-            .sink { showOnHover in
-                Defaults.set(showOnHover, forKey: .showOnHover)
+            .sink { showOnHoverEmptyMenuBar in
+                Defaults.set(showOnHoverEmptyMenuBar, forKey: .showOnHover)
             }
             .store(in: &c)
 
@@ -239,6 +249,20 @@ final class GeneralSettings: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { delay in
                 Defaults.set(delay, forKey: .showOnHoverDelay)
+            }
+            .store(in: &c)
+
+        $showOnHoverOverIceIcon
+            .receive(on: DispatchQueue.main)
+            .sink { showOnHoverOverIceIcon in
+                Defaults.set(showOnHoverOverIceIcon, forKey: .showOnHoverOverIceIcon)
+            }
+            .store(in: &c)
+
+        $showOnHoverOverIceIconDelay
+            .receive(on: DispatchQueue.main)
+            .sink { delay in
+                Defaults.set(delay, forKey: .showOnHoverOverIceIconDelay)
             }
             .store(in: &c)
 

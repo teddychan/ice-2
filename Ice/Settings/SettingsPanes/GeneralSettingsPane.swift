@@ -46,8 +46,6 @@ struct GeneralSettingsPane: View {
             }
             IceSection {
                 showOptions
-            }
-            IceSection {
                 rehideOptions
             }
             IceSection {
@@ -282,6 +280,19 @@ struct GeneralSettingsPane: View {
                 in: 0...1,
                 step: 0.1
             )
+            .annotation("The amount of time to wait before showing hidden items.")
+        }
+
+        Toggle("Show on hover over Ice 2 icon", isOn: $settings.showOnHoverOverIceIcon)
+            .annotation("Hover over the Ice 2 icon to show hidden menu bar items.")
+        if settings.showOnHoverOverIceIcon {
+            IceSlider(
+                formattedToSeconds(settings.showOnHoverOverIceIconDelay),
+                value: $settings.showOnHoverOverIceIconDelay,
+                in: 0...1,
+                step: 0.1
+            )
+            .annotation("The amount of time to wait before showing hidden items.")
         }
 
         Toggle("Show on scroll", isOn: $settings.showOnScroll)

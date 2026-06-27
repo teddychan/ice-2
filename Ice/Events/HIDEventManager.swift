@@ -362,9 +362,13 @@ extension HIDEventManager {
     // MARK: Handle Show On Hover
 
     private func handleShowOnHover(appState: AppState, screen: NSScreen) {
-        // Make sure the "ShowOnHover" feature is enabled and allowed.
+        let showOnHoverEmptyMenuBar = appState.settings.general.showOnHoverEmptyMenuBar
+        let showOnHoverOverIceIcon = appState.settings.general.showOnHoverOverIceIcon
+
+        // Make sure at least one "ShowOnHover" trigger is enabled and the
+        // feature is allowed.
         guard
-            appState.settings.general.showOnHoverEmptyMenuBar,
+            showOnHoverEmptyMenuBar || showOnHoverOverIceIcon,
             appState.menuBarManager.showOnHoverAllowed
         else {
             return
@@ -375,19 +379,37 @@ extension HIDEventManager {
             return
         }
 
-        let delay = appState.settings.general.showOnHoverEmptyMenuBarDelay
+        let emptyMenuBarDelay = appState.settings.general.showOnHoverEmptyMenuBarDelay
+        let iceIconDelay = appState.settings.general.showOnHoverOverIceIconDelay
 
         if hiddenSection.isHidden {
-            guard isMouseInsideEmptyMenuBarSpace(appState: appState, screen: screen) else {
-                return
-            }
-            Task {
-                try await Task.sleep(for: .seconds(delay))
-                // Make sure the mouse is still inside.
-                guard isMouseInsideEmptyMenuBarSpace(appState: appState, screen: screen) else {
-                    return
+            // The Ice icon is a menu bar item, so it is never inside the
+            // "empty menu bar space"; the two triggers are mutually exclusive
+            // positions.
+            if
+                showOnHoverEmptyMenuBar,
+                isMouseInsideEmptyMenuBarSpace(appState: appState, screen: screen)
+            {
+                Task {
+                    try await Task.sleep(for: .seconds(emptyMenuBarDelay))
+                    // Make sure the mouse is still inside.
+                    guard isMouseInsideEmptyMenuBarSpace(appState: appState, screen: screen) else {
+                        return
+                    }
+                    hiddenSection.show()
                 }
-                hiddenSection.show()
+            } else if
+                showOnHoverOverIceIcon,
+                isMouseInsideIceIcon(appState: appState)
+            {
+                Task {
+                    try await Task.sleep(for: .seconds(iceIconDelay))
+                    // Make sure the mouse is still inside the Ice icon.
+                    guard isMouseInsideIceIcon(appState: appState) else {
+                        return
+                    }
+                    hiddenSection.show()
+                }
             }
         } else {
             guard
@@ -397,8 +419,14 @@ extension HIDEventManager {
             else {
                 return
             }
+            // Use the larger of the enabled delays as the rehide debounce so
+            // items never vanish faster than the slowest trigger reacts.
+            let rehideDelay = max(
+                showOnHoverEmptyMenuBar ? emptyMenuBarDelay : 0,
+                showOnHoverOverIceIcon ? iceIconDelay : 0
+            )
             Task {
-                try await Task.sleep(for: .seconds(delay))
+                try await Task.sleep(for: .seconds(rehideDelay))
                 // Make sure the mouse is still outside.
                 guard
                     !isMouseInsideMenuBar(appState: appState, screen: screen),
@@ -416,7 +444,8 @@ extension HIDEventManager {
 
     private func handlePreventShowOnHover(with event: NSEvent, appState: AppState, screen: NSScreen) {
         guard
-            appState.settings.general.showOnHoverEmptyMenuBar,
+            appState.settings.general.showOnHoverEmptyMenuBar
+                || appState.settings.general.showOnHoverOverIceIcon,
             !appState.settings.general.useIceBar
         else {
             return
