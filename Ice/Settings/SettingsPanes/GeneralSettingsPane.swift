@@ -283,17 +283,20 @@ struct GeneralSettingsPane: View {
             .annotation("The amount of time to wait before showing hidden items.")
         }
 
-        Toggle("Show on hover over Ice 2 icon", isOn: $settings.showOnHoverOverIceIcon)
-            .annotation("Hover over the Ice 2 icon to show hidden menu bar items.")
-        if settings.showOnHoverOverIceIcon {
-            IceSlider(
-                formattedToSeconds(settings.showOnHoverOverIceIconDelay),
-                value: $settings.showOnHoverOverIceIconDelay,
-                in: 0...1,
-                step: 0.1
-            )
-            .annotation("The amount of time to wait before showing hidden items.")
+        VStack(alignment: .leading, spacing: 6) {
+            Toggle("Show on hover over Ice 2 icon", isOn: $settings.showOnHoverOverIceIcon)
+                .annotation("Hover over the Ice 2 icon to show hidden menu bar items. Requires the Ice 2 icon to be shown.")
+            if settings.showOnHoverOverIceIcon {
+                IceSlider(
+                    formattedToSeconds(settings.showOnHoverOverIceIconDelay),
+                    value: $settings.showOnHoverOverIceIconDelay,
+                    in: 0...1,
+                    step: 0.1
+                )
+                .annotation("The amount of time to wait before showing hidden items.")
+            }
         }
+        .disabled(!settings.showIceIcon)
 
         Toggle("Show on scroll", isOn: $settings.showOnScroll)
             .annotation("Scroll or swipe in the menu bar to show hidden menu bar items.")
