@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.5.3 - 2026-06-28
+
+### Added
+
+- New option to show hidden menu bar items by hovering over the Ice 2 icon. Turn it on under Settings → General → "Show on hover over Ice 2 icon" (off by default). Each hover option now has its own delay slider shown right beneath it.
+
+### Changed
+
+- The existing "Show on hover" option is now labelled "Show on hover over empty menu bar" to make clear it reacts to empty areas of the menu bar, and its delay slider moved from Advanced settings to sit directly beneath the option in General settings. The "Automatically rehide" options now sit in the same section as the show options.
+
 ## 2.5.2 - 2026-06-27
 
 ### Changed
