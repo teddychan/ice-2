@@ -364,7 +364,7 @@ extension HIDEventManager {
     private func handleShowOnHover(appState: AppState, screen: NSScreen) {
         // Make sure the "ShowOnHover" feature is enabled and allowed.
         guard
-            appState.settings.general.showOnHover,
+            appState.settings.general.showOnHoverEmptyMenuBar,
             appState.menuBarManager.showOnHoverAllowed
         else {
             return
@@ -375,7 +375,7 @@ extension HIDEventManager {
             return
         }
 
-        let delay = appState.settings.advanced.showOnHoverDelay
+        let delay = appState.settings.general.showOnHoverEmptyMenuBarDelay
 
         if hiddenSection.isHidden {
             guard isMouseInsideEmptyMenuBarSpace(appState: appState, screen: screen) else {
@@ -416,7 +416,7 @@ extension HIDEventManager {
 
     private func handlePreventShowOnHover(with event: NSEvent, appState: AppState, screen: NSScreen) {
         guard
-            appState.settings.general.showOnHover,
+            appState.settings.general.showOnHoverEmptyMenuBar,
             !appState.settings.general.useIceBar
         else {
             return

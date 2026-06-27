@@ -259,12 +259,31 @@ struct GeneralSettingsPane: View {
 
     // MARK: Show Options
 
+    private func formattedToSeconds(_ interval: TimeInterval) -> LocalizedStringKey {
+        let formatted = interval.formatted()
+        return if interval == 1 {
+            LocalizedStringKey(formatted + " second")
+        } else {
+            LocalizedStringKey(formatted + " seconds")
+        }
+    }
+
     @ViewBuilder
     private var showOptions: some View {
         Toggle("Show on click", isOn: $settings.showOnClick)
             .annotation("Click inside an empty area of the menu bar to show hidden menu bar items.")
-        Toggle("Show on hover", isOn: $settings.showOnHover)
+
+        Toggle("Show on hover over empty menu bar", isOn: $settings.showOnHoverEmptyMenuBar)
             .annotation("Hover over an empty area of the menu bar to show hidden menu bar items.")
+        if settings.showOnHoverEmptyMenuBar {
+            IceSlider(
+                formattedToSeconds(settings.showOnHoverEmptyMenuBarDelay),
+                value: $settings.showOnHoverEmptyMenuBarDelay,
+                in: 0...1,
+                step: 0.1
+            )
+        }
+
         Toggle("Show on scroll", isOn: $settings.showOnScroll)
             .annotation("Scroll or swipe in the menu bar to show hidden menu bar items.")
     }

@@ -30,9 +30,6 @@ final class AdvancedSettings: ObservableObject {
     /// when the user right-clicks the menu bar.
     @Published var enableSecondaryContextMenu = true
 
-    /// The delay before showing on hover.
-    @Published var showOnHoverDelay: TimeInterval = 0.2
-
     /// Time interval to temporarily show items for.
     @Published var tempShowInterval: TimeInterval = 15
 
@@ -55,7 +52,6 @@ final class AdvancedSettings: ObservableObject {
         Defaults.ifPresent(key: .showAllSectionsOnUserDrag, assign: &showAllSectionsOnUserDrag)
         Defaults.ifPresent(key: .hideApplicationMenus, assign: &hideApplicationMenus)
         Defaults.ifPresent(key: .enableSecondaryContextMenu, assign: &enableSecondaryContextMenu)
-        Defaults.ifPresent(key: .showOnHoverDelay, assign: &showOnHoverDelay)
         Defaults.ifPresent(key: .tempShowInterval, assign: &tempShowInterval)
 
         Defaults.ifPresent(key: .sectionDividerStyle) { rawValue in
@@ -101,13 +97,6 @@ final class AdvancedSettings: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { enable in
                 Defaults.set(enable, forKey: .enableSecondaryContextMenu)
-            }
-            .store(in: &c)
-
-        $showOnHoverDelay
-            .receive(on: DispatchQueue.main)
-            .sink { delay in
-                Defaults.set(delay, forKey: .showOnHoverDelay)
             }
             .store(in: &c)
 
