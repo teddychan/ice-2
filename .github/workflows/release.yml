@@ -23,7 +23,7 @@ permissions:
 
 jobs:
   release:
-    uses: teddychan/dragon-release-ci/.github/workflows/release-macos.yml@v1
+    uses: teddychan/dragon-release-ci/.github/workflows/release-macos.yml@v2
     secrets: inherit
     with:
       build_kind: xcodebuild
