@@ -23,10 +23,6 @@ struct AboutSettingsPane: View {
         contributeURL.appendingPathComponent("issues")
     }
 
-    private var donateURL: URL {
-        URL(string: "https://icemenubar.app/Donate")!
-    }
-
     private var lastUpdateCheckString: String {
         if let date = updatesManager.lastUpdateCheckDate {
             date.formatted(date: .abbreviated, time: .standard)
@@ -155,9 +151,6 @@ struct AboutSettingsPane: View {
             }
             Button("Report a Bug") {
                 openURL(issuesURL)
-            }
-            Button("Support Ice 2", systemImage: "heart.circle.fill") {
-                openURL(donateURL)
             }
         }
         .padding(8)

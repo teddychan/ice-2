@@ -10,16 +10,11 @@ Ice 2 is a powerful menu bar management tool. While its primary function is hidi
 [![Download](https://img.shields.io/badge/download-latest-brightgreen?style=flat-square)](https://github.com/teddychan/ice-2/releases/latest)
 ![Platform](https://img.shields.io/badge/platform-macOS-blue?style=flat-square)
 ![Requirements](https://img.shields.io/badge/requirements-macOS%2014%2B-fa4e49?style=flat-square)
-[![Sponsor](https://img.shields.io/badge/Sponsor%20%E2%9D%A4%EF%B8%8F-8A2BE2?style=flat-square)](https://github.com/sponsors/jordanbaird)
-[![Website](https://img.shields.io/badge/Website-015FBA?style=flat-square)](https://icemenubar.app)
+[![Website](https://img.shields.io/badge/Website-015FBA?style=flat-square)](https://www.dragonapp.com/ice-2/)
 [![License](https://img.shields.io/github/license/teddychan/ice-2?style=flat-square)](LICENSE)
 
 > [!NOTE]
-> Ice 2 is currently in active development. Some features have not yet been implemented. Download the latest release [here](https://github.com/teddychan/ice-2/releases/latest) and see the roadmap below for upcoming features.
-
-<a href="https://www.buymeacoffee.com/jordanbaird" target="_blank">
-    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;">
-</a>
+> Ice 2 is an independent, open-source fork of [Ice](https://github.com/jordanbaird/Ice) — the menu bar manager originally created by [Jordan Baird](https://github.com/jordanbaird) — now actively maintained by [Teddy Chan](https://github.com/teddychan) and carried forward to support modern macOS. Download the latest release [here](https://github.com/teddychan/ice-2/releases/latest) and see the roadmap below for upcoming features.
 
 ## Install
 
@@ -129,6 +124,10 @@ Ice 2 uses a number of system APIs that are available starting in macOS 14. As s
 
 ![Menu Bar Item Spacing](https://github.com/user-attachments/assets/b196aa7e-184a-4d4c-b040-502f4aae40a6)
 
+## Credits
+
+Ice 2 is a fork of [Ice](https://github.com/jordanbaird/Ice), created by [Jordan Baird](https://github.com/jordanbaird). All credit for the original app goes to him and its contributors. Ice 2 is currently maintained by [Teddy Chan](https://github.com/teddychan).
+
 ## License
 
-Ice 2 is available under the [GPL-3.0 license](LICENSE).
+Ice 2 is available under the [GPL-3.0 license](LICENSE), the same license as the original Ice.
