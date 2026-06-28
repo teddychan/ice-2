@@ -27,6 +27,10 @@ jobs:
     secrets: inherit
     with:
       build_kind: xcodebuild
+      # Ice 2 targets the macOS 26 SDK, so build on a macos-26 runner (the
+      # default macos-15 image lacks the SDK). This input drives the job's
+      # runs-on for all build kinds, not just swiftpm.
+      swiftpm_runner: macos-26
       app_slug: ice-2
       release_title_prefix: Ice 2
       bot_name: Ice 2 Release Bot
