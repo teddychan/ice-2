@@ -163,3 +163,17 @@ func GetProcessForPID(
     _ pid: pid_t,
     _ psn: inout ProcessSerialNumber
 ) -> OSStatus
+
+// MARK: - CGWindowList Capture
+
+// The `CGImage(windowListFromArrayScreenBounds:windowArray:imageOption:)`
+// initializer is marked unavailable in the macOS 26 SDK, but ScreenCaptureKit
+// still can't capture offscreen menu bar items, so we bind directly to the
+// underlying symbol. It follows the Create rule, returning a +1 retained image.
+// A distinct Swift name avoids redeclaring the SDK's unavailable symbol.
+@_silgen_name("CGWindowListCreateImageFromArray")
+func _CGWindowListCreateImageFromArray(
+    _ screenBounds: CGRect,
+    _ windowArray: CFArray,
+    _ imageOption: UInt32
+) -> Unmanaged<CGImage>?

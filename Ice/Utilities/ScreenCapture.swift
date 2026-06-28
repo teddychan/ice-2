@@ -48,15 +48,11 @@ enum ScreenCapture {
 
     /// Requests screen capture permissions.
     static func requestPermissions() {
-        if #available(macOS 15.0, *) {
-            // CGRequestScreenCaptureAccess() is broken on macOS 15. We can
-            // try accessing SCShareableContent to trigger a request if the
-            // user doesn't have permissions.
-            // TODO: Find out if we still need this as of macOS 26.
-            SCShareableContent.getWithCompletionHandler { _, _ in }
-        } else {
-            CGRequestScreenCaptureAccess()
-        }
+        // CGRequestScreenCaptureAccess() has been broken since macOS 15, so we
+        // trigger a request by accessing SCShareableContent when the user
+        // doesn't have permissions.
+        // TODO: Find out if we still need this as of macOS 26.
+        SCShareableContent.getWithCompletionHandler { _, _ in }
     }
 
     // MARK: Capture Window(s)
@@ -77,8 +73,9 @@ enum ScreenCapture {
         }
         let bounds = screenBounds ?? .null
         // ScreenCaptureKit doesn't support capturing images of offscreen menu bar
-        // items, so we unfortunately have to use the deprecated CGWindowList API.
-        return CGImage(windowListFromArrayScreenBounds: bounds, windowArray: array, imageOption: option)
+        // items, so we unfortunately have to use the deprecated CGWindowList API,
+        // reached via a shim since its Swift initializer is unavailable on macOS 26.
+        return _CGWindowListCreateImageFromArray(bounds, array, option.rawValue)?.takeRetainedValue()
     }
 
     /// Captures an image of a window.

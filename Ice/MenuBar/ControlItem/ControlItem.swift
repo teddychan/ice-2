@@ -624,16 +624,6 @@ enum ControlItemDefaults {
         }
     }
 
-    /// Migrates the given control item defaults key from an old
-    /// autosave name to a new autosave name.
-    static func migrate<Value>(key: Key<Value>, from oldAutosaveName: String, to newAutosaveName: String) {
-        guard newAutosaveName != oldAutosaveName else {
-            return
-        }
-        Self[key, newAutosaveName] = Self[key, oldAutosaveName]
-        Self[key, oldAutosaveName] = nil
-    }
-
     /// Performs some initial required setup work before the
     /// creation of a control item.
     fileprivate static func preflightSetup(for controlItem: ControlItem) {
