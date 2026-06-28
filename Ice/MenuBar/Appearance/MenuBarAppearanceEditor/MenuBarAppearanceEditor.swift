@@ -19,28 +19,19 @@ struct MenuBarAppearanceEditor: View {
     let location: Location
 
     var body: some View {
-        if #available(macOS 26.0, *) {
-            bodyContent
-                .safeAreaBar(edge: .bottom, spacing: 0) {
-                    bottomBar
-                }
-        } else {
-            VStack(spacing: 0) {
-                bodyContent
+        bodyContent
+            .safeAreaBar(edge: .bottom, spacing: 0) {
                 bottomBar
             }
-        }
     }
 
     @ViewBuilder
     private var bodyContent: some View {
         if appState.menuBarManager.isMenuBarHiddenBySystemUserDefaults {
             cannotEdit
-        } else if #available(macOS 26.0, *) {
-            mainForm
-                .scrollEdgeEffectStyle(.hard, for: .vertical)
         } else {
             mainForm
+                .scrollEdgeEffectStyle(.hard, for: .vertical)
         }
     }
 
@@ -317,11 +308,7 @@ private struct PreviewButtonStyle: ButtonStyle {
     @Binding var isPressed: Bool
 
     private var borderShape: some InsettableShape {
-        if #available(macOS 26.0, *) {
-            AnyInsettableShape(Capsule(style: .continuous))
-        } else {
-            AnyInsettableShape(RoundedRectangle(cornerRadius: 6, style: .circular))
-        }
+        AnyInsettableShape(Capsule(style: .continuous))
     }
 
     func makeBody(configuration: Configuration) -> some View {

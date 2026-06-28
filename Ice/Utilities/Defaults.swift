@@ -175,19 +175,6 @@ extension Defaults {
         // MARK: Appearance Settings
         case menuBarAppearanceConfigurationV2 = "MenuBarAppearanceConfigurationV2"
 
-        // MARK: Deprecated (Appearance Settings)
-        case menuBarHasBorder = "MenuBarHasBorder"
-        case menuBarBorderColor = "MenuBarBorderColor"
-        case menuBarBorderWidth = "MenuBarBorderWidth"
-        case menuBarHasShadow = "MenuBarHasShadow"
-        case menuBarTintKind = "MenuBarTintKind"
-        case menuBarTintColor = "MenuBarTintColor"
-        case menuBarTintGradient = "MenuBarTintGradient"
-        case menuBarShapeKind = "MenuBarShapeKind"
-        case menuBarFullShapeInfo = "MenuBarFullShapeInfo"
-        case menuBarSplitShapeInfo = "MenuBarSplitShapeInfo"
-        case menuBarAppearanceConfiguration = "MenuBarAppearanceConfiguration"
-
         // MARK: Deprecated (Advanced Settings)
         case showSectionDividers = "ShowSectionDividers"
         case canToggleAlwaysHiddenSection = "CanToggleAlwaysHiddenSection"
