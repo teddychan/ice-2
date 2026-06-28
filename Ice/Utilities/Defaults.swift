@@ -148,6 +148,9 @@ extension Defaults {
         case iceBarLocation = "IceBarLocation"
         case showOnClick = "ShowOnClick"
         case showOnHover = "ShowOnHover"
+        case showOnHoverDelay = "ShowOnHoverDelay"
+        case showOnHoverOverIceIcon = "ShowOnHoverOverIceIcon"
+        case showOnHoverOverIceIconDelay = "ShowOnHoverOverIceIconDelay"
         case showOnScroll = "ShowOnScroll"
         case autoRehide = "AutoRehide"
         case rehideStrategy = "RehideStrategy"
@@ -167,7 +170,6 @@ extension Defaults {
         case sectionDividerStyle = "SectionDividerStyle"
         case hideApplicationMenus = "HideApplicationMenus"
         case enableSecondaryContextMenu = "EnableSecondaryContextMenu"
-        case showOnHoverDelay = "ShowOnHoverDelay"
         case tempShowInterval = "TempShowInterval"
 
         // MARK: Appearance Settings

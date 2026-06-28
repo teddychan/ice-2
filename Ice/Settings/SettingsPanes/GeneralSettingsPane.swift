@@ -46,8 +46,6 @@ struct GeneralSettingsPane: View {
             }
             IceSection {
                 showOptions
-            }
-            IceSection {
                 rehideOptions
             }
             IceSection {
@@ -259,12 +257,47 @@ struct GeneralSettingsPane: View {
 
     // MARK: Show Options
 
+    private func formattedToSeconds(_ interval: TimeInterval) -> LocalizedStringKey {
+        let formatted = interval.formatted()
+        return if interval == 1 {
+            LocalizedStringKey(formatted + " second")
+        } else {
+            LocalizedStringKey(formatted + " seconds")
+        }
+    }
+
     @ViewBuilder
     private var showOptions: some View {
         Toggle("Show on click", isOn: $settings.showOnClick)
             .annotation("Click inside an empty area of the menu bar to show hidden menu bar items.")
-        Toggle("Show on hover", isOn: $settings.showOnHover)
+
+        Toggle("Show on hover over empty menu bar", isOn: $settings.showOnHoverEmptyMenuBar)
             .annotation("Hover over an empty area of the menu bar to show hidden menu bar items.")
+        if settings.showOnHoverEmptyMenuBar {
+            IceSlider(
+                formattedToSeconds(settings.showOnHoverEmptyMenuBarDelay),
+                value: $settings.showOnHoverEmptyMenuBarDelay,
+                in: 0...1,
+                step: 0.1
+            )
+            .annotation("The amount of time to wait before showing hidden items.")
+        }
+
+        VStack(alignment: .leading, spacing: 6) {
+            Toggle("Show on hover over Ice 2 icon", isOn: $settings.showOnHoverOverIceIcon)
+                .annotation("Hover over the Ice 2 icon to show hidden menu bar items. Requires the Ice 2 icon to be shown.")
+            if settings.showOnHoverOverIceIcon {
+                IceSlider(
+                    formattedToSeconds(settings.showOnHoverOverIceIconDelay),
+                    value: $settings.showOnHoverOverIceIconDelay,
+                    in: 0...1,
+                    step: 0.1
+                )
+                .annotation("The amount of time to wait before showing hidden items.")
+            }
+        }
+        .disabled(!settings.showIceIcon)
+
         Toggle("Show on scroll", isOn: $settings.showOnScroll)
             .annotation("Scroll or swipe in the menu bar to show hidden menu bar items.")
     }
