@@ -159,7 +159,10 @@ final class MenuBarOverlayPanel: NSPanel {
                         if hasDoneInitialUpdate {
                             try await Task.sleep(for: .seconds(1))
                         } else {
-                            try await Task.sleep(for: .milliseconds(1))
+                            // Poll briefly while the app menu settles after a switch.
+                            // 50ms stays responsive without hammering the synchronous
+                            // Accessibility API every millisecond.
+                            try await Task.sleep(for: .milliseconds(50))
                         }
                         continue
                     }

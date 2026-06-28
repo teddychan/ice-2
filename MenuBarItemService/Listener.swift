@@ -45,7 +45,6 @@ final class Listener {
     /// Activates the listener without checking if it is already active,
     /// with the requirement that session peers must be signed with the
     /// same team identifier as the service process.
-    @available(macOS 26.0, *)
     private func uncheckedActivateWithSameTeamRequirement() throws {
         listener = try XPCListener(service: name, requirement: .isFromSameTeam()) { [weak self] request in
             request.accept { message in
@@ -76,12 +75,10 @@ final class Listener {
             // The `isFromSameTeam` requirement can only be satisfied when the
             // process has a Team Identifier. Ad-hoc/local development builds
             // have none, so fall back to an unrestricted listener for them.
-            if #available(macOS 26.0, *), CodeSigning.hasTeamIdentifier {
+            if CodeSigning.hasTeamIdentifier {
                 try uncheckedActivateWithSameTeamRequirement()
             } else {
-                if #available(macOS 26.0, *) {
-                    Logger.default.notice("Activating listener without same-team requirement (no Team Identifier)")
-                }
+                Logger.default.notice("Activating listener without same-team requirement (no Team Identifier)")
                 try uncheckedActivate()
             }
         } catch {

@@ -14,20 +14,11 @@ struct SettingsView: View {
     private let sidebarPadding: CGFloat = 3
 
     private var sidebarWidth: CGFloat {
-        if #available(macOS 26.0, *) {
-            switch sidebarRowSize {
-            case .small: 200
-            case .medium: 220
-            case .large: 240
-            @unknown default: 220
-            }
-        } else {
-            switch sidebarRowSize {
-            case .small: 190
-            case .medium: 215
-            case .large: 230
-            @unknown default: 215
-            }
+        switch sidebarRowSize {
+        case .small: 200
+        case .medium: 220
+        case .large: 240
+        @unknown default: 220
         }
     }
 
@@ -107,23 +98,13 @@ struct SettingsView: View {
 
     @ToolbarContentBuilder
     private var sidebarToolbarSpacer: some ToolbarContent {
-        if #available(macOS 26.0, *) {
-            ToolbarSpacer(.flexible)
-        } else {
-            ToolbarItem {
-                Spacer(minLength: 0)
-            }
-        }
+        ToolbarSpacer(.flexible)
     }
 
     @ViewBuilder
     private var detailView: some View {
-        if #available(macOS 26.0, *) {
-            settingsPane
-                .scrollEdgeEffectStyle(.hard, for: .top)
-        } else {
-            settingsPane
-        }
+        settingsPane
+            .scrollEdgeEffectStyle(.hard, for: .top)
     }
 
     @ViewBuilder
