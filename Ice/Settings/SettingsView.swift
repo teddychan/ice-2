@@ -112,22 +112,23 @@ struct SettingsView: View {
         switch navigationState.settingsNavigationIdentifier {
         case .general:
             GeneralSettingsPane(settings: appState.settings.general)
-        case .menuBarLayout:
-            MenuBarLayoutSettingsPane(
+        case .appearance:
+            AppearanceSettingsPane(
+                appearanceManager: appState.appearanceManager,
                 itemManager: appState.itemManager,
                 profileSettings: appState.settings.layoutProfiles,
                 spacerManager: appState.spacerManager
             )
-        case .menuBarAppearance:
-            MenuBarAppearanceSettingsPane(appearanceManager: appState.appearanceManager)
         case .hotkeys:
             HotkeysSettingsPane(settings: appState.settings.hotkeys)
+        case .updates:
+            UpdatesSettingsPane(updatesManager: appState.updatesManager)
         case .advanced:
             AdvancedSettingsPane(settings: appState.settings.advanced)
         case .backup:
             BackupSettingsPane()
         case .about:
-            AboutSettingsPane(updatesManager: appState.updatesManager)
+            AboutSettingsPane()
         }
     }
 }
