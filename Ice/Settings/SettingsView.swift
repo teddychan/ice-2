@@ -124,6 +124,8 @@ struct SettingsView: View {
             HotkeysSettingsPane(settings: appState.settings.hotkeys)
         case .advanced:
             AdvancedSettingsPane(settings: appState.settings.advanced)
+        case .backup:
+            BackupSettingsPane()
         case .about:
             AboutSettingsPane(updatesManager: appState.updatesManager)
         }

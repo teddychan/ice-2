@@ -96,11 +96,18 @@ rm -rf ~/Library/Application\ Support/com.jordanbaird.Ice \
 
 - [x] Launch at login
 - [x] Automatic updates
+- [x] Back up & restore settings to a folder you choose (sync across Macs via Dropbox / iCloud Drive / Google Drive)
 - [ ] Menu bar widgets
 
 ## Why does Ice 2 only support macOS 14 and later?
 
 Ice 2 uses a number of system APIs that are available starting in macOS 14. As such, there are no plans to support earlier versions of macOS.
+
+## Can I back up, restore, or sync my settings?
+
+Yes. Open **Settings ▸ Backup & Restore** and choose a backup folder. Use **Back Up Now** to save a snapshot of all your Ice 2 settings (layout profiles, item groups, spacers, triggers, hotkeys, and appearance), and Ice 2 also backs up automatically when you quit. The newest 10 backups are kept; you can restore any of them with one click (Ice 2 relaunches to apply).
+
+To **sync across Macs** or move to a new Mac, point the backup folder at a synced location such as Dropbox, iCloud Drive, or Google Drive — your settings then appear on your other Macs, where you can restore them.
 
 ## Gallery
 

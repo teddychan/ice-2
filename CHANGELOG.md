@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.6.0 - 2026-06-29
+
+### Added
+
+- **Back up & restore your settings.** A new **Backup & Restore** settings pane saves a snapshot of all your Ice 2 settings — layout profiles, item groups, spacers, triggers, hotkeys, and appearance — to a folder you choose. Ice 2 keeps the newest 10 backups, backs up automatically when you quit, and restores any backup in one click. Point the backup folder at Dropbox, iCloud Drive, or Google Drive to sync your settings across Macs or set up a new Mac.
+
 ## 2.5.3 - 2026-06-28
 
 ### Added
