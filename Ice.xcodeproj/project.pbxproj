@@ -435,7 +435,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 2.6.0;
+				MARKETING_VERSION = 2.7.0;
 				INFOPLIST_KEY_CFBundleDisplayName = "Ice 2";
 				INFOPLIST_KEY_CFBundleName = "Ice 2";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jordanbaird.Ice;
@@ -470,7 +470,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 2.6.0;
+				MARKETING_VERSION = 2.7.0;
 				INFOPLIST_KEY_CFBundleDisplayName = "Ice 2";
 				INFOPLIST_KEY_CFBundleName = "Ice 2";
 				PRODUCT_BUNDLE_IDENTIFIER = com.jordanbaird.Ice;
