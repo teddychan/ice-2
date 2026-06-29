@@ -172,8 +172,7 @@ enum SettingsBackup {
     /// Existing backup files in `folder`, newest first (filenames sort
     /// chronologically because the timestamp is zero-padded).
     static func listBackups(in folder: URL) -> [URL] {
-        let contents = (try? FileManager.default.contentsOfDirectory(
-            at: folder, includingPropertiesForKeys: nil)) ?? []
+        let contents = (try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil)) ?? []
         return contents
             .filter { $0.pathExtension == fileExtension }
             .sorted { $0.lastPathComponent > $1.lastPathComponent }
