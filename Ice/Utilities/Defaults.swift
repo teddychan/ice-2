@@ -136,7 +136,7 @@ enum Defaults {
 }
 
 extension Defaults {
-    enum Key: String {
+    enum Key: String, CaseIterable {
         // MARK: General Settings
         case showIceIcon = "ShowIceIcon"
         case iceIcon = "IceIcon"
@@ -174,6 +174,10 @@ extension Defaults {
 
         // MARK: Appearance Settings
         case menuBarAppearanceConfigurationV2 = "MenuBarAppearanceConfigurationV2"
+
+        // MARK: Backup & Restore (meta-settings; excluded from the backup payload)
+        case backupFolderPath = "BackupFolderPath"
+        case automaticBackupEnabled = "AutomaticBackupEnabled"
 
         // MARK: Deprecated (Advanced Settings)
         case showSectionDividers = "ShowSectionDividers"

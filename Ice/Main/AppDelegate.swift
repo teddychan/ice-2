@@ -75,6 +75,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         return true
     }
 
+    func applicationWillTerminate(_ notification: Notification) {
+        // Keep the (possibly synced) backup folder current on quit. Best-effort:
+        // a failure here must never block termination.
+        guard SettingsBackup.automaticBackupEnabled() else {
+            return
+        }
+        do {
+            try SettingsBackup.performBackup(date: Date())
+        } catch {
+            Logger.default.error("Automatic backup on quit failed - \(error.localizedDescription)")
+        }
+    }
+
     // MARK: Other Methods
 
     /// Opens the settings window and activates the app.
