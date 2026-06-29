@@ -15,15 +15,15 @@ struct IceSectionOptions: OptionSet {
     static let `default`: IceSectionOptions = [.isBordered, .hasDividers]
 }
 
+/// A settings section built on the system's `Section`, so it adopts the
+/// standard grouped `Form` appearance (inset box, row separators, header style).
+///
+/// The `spacing` and `options` parameters are retained for source compatibility;
+/// grouping and dividers are now provided by the system grouped `Form`.
 struct IceSection<Header: View, Content: View, Footer: View>: View {
     private let header: Header
     private let content: Content
     private let footer: Footer
-    private let spacing: CGFloat
-    private let options: IceSectionOptions
-
-    private var isBordered: Bool { options.contains(.isBordered) }
-    private var hasDividers: Bool { options.contains(.hasDividers) }
 
     init(
         spacing: CGFloat = .iceSectionDefaultSpacing,
@@ -32,8 +32,6 @@ struct IceSection<Header: View, Content: View, Footer: View>: View {
         @ViewBuilder content: () -> Content,
         @ViewBuilder footer: () -> Footer
     ) {
-        self.spacing = spacing
-        self.options = options
         self.header = header()
         self.content = content()
         self.footer = footer()
@@ -90,7 +88,7 @@ struct IceSection<Header: View, Content: View, Footer: View>: View {
         @ViewBuilder content: () -> Content
     ) where Header == Text, Footer == EmptyView {
         self.init(spacing: spacing, options: options) {
-            Text(title).font(.headline)
+            Text(title)
         } content: {
             content()
         }
@@ -98,73 +96,12 @@ struct IceSection<Header: View, Content: View, Footer: View>: View {
 
     var body: some View {
         Section {
-            if isBordered {
-                IceGroupBox {
-                    header
-                } content: {
-                    contentLayout
-                } footer: {
-                    footer
-                }
-            } else {
-                VStack(alignment: .leading) {
-                    header
-                        .accessibilityAddTraits(.isHeader)
-                        .padding([.top, .leading], 8)
-                        .padding(.bottom, 2)
-
-                    contentLayout
-
-                    footer
-                        .padding([.bottom, .leading], 8)
-                        .padding(.top, 2)
-                }
-                .focusSection()
-                .accessibilityElement(children: .contain)
-            }
+            content
+        } header: {
+            header
+        } footer: {
+            footer
         }
-        .focusSection()
-        .accessibilityElement(children: .contain)
-    }
-
-    @ViewBuilder
-    private var contentLayout: some View {
-        if hasDividers {
-            _VariadicView.Tree(IceSectionLayout(spacing: spacing)) {
-                content.frame(maxWidth: .infinity)
-            }
-        } else {
-            content.frame(maxWidth: .infinity)
-        }
-    }
-}
-
-// MARK: - IceSectionLayout
-
-private struct IceSectionLayout: _VariadicView_UnaryViewRoot {
-    let spacing: CGFloat
-
-    @ViewBuilder
-    func body(children: _VariadicView.Children) -> some View {
-        let last = children.last?.id
-        VStack(alignment: .leading, spacing: spacing) {
-            ForEach(children) { child in
-                child
-                if child.id != last {
-                    IceSectionDivider()
-                }
-            }
-        }
-    }
-}
-
-// MARK: - IceSectionDivider
-
-private struct IceSectionDivider: View {
-    var body: some View {
-        Rectangle()
-            .fill(.separator.quinary)
-            .frame(height: 1)
     }
 }
 

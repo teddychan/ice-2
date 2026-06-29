@@ -578,10 +578,11 @@ final class ControlItem {
         let settingsItem = menuItem(
             title: "Settings…",
             symbolName: "gearshape",
-            action: #selector(AppDelegate.openSettingsWindow),
+            action: #selector(openSettings),
             keyEquivalent: ","
         )
         settingsItem.keyEquivalentModifierMask = .command
+        settingsItem.target = self
         menu.addItem(settingsItem)
 
         menu.addItem(.separator())
@@ -628,22 +629,39 @@ final class ControlItem {
         appState?.menuBarManager.searchPanel.show()
     }
 
-    /// Opens the settings window and checks for app updates.
+    /// Brings the app to the front and checks for app updates.
     @objc private func checkForUpdates() {
         guard let appState else {
             return
         }
+        // Activate first so Sparkle's update dialog appears in front, not
+        // behind the previously active app.
+        appState.activate(withPolicy: .regular)
         appState.updatesManager.checkForUpdates()
+    }
+
+    /// Opens the settings window navigated to the General pane.
+    @objc private func openSettings() {
+        presentSettings(navigatingTo: .general)
     }
 
     /// Opens the settings window navigated to the About pane.
     @objc private func openAbout() {
+        presentSettings(navigatingTo: .about)
+    }
+
+    /// Opens the settings window at the given pane, bringing the app to the front.
+    private func presentSettings(navigatingTo identifier: SettingsNavigationIdentifier) {
         guard let appState else {
             return
         }
-        appState.navigationState.settingsNavigationIdentifier = .about
-        appState.activate(withPolicy: .regular)
-        appState.openWindow(.settings)
+        appState.navigationState.settingsNavigationIdentifier = identifier
+        // A short delay makes activating and opening the window reliable for an
+        // accessory (LSUIElement) app — matches `AppDelegate.openSettingsWindow`.
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            appState.activate(withPolicy: .regular)
+            appState.openWindow(.settings)
+        }
     }
 
     /// Confirms and performs a clean uninstall of the app.

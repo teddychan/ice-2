@@ -5,12 +5,12 @@
 
 import SwiftUI
 
+/// A settings form built on the system's grouped `Form`, so panes adopt the
+/// standard macOS inset-grouped appearance, fonts, and control sizing.
+///
+/// The `alignment`, `padding`, and `spacing` parameters are retained for source
+/// compatibility with existing call sites; layout is now driven by `Form`.
 struct IceForm<Content: View>: View {
-    @State private var contentFrame = CGRect.zero
-
-    private let alignment: HorizontalAlignment
-    private let padding: EdgeInsets
-    private let spacing: CGFloat
     private let content: Content
 
     init(
@@ -19,9 +19,6 @@ struct IceForm<Content: View>: View {
         spacing: CGFloat = .iceFormDefaultSpacing,
         @ViewBuilder content: () -> Content
     ) {
-        self.alignment = alignment
-        self.padding = padding
-        self.spacing = spacing
         self.content = content()
     }
 
@@ -31,62 +28,16 @@ struct IceForm<Content: View>: View {
         spacing: CGFloat = .iceFormDefaultSpacing,
         @ViewBuilder content: () -> Content
     ) {
-        self.init(
-            alignment: alignment,
-            padding: EdgeInsets(all: padding),
-            spacing: spacing
-        ) {
-            content()
-        }
+        self.content = content()
     }
 
     var body: some View {
-        GeometryReader { geometry in
-            ScrollView {
-                contentLayout.frame(
-                    maxWidth: geometry.size.width,
-                    minHeight: geometry.size.height,
-                    alignment: .top
-                )
-            }
-            .scrollContentBackground(.hidden)
-            .scrollIndicatorsFlash(onAppear: true)
-            .scrollDisabled(contentFrame.height > 0 && contentFrame.height <= geometry.size.height)
+        Form {
+            content
         }
+        .formStyle(.grouped)
         .focusSection()
         .accessibilityElement(children: .contain)
-    }
-
-    @ViewBuilder
-    private var contentLayout: some View {
-        VStack(alignment: alignment, spacing: spacing) {
-            content
-                .labeledContentStyle(IceFormLabeledContentStyle())
-                .toggleStyle(IceFormToggleStyle())
-        }
-        .padding(padding)
-        .onFrameChange(update: $contentFrame)
-    }
-}
-
-private struct IceFormLabeledContentStyle: LabeledContentStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        LabeledContent {
-            configuration.content
-                .layoutPriority(1)
-        } label: {
-            configuration.label
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .layoutPriority(0)
-        }
-    }
-}
-
-private struct IceFormToggleStyle: ToggleStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        Toggle(configuration)
-            .toggleStyle(.switch)
-            .controlSize(.mini)
     }
 }
 

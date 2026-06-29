@@ -71,7 +71,7 @@ final class MenuBarItemManager: ObservableObject {
 
         appState.navigationState.$settingsNavigationIdentifier
             .sink { [weak self] identifier in
-                guard let self, identifier == .menuBarLayout else {
+                guard let self, identifier == .appearance else {
                     return
                 }
                 Task {
