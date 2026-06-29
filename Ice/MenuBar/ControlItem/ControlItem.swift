@@ -557,19 +557,8 @@ final class ControlItem {
 
         menu.addItem(.separator())
 
-        // App menu (SKILL.md §5A): a grouping with the standard lifecycle items.
-        let appMenuItem = NSMenuItem(title: "Ice 2", action: nil, keyEquivalent: "")
-        appMenuItem.image = NSImage(systemSymbolName: "ellipsis.circle", accessibilityDescription: nil)
-        appMenuItem.submenu = createAppMenu()
-        menu.addItem(appMenuItem)
-
-        return menu
-    }
-
-    /// Creates the standard "App menu" grouping (SKILL.md §5A).
-    private func createAppMenu() -> NSMenu {
-        let menu = NSMenu(title: "Ice 2")
-
+        // Standard lifecycle items (SKILL.md §5A), flattened to the top level
+        // rather than nested in an "Ice 2" submenu.
         let aboutItem = menuItem(
             title: "About Ice 2",
             symbolName: "info.circle",
