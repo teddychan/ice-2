@@ -5,6 +5,7 @@
 
 import Cocoa
 import Combine
+import LaunchAtLogin
 
 // MARK: - ControlItem
 
@@ -492,6 +493,18 @@ final class ControlItem {
         }
     }
 
+    /// Returns a menu item leading with the given SF Symbol.
+    private func menuItem(
+        title: String,
+        symbolName: String,
+        action: Selector,
+        keyEquivalent: String = ""
+    ) -> NSMenuItem {
+        let item = NSMenuItem(title: title, action: action, keyEquivalent: keyEquivalent)
+        item.image = NSImage(systemSymbolName: symbolName, accessibilityDescription: nil)
+        return item
+    }
+
     /// Creates a menu to show under the control item.
     private func createMenu(with appState: AppState) -> NSMenu {
         func hotkey(withAction action: HotkeyAction) -> Hotkey? {
@@ -500,20 +513,12 @@ final class ControlItem {
 
         let menu = NSMenu(title: "Ice 2")
 
-        let settingsItem = NSMenuItem(
-            title: "Ice 2 Settings…",
-            action: #selector(AppDelegate.openSettingsWindow),
-            keyEquivalent: ","
-        )
-        settingsItem.keyEquivalentModifierMask = .command
-        menu.addItem(settingsItem)
-
-        menu.addItem(.separator())
-
-        let searchItem = NSMenuItem(
+        // Quick-actions zone: the Ice-specific items only. Settings and
+        // Check-for-updates live in the App menu below (de-dup per spec).
+        let searchItem = menuItem(
             title: "Search Menu Bar Items",
-            action: #selector(showSearchPanel),
-            keyEquivalent: ""
+            symbolName: "magnifyingglass",
+            action: #selector(showSearchPanel)
         )
         if
             let hotkey = hotkey(withAction: .searchMenuBarItems),
@@ -525,8 +530,6 @@ final class ControlItem {
         searchItem.target = self
         menu.addItem(searchItem)
 
-        menu.addItem(.separator())
-
         // Add items to toggle the hidden and always-hidden sections.
         for name: MenuBarSection.Name in [.hidden, .alwaysHidden] {
             guard
@@ -535,10 +538,10 @@ final class ControlItem {
             else {
                 continue
             }
-            let item = NSMenuItem(
+            let item = menuItem(
                 title: "\(section.isHidden ? "Show" : "Hide") \(name.displayString) Section",
-                action: #selector(toggleMenuBarSection),
-                keyEquivalent: ""
+                symbolName: section.isHidden ? "eye" : "eye.slash",
+                action: #selector(toggleMenuBarSection)
             )
             if
                 let hotkey = section.hotkey,
@@ -554,18 +557,57 @@ final class ControlItem {
 
         menu.addItem(.separator())
 
-        let checkForUpdatesItem = NSMenuItem(
-            title: "Check for Updates…",
-            action: #selector(checkForUpdates),
-            keyEquivalent: ""
+        // App menu (SKILL.md §5A): a grouping with the standard lifecycle items.
+        let appMenuItem = NSMenuItem(title: "Ice 2", action: nil, keyEquivalent: "")
+        appMenuItem.image = NSImage(systemSymbolName: "ellipsis.circle", accessibilityDescription: nil)
+        appMenuItem.submenu = createAppMenu()
+        menu.addItem(appMenuItem)
+
+        return menu
+    }
+
+    /// Creates the standard "App menu" grouping (SKILL.md §5A).
+    private func createAppMenu() -> NSMenu {
+        let menu = NSMenu(title: "Ice 2")
+
+        let aboutItem = menuItem(
+            title: "About Ice 2",
+            symbolName: "info.circle",
+            action: #selector(openAbout)
+        )
+        aboutItem.target = self
+        menu.addItem(aboutItem)
+
+        let checkForUpdatesItem = menuItem(
+            title: "Check for updates…",
+            symbolName: "arrow.triangle.2.circlepath",
+            action: #selector(checkForUpdates)
         )
         checkForUpdatesItem.target = self
         menu.addItem(checkForUpdatesItem)
 
+        let settingsItem = menuItem(
+            title: "Settings…",
+            symbolName: "gearshape",
+            action: #selector(AppDelegate.openSettingsWindow),
+            keyEquivalent: ","
+        )
+        settingsItem.keyEquivalentModifierMask = .command
+        menu.addItem(settingsItem)
+
         menu.addItem(.separator())
 
-        let quitItem = NSMenuItem(
+        let uninstallItem = menuItem(
+            title: "Uninstall Ice 2…",
+            symbolName: "trash",
+            action: #selector(performUninstall)
+        )
+        uninstallItem.target = self
+        menu.addItem(uninstallItem)
+
+        let quitItem = menuItem(
             title: "Quit Ice 2",
+            symbolName: "power",
             action: #selector(NSApp.terminate),
             keyEquivalent: "q"
         )
@@ -603,6 +645,70 @@ final class ControlItem {
             return
         }
         appState.updatesManager.checkForUpdates()
+    }
+
+    /// Opens the settings window navigated to the About pane.
+    @objc private func openAbout() {
+        guard let appState else {
+            return
+        }
+        appState.navigationState.settingsNavigationIdentifier = .about
+        appState.activate(withPolicy: .regular)
+        appState.openWindow(.settings)
+    }
+
+    /// Confirms and performs a clean uninstall of the app.
+    @objc private func performUninstall() {
+        guard let appState else {
+            return
+        }
+        appState.activate(withPolicy: .regular)
+
+        let alert = NSAlert()
+        alert.alertStyle = .critical
+        alert.messageText = "Uninstall Ice 2?"
+        alert.informativeText = """
+            This will quit Ice 2 and move it to the Trash, then remove its login \
+            item and saved settings.
+
+            Accessibility and Screen Recording permissions must be removed by you \
+            in System Settings ▸ Privacy & Security — macOS does not let the app \
+            revoke them.
+            """
+        // Destructive layout: Uninstall on the left, Cancel as the default on the right.
+        let uninstallButton = alert.addButton(withTitle: "Uninstall")
+        uninstallButton.hasDestructiveAction = true
+        let cancelButton = alert.addButton(withTitle: "Cancel")
+        alert.window.defaultButtonCell = cancelButton.cell as? NSButtonCell
+
+        guard alert.runModal() == .alertFirstButtonReturn else {
+            return
+        }
+
+        // Unregister the login item.
+        LaunchAtLogin.isEnabled = false
+
+        // Remove the UserDefaults domain and preferences file.
+        let bundleIdentifier = "com.jordanbaird.Ice"
+        UserDefaults.standard.removePersistentDomain(forName: bundleIdentifier)
+
+        let fileManager = FileManager.default
+        let library = fileManager.homeDirectoryForCurrentUser.appending(path: "Library")
+        let leftovers = [
+            library.appending(path: "Preferences/\(bundleIdentifier).plist"),
+            library.appending(path: "Saved Application State/\(bundleIdentifier).savedState"),
+        ]
+        for url in leftovers {
+            try? fileManager.removeItem(at: url)
+        }
+
+        // Move the app bundle to the Trash, then quit.
+        let bundleURL = Bundle.main.bundleURL
+        NSWorkspace.shared.recycle([bundleURL]) { _, _ in
+            DispatchQueue.main.async {
+                NSApp.terminate(nil)
+            }
+        }
     }
 }
 
