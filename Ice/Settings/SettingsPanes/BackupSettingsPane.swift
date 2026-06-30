@@ -141,6 +141,9 @@ struct BackupSettingsPane: View {
     // MARK: Actions
 
     private func refresh() {
+        // Enforce the retention limit on view, so a folder that already holds more
+        // than the limit (e.g. synced from another Mac) is reconciled down to it.
+        SettingsBackup.prune(in: folderURL, keeping: SettingsBackup.defaultRetentionLimit)
         backups = SettingsBackup.listBackups(in: folderURL).map { url in
             let date = (try? url.resourceValues(forKeys: [.contentModificationDateKey]))?
                 .contentModificationDate ?? .distantPast
