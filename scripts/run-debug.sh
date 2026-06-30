@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 #
 # run-debug.sh — build Ice, re-id the product as a standalone "Ice 2 Debug.app"
-# (bundle id com.jordanbaird.Ice.debug), ad-hoc sign it, and (re)launch it.
+# (bundle id com.dragonapp.ice.debug), ad-hoc sign it, and (re)launch it.
 #
-# Why: the debug build shares the installed app's bundle id (com.jordanbaird.Ice),
+# Why: the debug build shares the installed app's bundle id (com.dragonapp.ice),
 # which collides on TCC permissions, the menu-bar manager, and the UserDefaults
-# domain. Re-iding to com.jordanbaird.Ice.debug gives the debug build its own
+# domain. Re-iding to com.dragonapp.ice.debug gives the debug build its own
 # permissions and settings so it can run next to an installed Ice 2 without
 # conflict. The bundled MenuBarItemService XPC keeps its original id (the host
 # resolves it by that id from inside the bundle), so it must NOT be changed.
@@ -21,7 +21,7 @@ set -euo pipefail
 
 SCHEME="Ice"
 CONFIG="Debug"
-DEBUG_ID="com.jordanbaird.Ice.debug"
+DEBUG_ID="com.dragonapp.ice.debug"
 DEBUG_NAME="Ice 2 Debug"
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

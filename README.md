@@ -45,11 +45,11 @@ If you installed manually, delete `Ice 2.app` from your `Applications` folder.
 To also remove Ice 2 settings and cached data:
 
 ```sh
-rm -rf ~/Library/Application\ Support/com.jordanbaird.Ice \
-       ~/Library/Caches/com.jordanbaird.Ice \
-       ~/Library/HTTPStorages/com.jordanbaird.Ice \
-       ~/Library/Preferences/com.jordanbaird.Ice.plist \
-       ~/Library/Saved\ Application\ State/com.jordanbaird.Ice.savedState
+rm -rf ~/Library/Application\ Support/com.dragonapp.ice \
+       ~/Library/Caches/com.dragonapp.ice \
+       ~/Library/HTTPStorages/com.dragonapp.ice \
+       ~/Library/Preferences/com.dragonapp.ice.plist \
+       ~/Library/Saved\ Application\ State/com.dragonapp.ice.savedState
 ```
 
 ## Features/Roadmap

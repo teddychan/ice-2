@@ -39,9 +39,9 @@ public repos get free Actions minutes, so no self-hosted runner is required. The
    - `spctl -a -t install` accepts the downloaded zip's app.
 
 ## Notes
-- The app bundle id is `com.jordanbaird.Ice` (inherited from upstream). Do not
-  change it — it preserves users' existing settings and matches the cask's
-  `uninstall`/`zap` paths.
+- The app bundle id is `com.dragonapp.ice` (rebranded from the upstream
+  `com.jordanbaird.Ice`). Keep the cask's `uninstall`/`zap` paths in sync with
+  this id.
 - The first tagged run validates the `xcodebuild` export-signing path. If
   `-exportArchive` errors on signing style, set `signingStyle` to `automatic` in
   `.github/release/exportOptions.plist` and drop the manual `CODE_SIGN_*`
