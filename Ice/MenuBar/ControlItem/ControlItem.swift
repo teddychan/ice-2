@@ -640,9 +640,10 @@ final class ControlItem {
         appState.updatesManager.checkForUpdates()
     }
 
-    /// Opens the settings window navigated to the General pane.
+    /// Opens the settings window on the last-used pane (§5A: Settings… keeps the
+    /// last pane; only About forces a specific pane).
     @objc private func openSettings() {
-        presentSettings(navigatingTo: .general)
+        presentSettings(navigatingTo: nil)
     }
 
     /// Opens the settings window navigated to the About pane.
@@ -650,12 +651,15 @@ final class ControlItem {
         presentSettings(navigatingTo: .about)
     }
 
-    /// Opens the settings window at the given pane, bringing the app to the front.
-    private func presentSettings(navigatingTo identifier: SettingsNavigationIdentifier) {
+    /// Opens the settings window, optionally navigating to a pane (nil keeps the
+    /// last-used pane), bringing the app to the front.
+    private func presentSettings(navigatingTo identifier: SettingsNavigationIdentifier?) {
         guard let appState else {
             return
         }
-        appState.navigationState.settingsNavigationIdentifier = identifier
+        if let identifier {
+            appState.navigationState.settingsNavigationIdentifier = identifier
+        }
         // A short delay makes activating and opening the window reliable for an
         // accessory (LSUIElement) app — matches `AppDelegate.openSettingsWindow`.
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
@@ -679,8 +683,10 @@ final class ControlItem {
         // Unregister the login item.
         LaunchAtLogin.isEnabled = false
 
-        // Remove the UserDefaults domain and preferences file.
-        let bundleIdentifier = "com.dragonapp.ice"
+        // Remove the UserDefaults domain and preferences file. Use the running
+        // bundle's id so a debug build (com.dragonapp.ice.debug) cleans its OWN
+        // domain/state and never the installed release's.
+        let bundleIdentifier = Bundle.main.bundleIdentifier ?? "com.dragonapp.ice"
         UserDefaults.standard.removePersistentDomain(forName: bundleIdentifier)
 
         let fileManager = FileManager.default

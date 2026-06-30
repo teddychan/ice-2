@@ -3,3 +3,6 @@ build/
 .derivedData/
 .sourcepackages/
 xcuserdata/
+dist/
+# Local git worktrees (e.g. created for parallel feature work).
+*-worktree/
