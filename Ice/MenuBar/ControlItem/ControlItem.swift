@@ -696,7 +696,7 @@ final class ControlItem {
         LaunchAtLogin.isEnabled = false
 
         // Remove the UserDefaults domain and preferences file.
-        let bundleIdentifier = "com.jordanbaird.Ice"
+        let bundleIdentifier = "com.dragonapp.ice"
         UserDefaults.standard.removePersistentDomain(forName: bundleIdentifier)
 
         let fileManager = FileManager.default
