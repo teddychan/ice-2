@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.8.1 - 2026-06-30
+
+### Changed
+
+- **Refined the About and Uninstall screens.** About now leads with a **Website** link (dragonapp.com/ice-2) and a **Support on GitHub** link that goes straight to the issues page, plus creator and license rows. **Uninstall** is now a clear confirmation sheet that lists exactly what gets removed, with the destructive **Uninstall** button on the left and **Cancel** as the default.
+
 ## 2.6.0 - 2026-06-29
 
 ### Added

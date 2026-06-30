@@ -13,12 +13,14 @@ struct AboutSettingsPane: View {
         Bundle.main.url(forResource: "Acknowledgements", withExtension: "pdf")!
     }
 
-    private var contributeURL: URL {
-        URL(string: "https://github.com/teddychan/ice-2")!
+    /// Primary link: the app's marketing page on dragonapp.com (SKILL.md §5A).
+    private var websiteURL: URL {
+        URL(string: "https://www.dragonapp.com/ice-2/")!
     }
 
+    /// Support link goes straight to the GitHub issues page.
     private var issuesURL: URL {
-        contributeURL.appendingPathComponent("issues")
+        URL(string: "https://github.com/teddychan/ice-2/issues")!
     }
 
     var body: some View {
@@ -28,6 +30,9 @@ struct AboutSettingsPane: View {
             }
             IceSection {
                 linkRows
+            }
+            IceSection {
+                creditRows
             }
         }
     }
@@ -60,16 +65,16 @@ struct AboutSettingsPane: View {
 
     @ViewBuilder
     private var linkRows: some View {
-        Button {
-            openURL(contributeURL)
+        LabeledContent {
+            Link("dragonapp.com/ice-2", destination: websiteURL)
         } label: {
-            Label("Support on GitHub", systemImage: "link")
+            Label("Website", systemImage: "globe")
         }
 
-        Button {
-            openURL(issuesURL)
+        LabeledContent {
+            Link("teddychan/ice-2", destination: issuesURL)
         } label: {
-            Label("Report a Bug", systemImage: "ladybug")
+            Label("Support on GitHub", systemImage: "lifepreserver")
         }
 
         Button {
@@ -77,5 +82,12 @@ struct AboutSettingsPane: View {
         } label: {
             Label("Acknowledgements", systemImage: "doc.text")
         }
+    }
+
+    @ViewBuilder
+    private var creditRows: some View {
+        LabeledContent("Created by") { Text("Teddy Chan") }
+        LabeledContent("Original Ice") { Text("Jordan Baird") }
+        LabeledContent("License") { Text("GPL-3.0") }
     }
 }
