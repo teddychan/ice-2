@@ -666,32 +666,16 @@ final class ControlItem {
 
     /// Confirms and performs a clean uninstall of the app.
     @objc private func performUninstall() {
-        guard let appState else {
-            return
+        appState?.activate(withPolicy: .regular)
+        // Standardized §5A confirmation sheet (checklist + destructive button).
+        UninstallWindowController.shared.present { [weak self] in
+            self?.runUninstall()
         }
-        appState.activate(withPolicy: .regular)
+    }
 
-        let alert = NSAlert()
-        alert.alertStyle = .critical
-        alert.messageText = "Uninstall Ice 2?"
-        alert.informativeText = """
-            This will quit Ice 2 and move it to the Trash, then remove its login \
-            item and saved settings.
-
-            Accessibility and Screen Recording permissions must be removed by you \
-            in System Settings ▸ Privacy & Security — macOS does not let the app \
-            revoke them.
-            """
-        // Destructive layout: Uninstall on the left, Cancel as the default on the right.
-        let uninstallButton = alert.addButton(withTitle: "Uninstall")
-        uninstallButton.hasDestructiveAction = true
-        let cancelButton = alert.addButton(withTitle: "Cancel")
-        alert.window.defaultButtonCell = cancelButton.cell as? NSButtonCell
-
-        guard alert.runModal() == .alertFirstButtonReturn else {
-            return
-        }
-
+    /// Tears down on-disk + system state, then quits. Called only after the user
+    /// confirms in the Uninstall sheet.
+    private func runUninstall() {
         // Unregister the login item.
         LaunchAtLogin.isEnabled = false
 
