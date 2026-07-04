@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.8.5 - 2026-07-05
+
+### Fixed
+
+- **Much lower idle CPU/energy use.** Ice 2 was keeping its Settings and Permissions windows laid out in the background even when they were closed and off screen, which made the app continuously re-render and burn several percent CPU at idle (visible in Activity Monitor's Energy tab). These windows now render their contents only while actually visible, so a closed Settings window costs nothing. This is the main fix for the reported battery/power drain, and it builds on the 2.8.4 changes.
+
 ## 2.8.4 - 2026-07-05
 
 ### Fixed

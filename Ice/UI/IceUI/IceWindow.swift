@@ -3,6 +3,7 @@
 //  Ice
 //
 
+import Combine
 import SwiftUI
 
 // MARK: - IceWindow
@@ -43,8 +44,15 @@ struct IceWindow<Content: View>: Scene {
 
     @ViewBuilder
     private var windowContentView: some View {
-        content.onWindowChange { window in
-            window?.collectionBehavior.insert(.moveToActiveSpace)
+        // Only render the (potentially expensive) content while the window is
+        // actually visible. The window is materialized eagerly above so that a
+        // valid reference exists early, but its SwiftUI content would otherwise
+        // keep laying itself out on every display cycle while hidden off screen,
+        // burning CPU/energy for a window the user isn't looking at.
+        WindowVisibilityGate {
+            content.onWindowChange { window in
+                window?.collectionBehavior.insert(.moveToActiveSpace)
+            }
         }
     }
 
@@ -53,6 +61,60 @@ struct IceWindow<Content: View>: Scene {
             windowContentView
         }
         .defaultLaunchBehavior(.suppressed)
+    }
+}
+
+// MARK: - WindowVisibilityGate
+
+/// Renders its content only while the enclosing window is on screen.
+///
+/// While the window is hidden (e.g. after being materialized early but not yet
+/// shown, or after being closed), the content is replaced with an empty view so
+/// SwiftUI has nothing to lay out. This prevents a hidden window's view tree
+/// from being re-measured on every display cycle, which is a needless drain.
+private struct WindowVisibilityGate<Content: View>: View {
+    @ViewBuilder let content: Content
+
+    @State private var isVisible = false
+    @State private var cancellables = Set<AnyCancellable>()
+
+    var body: some View {
+        ZStack {
+            if isVisible {
+                content
+            } else {
+                Color.clear.accessibilityHidden(true)
+            }
+        }
+        .onWindowChange { window in
+            observe(window)
+        }
+    }
+
+    /// Observes the given window's visibility and updates ``isVisible``.
+    private func observe(_ window: NSWindow?) {
+        cancellables.removeAll()
+
+        guard let window else {
+            isVisible = false
+            return
+        }
+
+        func recompute() {
+            // An ordered-out or fully occluded window doesn't need its content
+            // laid out. `isVisible` is false while the window is ordered out.
+            isVisible = window.isVisible && window.occlusionState.contains(.visible)
+        }
+
+        window.publisher(for: \.isVisible)
+            .sink { _ in recompute() }
+            .store(in: &cancellables)
+        NotificationCenter.default
+            .publisher(for: NSWindow.didChangeOcclusionStateNotification, object: window)
+            .sink { _ in recompute() }
+            .store(in: &cancellables)
+
+        recompute()
     }
 }
 
