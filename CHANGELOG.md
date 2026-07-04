@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.8.4 - 2026-07-05
+
+### Fixed
+
+- **Lower power use.** Ice 2 no longer wakes on every mouse movement when it doesn't need to. The mouse-tracking used for "show on hover" is now only active while a hover option is actually turned on, so with hover off the app stays idle as you move the pointer — noticeably reducing CPU and energy use in Activity Monitor.
+- **Lower CPU when switching apps (with a custom menu bar appearance).** The overlay that redraws the menu bar used to keep polling the macOS Accessibility API every 50 ms for up to 10 seconds after each app switch whenever the menu size hadn't changed. It now polls quickly only briefly while the menu settles, then backs off, cutting a CPU/energy spike that happened every time you changed apps.
+
 ## 2.8.2 - 2026-06-30
 
 ### Changed

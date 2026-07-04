@@ -149,25 +149,28 @@ final class MenuBarOverlayPanel: NSPanel {
                 return
             }
             updateTaskContext.setTask(for: .applicationMenuFrame, timeout: .seconds(10)) {
-                var hasDoneInitialUpdate = false
+                // Poll the synchronous Accessibility API quickly only for a short
+                // window while the app menu settles after a switch, then back off
+                // to a slow poll. Previously the fast 50ms poll continued for the
+                // full 10s task timeout whenever the new frame matched the cached
+                // one (e.g. switching between apps with identical menu widths),
+                // constantly hammering the AX API and draining CPU/energy.
+                var fastPollsRemaining = 20 // ~1s of 50ms polls.
                 while true {
                     try Task.checkCancellation()
                     guard
                         let latestFrame = self.owningScreen.getApplicationMenuFrame(),
                         latestFrame != self.applicationMenuFrame
                     else {
-                        if hasDoneInitialUpdate {
-                            try await Task.sleep(for: .seconds(1))
-                        } else {
-                            // Poll briefly while the app menu settles after a switch.
-                            // 50ms stays responsive without hammering the synchronous
-                            // Accessibility API every millisecond.
+                        if fastPollsRemaining > 0 {
+                            fastPollsRemaining -= 1
                             try await Task.sleep(for: .milliseconds(50))
+                        } else {
+                            try await Task.sleep(for: .seconds(1))
                         }
                         continue
                     }
                     self.insertUpdateFlag(.applicationMenuFrame)
-                    hasDoneInitialUpdate = true
                 }
             }
             Task {

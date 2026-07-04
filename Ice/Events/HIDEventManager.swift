@@ -36,6 +36,7 @@ final class HIDEventManager: ObservableObject {
                     monitor.stop()
                 }
             }
+            updateMouseMovedTap()
         }
     }
 
@@ -111,13 +112,41 @@ final class HIDEventManager: ObservableObject {
     // MARK: All Monitors
 
     /// All monitors maintained by the manager.
+    ///
+    /// The mouse-moved tap is deliberately excluded here and managed
+    /// separately by ``updateMouseMovedTap()``, so it only runs when a
+    /// feature that needs per-movement tracking is actually enabled.
     private lazy var allMonitors: [any EventMonitorProtocol] = [
         mouseDownMonitor,
         mouseUpMonitor,
         mouseDraggedMonitor,
-        mouseMovedTap,
         scrollWheelMonitor,
     ]
+
+    /// A Boolean value that indicates whether any enabled feature relies on
+    /// tracking mouse movement.
+    private var needsMouseMovedTap: Bool {
+        guard let appState else {
+            return false
+        }
+        return appState.settings.general.showOnHoverEmptyMenuBar
+            || appState.settings.general.showOnHoverOverIceIcon
+    }
+
+    /// Enables the mouse-moved tap only when the manager is enabled and a
+    /// feature that needs per-movement tracking is active.
+    ///
+    /// A `.mouseMoved` event tap fires on every pointer movement, which wakes
+    /// the app constantly. Leaving it running when no "show on hover" feature
+    /// is enabled burns energy for no benefit, so the tap is toggled to match
+    /// the features that actually need it.
+    private func updateMouseMovedTap() {
+        if isEnabled && needsMouseMovedTap {
+            mouseMovedTap.start()
+        } else {
+            mouseMovedTap.stop()
+        }
+    }
 
     // MARK: Setup
 
@@ -149,6 +178,18 @@ final class HIDEventManager: ObservableObject {
                 if let screen = bestScreen(appState: appState) {
                     handleShowOnHover(appState: appState, screen: screen)
                 }
+            }
+            .store(in: &c)
+
+            // Toggle the mouse-moved tap whenever the features that depend on
+            // it change, so it never runs when no "show on hover" trigger is on.
+            Publishers.Merge(
+                appState.settings.general.$showOnHoverEmptyMenuBar.replace(with: ()),
+                appState.settings.general.$showOnHoverOverIceIcon.replace(with: ())
+            )
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.updateMouseMovedTap()
             }
             .store(in: &c)
         }
