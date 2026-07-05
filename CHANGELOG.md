@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.8.6 - 2026-07-05
+
+### Fixed
+
+- **Even lower idle CPU.** The pop-out Menu Bar Appearance editor was being built at launch and kept alive off screen, where its form kept re-laying itself out every display cycle. It's now built only when you actually open it (and released when closed), removing the remaining background CPU cost measured after 2.8.5. The editor itself is unchanged — it just loads on demand.
+
 ## 2.8.5 - 2026-07-05
 
 ### Fixed

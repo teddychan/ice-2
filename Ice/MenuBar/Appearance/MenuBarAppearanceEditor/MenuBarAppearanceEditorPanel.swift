@@ -43,14 +43,21 @@ final class MenuBarAppearanceEditorPanel: NSPanel {
     /// Sets up the panel.
     func performSetup(with appState: AppState) {
         self.appState = appState
-        configureContentView(with: appState)
         configureCancellables()
     }
 
-    /// Configures the panel's content view.
-    private func configureContentView(with appState: AppState) {
+    /// Installs the panel's SwiftUI content view if it isn't already present.
+    ///
+    /// The content is installed lazily (on show) rather than at setup so that a
+    /// hidden panel keeps no live SwiftUI view tree. Otherwise its hosting view
+    /// re-runs layout on every display cycle while the panel sits off screen,
+    /// needlessly burning CPU/energy for an editor the user hasn't opened.
+    private func installContentViewIfNeeded(with appState: AppState) {
+        guard contentView == nil else {
+            return
+        }
         let hostingView = MenuBarAppearanceEditorHostingView(appState: appState)
-        setFrame(hostingView.frame, display: true)
+        setFrame(hostingView.frame, display: false)
         contentView = hostingView
     }
 
@@ -66,12 +73,15 @@ final class MenuBarAppearanceEditorPanel: NSPanel {
             .store(in: &c)
 
         publisher(for: \.isVisible)
-            .sink { isVisible in
+            .sink { [weak self] isVisible in
                 if isVisible {
                     NSColorPanel.shared.hidesOnDeactivate = false
                 } else {
                     NSColorPanel.shared.hidesOnDeactivate = true
                     NSColorPanel.shared.close()
+                    // Release the SwiftUI view tree while hidden so it can't keep
+                    // laying itself out off screen. It's reinstalled on show.
+                    self?.contentView = nil
                 }
             }
             .store(in: &c)
@@ -88,7 +98,11 @@ final class MenuBarAppearanceEditorPanel: NSPanel {
 
     /// Shows the panel on the given screen.
     func show(on screen: NSScreen) {
-        appState?.activate(withPolicy: .regular)
+        guard let appState else {
+            return
+        }
+        appState.activate(withPolicy: .regular)
+        installContentViewIfNeeded(with: appState)
         updatePosition(for: screen)
         makeKeyAndOrderFront(nil)
     }
