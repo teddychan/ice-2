@@ -55,19 +55,47 @@ final class MenuBarItemManager: ObservableObject {
     private func configureCancellables(with appState: AppState) {
         var c = Set<AnyCancellable>()
 
-        NSWorkspace.shared.publisher(for: \.runningApplications)
+        // Re-cache when the running apps change (an app launched or quit),
+        // after a short delay to let the system settle.
+        let runningAppsChanged = NSWorkspace.shared.publisher(for: \.runningApplications)
             .delay(for: 0.25, scheduler: DispatchQueue.main)
-            .discardMerge(Timer.publish(every: 5, on: .main, in: .default).autoconnect())
-            .debounce(for: 1, scheduler: DispatchQueue.main)
-            .sink { [weak self] in
-                guard let self else {
-                    return
-                }
-                Task {
-                    await self.cacheItemsIfNeeded()
-                }
+            .replace(with: ())
+
+        // Re-cache immediately on the other events that commonly change the
+        // menu bar item set but carry no dedicated add/remove notification.
+        let spaceChanged = NSWorkspace.shared.notificationCenter
+            .publisher(for: NSWorkspace.activeSpaceDidChangeNotification)
+            .replace(with: ())
+        let screenParametersChanged = NotificationCenter.default
+            .publisher(for: NSApplication.didChangeScreenParametersNotification)
+            .replace(with: ())
+        let frontmostAppChanged = NSWorkspace.shared.publisher(for: \.frontmostApplication)
+            .replace(with: ())
+
+        // Fallback poll for changes that emit no event at all, such as a
+        // running app toggling its own status item. The event sources above
+        // catch the common cases, so this can run infrequently.
+        let fallbackPoll = Timer.publish(every: 30, on: .main, in: .default)
+            .autoconnect()
+            .replace(with: ())
+
+        Publishers.Merge5(
+            runningAppsChanged,
+            spaceChanged,
+            screenParametersChanged,
+            frontmostAppChanged,
+            fallbackPoll
+        )
+        .debounce(for: 1, scheduler: DispatchQueue.main)
+        .sink { [weak self] in
+            guard let self else {
+                return
             }
-            .store(in: &c)
+            Task {
+                await self.cacheItemsIfNeeded()
+            }
+        }
+        .store(in: &c)
 
         appState.navigationState.$settingsNavigationIdentifier
             .sink { [weak self] identifier in
