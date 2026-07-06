@@ -439,7 +439,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 2.9.1;
+				MARKETING_VERSION = 2.9.2;
 				INFOPLIST_KEY_CFBundleDisplayName = "Ice 2";
 				INFOPLIST_KEY_CFBundleName = "Ice 2";
 				PRODUCT_BUNDLE_IDENTIFIER = com.dragonapp.ice;
@@ -474,7 +474,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 2.9.1;
+				MARKETING_VERSION = 2.9.2;
 				INFOPLIST_KEY_CFBundleDisplayName = "Ice 2";
 				INFOPLIST_KEY_CFBundleName = "Ice 2";
 				PRODUCT_BUNDLE_IDENTIFIER = com.dragonapp.ice;
