@@ -11,6 +11,8 @@
 		175061912B1543DD003144CD /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = 175061902B1543DD003144CD /* LaunchAtLogin */; };
 		1787C4272B16890B002F50DF /* AXSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 1787C4262B16890B002F50DF /* AXSwift */; };
 		17F71BB52B880B4500905CBA /* CompactSlider in Frameworks */ = {isa = PBXBuildFile; productRef = 17F71BB42B880B4500905CBA /* CompactSlider */; };
+		1B8351CC0D124C9F10C178D1 /* SmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76B9EDF33EEA9E254E354B9C /* SmokeTests.swift */; };
+		532D0E5212D395B68CA7F31E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC782BAB2CBAE725214BC3D2 /* Cocoa.framework */; };
 		7127A9FF2C4886D100D99DEF /* IfritStatic in Frameworks */ = {isa = PBXBuildFile; productRef = 7127A9FE2C4886D100D99DEF /* IfritStatic */; };
 		7168EE532E281CBC00FF9830 /* AXSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 7168EE522E281CBC00FF9830 /* AXSwift */; };
 		7188A68C2E27F9ED008F131D /* MenuBarItemService.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = 7188A6832E27F9ED008F131D /* MenuBarItemService.xpc */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -19,6 +21,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		23AD04DAF4DBB158954FD5BB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 716683222A767E6A006ABF84 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 716683292A767E6A006ABF84;
+			remoteInfo = Ice;
+		};
 		7188A68A2E27F9ED008F131D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 716683222A767E6A006ABF84 /* Project object */;
@@ -45,17 +54,20 @@
 /* Begin PBXFileReference section */
 		7166832A2A767E6A006ABF84 /* Ice.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Ice.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7188A6832E27F9ED008F131D /* MenuBarItemService.xpc */ = {isa = PBXFileReference; explicitFileType = "wrapper.xpc-service"; includeInIndex = 0; path = MenuBarItemService.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
+		76B9EDF33EEA9E254E354B9C /* SmokeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SmokeTests.swift; sourceTree = "<group>"; };
+		8D4AA61E3DFF2CBC460604F1 /* IceTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IceTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BC782BAB2CBAE725214BC3D2 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		7188A6912E27F9ED008F131D /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		7188A6912E27F9ED008F131D /* Exceptions for "MenuBarItemService" folder in "MenuBarItemService" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Resources/Info.plist,
 			);
 			target = 7188A6822E27F9ED008F131D /* MenuBarItemService */;
 		};
-		71BDFC6C2C978E2A00EF145F /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		71BDFC6C2C978E2A00EF145F /* Exceptions for "Ice" folder in "Ice" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Resources/Acknowledgements.rtf,
@@ -66,9 +78,41 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		7188A6842E27F9ED008F131D /* MenuBarItemService */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (7188A6912E27F9ED008F131D /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = MenuBarItemService; sourceTree = "<group>"; };
-		7188A69E2E280BB4008F131D /* Shared */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Shared; sourceTree = "<group>"; };
-		71BDFBE12C978E2A00EF145F /* Ice */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (71BDFC6C2C978E2A00EF145F /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Ice; sourceTree = "<group>"; };
+		7188A6842E27F9ED008F131D /* MenuBarItemService */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				7188A6912E27F9ED008F131D /* Exceptions for "MenuBarItemService" folder in "MenuBarItemService" target */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = MenuBarItemService;
+			sourceTree = "<group>";
+		};
+		7188A69E2E280BB4008F131D /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		71BDFBE12C978E2A00EF145F /* Ice */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				71BDFC6C2C978E2A00EF145F /* Exceptions for "Ice" folder in "Ice" target */,
+			);
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = Ice;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,9 +138,33 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F197DBDE7DA5E6F963999383 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				532D0E5212D395B68CA7F31E /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		335AD6CA1CFB9CDBB28D7EDE /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				38B49182F21DD70D0B575900 /* OS X */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		38B49182F21DD70D0B575900 /* OS X */ = {
+			isa = PBXGroup;
+			children = (
+				BC782BAB2CBAE725214BC3D2 /* Cocoa.framework */,
+			);
+			name = "OS X";
+			sourceTree = "<group>";
+		};
 		716683212A767E6A006ABF84 = {
 			isa = PBXGroup;
 			children = (
@@ -104,6 +172,8 @@
 				71BDFBE12C978E2A00EF145F /* Ice */,
 				7188A6842E27F9ED008F131D /* MenuBarItemService */,
 				7166832B2A767E6A006ABF84 /* Products */,
+				335AD6CA1CFB9CDBB28D7EDE /* Frameworks */,
+				945A7FF5D94E83B9B4B02E37 /* IceTests */,
 			);
 			sourceTree = "<group>";
 		};
@@ -112,13 +182,41 @@
 			children = (
 				7166832A2A767E6A006ABF84 /* Ice.app */,
 				7188A6832E27F9ED008F131D /* MenuBarItemService.xpc */,
+				8D4AA61E3DFF2CBC460604F1 /* IceTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		945A7FF5D94E83B9B4B02E37 /* IceTests */ = {
+			isa = PBXGroup;
+			children = (
+				76B9EDF33EEA9E254E354B9C /* SmokeTests.swift */,
+			);
+			name = IceTests;
+			path = IceTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		09E0359DB70C83EEC505F6D2 /* IceTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AE69166CCA02F19A8602C8C8 /* Build configuration list for PBXNativeTarget "IceTests" */;
+			buildPhases = (
+				19DE591556D5C9FD0BD9ACA4 /* Sources */,
+				F197DBDE7DA5E6F963999383 /* Frameworks */,
+				38ED2621FB5F1EDF927BD19A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CAD6092B6FA97628816AA2F7 /* PBXTargetDependency */,
+			);
+			name = IceTests;
+			productName = IceTests;
+			productReference = 8D4AA61E3DFF2CBC460604F1 /* IceTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		716683292A767E6A006ABF84 /* Ice */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 716683392A767E6B006ABF84 /* Build configuration list for PBXNativeTarget "Ice" */;
@@ -218,11 +316,19 @@
 			targets = (
 				716683292A767E6A006ABF84 /* Ice */,
 				7188A6822E27F9ED008F131D /* MenuBarItemService */,
+				09E0359DB70C83EEC505F6D2 /* IceTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		38ED2621FB5F1EDF927BD19A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		716683282A767E6A006ABF84 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -262,6 +368,14 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		19DE591556D5C9FD0BD9ACA4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1B8351CC0D124C9F10C178D1 /* SmokeTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		716683262A767E6A006ABF84 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -284,9 +398,49 @@
 			target = 7188A6822E27F9ED008F131D /* MenuBarItemService */;
 			targetProxy = 7188A68A2E27F9ED008F131D /* PBXContainerItemProxy */;
 		};
+		CAD6092B6FA97628816AA2F7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = Ice;
+			target = 716683292A767E6A006ABF84 /* Ice */;
+			targetProxy = 23AD04DAF4DBB158954FD5BB /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		42AC569B0930915B85770315 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = K2ATHQPJDP;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dragonapp.ice.IceTests;
+				PRODUCT_NAME = IceTests;
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Ice 2.app/Contents/MacOS/Ice 2";
+			};
+			name = Release;
+		};
+		61A0CFBACAF9869CB7AEAC42 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = K2ATHQPJDP;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.dragonapp.ice.IceTests;
+				PRODUCT_NAME = IceTests;
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Ice 2.app/Contents/MacOS/Ice 2";
+			};
+			name = Debug;
+		};
 		716683372A767E6B006ABF84 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -433,6 +587,8 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Ice/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Ice 2";
+				INFOPLIST_KEY_CFBundleName = "Ice 2";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -440,8 +596,6 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 2.9.1;
-				INFOPLIST_KEY_CFBundleDisplayName = "Ice 2";
-				INFOPLIST_KEY_CFBundleName = "Ice 2";
 				PRODUCT_BUNDLE_IDENTIFIER = com.dragonapp.ice;
 				PRODUCT_NAME = "Ice 2";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -468,6 +622,8 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Ice/Resources/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Ice 2";
+				INFOPLIST_KEY_CFBundleName = "Ice 2";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -475,8 +631,6 @@
 					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 2.9.1;
-				INFOPLIST_KEY_CFBundleDisplayName = "Ice 2";
-				INFOPLIST_KEY_CFBundleName = "Ice 2";
 				PRODUCT_BUNDLE_IDENTIFIER = com.dragonapp.ice;
 				PRODUCT_NAME = "Ice 2";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -561,6 +715,15 @@
 			buildConfigurations = (
 				7188A68E2E27F9ED008F131D /* Debug */,
 				7188A68F2E27F9ED008F131D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AE69166CCA02F19A8602C8C8 /* Build configuration list for PBXNativeTarget "IceTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				42AC569B0930915B85770315 /* Release */,
+				61A0CFBACAF9869CB7AEAC42 /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

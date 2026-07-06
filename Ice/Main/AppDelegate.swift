@@ -38,6 +38,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         #endif
 
+        // Don't perform setup when running unit tests. AppState is still
+        // constructed eagerly (a read-only, non-prompting permission probe),
+        // but this skips the heavy menu-bar wiring (status items, EventTaps,
+        // timers) so the test host stays inert. Mirrors the preview guard above.
+        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil {
+            return
+        }
+
         // Depending on the permissions state, either perform setup
         // or prompt to grant permissions.
         switch appState.permissions.permissionsState {
