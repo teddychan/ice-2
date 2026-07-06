@@ -74,6 +74,13 @@ class Permission: ObservableObject, Identifiable {
 
     /// Sets up the internal observers for the permission.
     private func configureCancellables() {
+        // Only poll while the permission is missing (e.g. during onboarding).
+        // Once granted, the timer stops itself; later changes are picked up on
+        // app activation via `AppPermissions`. Permissions can only change in
+        // System Settings, so there's no reason to poll once we have the grant.
+        guard !hasPermission else {
+            return
+        }
         timerCancellable = Timer.publish(every: 1, on: .main, in: .default)
             .autoconnect()
             .merge(with: Just(.now))
@@ -89,7 +96,19 @@ class Permission: ObservableObject, Identifiable {
     @discardableResult
     func refresh() -> Bool {
         let hasPermission = check()
-        self.hasPermission = hasPermission
+        // Only publish on an actual change, to avoid waking observers (and
+        // churning SwiftUI) every time the check runs.
+        if self.hasPermission != hasPermission {
+            self.hasPermission = hasPermission
+        }
+        if hasPermission {
+            // Granted — stop polling.
+            timerCancellable?.cancel()
+            timerCancellable = nil
+        } else if timerCancellable == nil {
+            // Missing again (e.g. revoked) — resume polling to catch the grant.
+            configureCancellables()
+        }
         return hasPermission
     }
 

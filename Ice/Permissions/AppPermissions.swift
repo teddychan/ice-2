@@ -3,6 +3,7 @@
 //  Ice
 //
 
+import AppKit
 import Combine
 import Foundation
 import OSLog
@@ -38,6 +39,9 @@ final class AppPermissions: ObservableObject {
     /// Storage for internal observers.
     private var cancellable: AnyCancellable?
 
+    /// Observer that re-checks permissions when the app becomes active.
+    private var activationCancellable: AnyCancellable?
+
     /// The permissions required for full app functionality.
     var allPermissions: [Permission] {
         [accessibility, screenRecording]
@@ -56,16 +60,30 @@ final class AppPermissions: ObservableObject {
             .sink { [weak self] _ in
                 self?.updatePermissionsState()
             }
+        // Re-check permissions when the app becomes active (e.g. the user
+        // returns after granting/revoking in System Settings). This replaces
+        // the old always-on per-permission 1s poll, so a granted app does no
+        // permission work while idle.
+        self.activationCancellable = NotificationCenter.default
+            .publisher(for: NSApplication.didBecomeActiveNotification)
+            .sink { [weak self] _ in
+                self?.refreshAllPermissions()
+            }
     }
 
     /// Updates the current permissions state.
     private func updatePermissionsState() {
+        let newState: PermissionsState
         if allPermissions.allSatisfy({ $0.hasPermission }) {
-            permissionsState = .hasAll
+            newState = .hasAll
         } else if requiredPermissions.allSatisfy({ $0.hasPermission }) {
-            permissionsState = .hasRequired
+            newState = .hasRequired
         } else {
-            permissionsState = .missing
+            newState = .missing
+        }
+        // Only publish on an actual change, to avoid churning observers.
+        if permissionsState != newState {
+            permissionsState = newState
         }
     }
 
