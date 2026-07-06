@@ -35,7 +35,9 @@ Therefore the request splits into two deliverables that live in different worlds
 ### Target setup
 - New **Swift Testing unit-test target `IceTests`** added to `Ice.xcodeproj`.
 - **Hosted by the `Ice` app** (`TEST_HOST` = the built app), because `Ice` is an app target (not a framework) and the types under test are `internal` — `@testable import Ice` requires a host. Extracting a framework/SPM package is explicitly out of scope (violates "minimal refactoring").
-- pbxproj is edited with the Ruby **`xcodeproj`** gem (deterministic) rather than by hand. If the gem is unavailable, fall back to adding the target via Xcode's project file with a documented manual step.
+- pbxproj is edited with the Ruby **`xcodeproj`** gem (deterministic) rather than by hand. **The gem is NOT installed on this machine** — `ruby -e 'require "xcodeproj"'` currently fails. The implementation checklist must therefore make this an explicit first step with a fallback path:
+  1. Try `gem install xcodeproj` (may need `sudo`) or a `bundler` install, then run a small Ruby script that adds the target, build phase, and `TEST_HOST` / `BUNDLE_LOADER` settings.
+  2. If the gem cannot be installed, fall back to creating the target through Xcode's UI (documented, manual) and commit the resulting `project.pbxproj` diff.
 - A new scheme/test action (or the existing `Ice` scheme's Test action) runs `IceTests`.
 
 ### Production seam (the only prod change)
@@ -48,7 +50,11 @@ if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil {
 }
 ```
 
-This prevents the full menu-bar app from booting (and touching TCC / status items) while the test bundle loads. It mirrors the preview guard already present, so it is consistent with existing style.
+**Scope of this guard (accurate):** `AppState` is created eagerly as a stored property of `AppDelegate` ([`AppDelegate.swift:12`](../../../Ice/Main/AppDelegate.swift)), and `IceApp` (`@main`) passes it into its scenes ([`IceApp.swift:13`](../../../Ice/Main/IceApp.swift)) — both happen *before* `applicationDidFinishLaunching`. `AppState()` constructs `AppPermissions`, whose `init()` performs a **read-only** Accessibility / Screen-Recording probe ([`AppPermissions.swift:56`](../../../Ice/Permissions/AppPermissions.swift)) and registers a couple of Combine / NotificationCenter observers.
+
+So this guard prevents the heavy `performSetup` work — creating `NSStatusItem` control items, installing the scromble EventTaps, timers, and menu-bar wiring — but it does **not** prevent the eager `AppState` construction or its permission probe.
+
+**Decision (accepted, keeps the seam minimal):** we accept the eager `AppState` construction. The permission probe is read-only and **non-prompting** (`AXIsProcessTrusted` / `CGPreflightScreenCaptureAccess`), so under the test host it simply returns `false` and does no harm; no status items or event taps are created. Widening the seam (e.g. lazy `AppState`, or a test-mode `AppState`) is deliberately *not* done — it would touch app startup and `IceApp` wiring, exceeding "minimal refactoring." This residual is documented rather than engineered away.
 
 ### Coverage (pure logic only)
 
@@ -72,14 +78,16 @@ All of the following are already pure/`internal` and need no refactoring:
 
 **3. `SettingsBackupTests`** (the save/backup half of scenario 2):
 - `makePayload(from:)` includes only keys with stored values; stamps `schemaVersion` / `appVersion` / `createdDate`.
+  - **`PayloadKey` is `private`** — tests must inspect payloads by their raw **string** keys (`"schemaVersion"`, `"appVersion"`, `"createdDate"`, `"defaults"`), not by referencing `PayloadKey`. Where possible, prefer the public accessors `createdDate(of:)` / `appVersion(of:)` instead of reaching into the dictionary.
 - `makePayload → apply` round-trip on a scratch `UserDefaults(suiteName:)` reproduces the stored values.
 - **Apply is replace, not merge:** a key present in `defaults` but absent from the payload is *removed* by `apply`.
 - `excludedKeys` (e.g. `.sections`, `.backupFolderPath`) never appear in a payload.
 - `serialize → deserialize` round-trip is loss-free (binary plist).
-- `deserialize` throws `.unsupportedVersion` for a payload whose `schemaVersion` exceeds the current one; throws `.malformed` for non-dictionary data.
+- `deserialize` throws `.unsupportedVersion` for a payload whose `schemaVersion` exceeds the current one.
+- `deserialize` throws `.malformed` for a **valid non-dictionary plist** (e.g. `serialize` an array or a top-level string via `PropertyListSerialization`), *not* random bytes — random bytes would throw `PropertyListSerialization`'s own parse error before the `as? [String: Any]` guard is reached, so they would not exercise `.malformed`.
 - `listBackups(in:)` returns only `.icebackup` files, newest-first.
 - `prune(in:keeping:)` deletes only the oldest beyond the limit.
-- `fileName(for:)` / `timestamp(_:)` produce the documented `Ice-Settings-YYYY-MM-DD-HHmmss.icebackup` shape (fixed `Date`, POSIX locale).
+- `fileName(for:)` / `timestamp(_:)` — **timezone caveat:** `timestamp(_:)` sets the POSIX locale but **no `timeZone`** ([`SettingsBackup.swift:135`](../../../Ice/Settings/Backup/SettingsBackup.swift)), so a fixed absolute `Date` renders differently across local/CI timezones. Do **not** assert an exact string from an absolute `Date`. Instead: assert the **shape** via regex (`^Ice-Settings-\d{4}-\d{2}-\d{2}-\d{6}\.icebackup$`), and if an exact value is wanted, build the expected string with a `DateFormatter` in the **current** timezone. (Changing production to pin a timezone is out of scope for this test task.)
 
 **4. `MenuBarSectionNameTests`**:
 - `allCases` == `[.visible, .hidden, .alwaysHidden]` (order matters — profile snapshots iterate it).
@@ -90,6 +98,7 @@ All of the following are already pure/`internal` and need no refactoring:
 - `MenuBarSection.show()/hide()`, control-item positioning — need real `NSStatusItem`s.
 - LayoutBar drag-and-drop — driven by AppKit drag delegation on the real window.
 - `MenuBarLayoutProfilesSettings.applyProfile`/`temporarilyShowGroup` — call into `itemManager` (real menu bar).
+- Spacer/control-item exclusion from profiles & groups — the filtering is inside `private` `makeProfile` / `uniqueItemTags` and needs a live `itemCache`; only the `isSpacerItem` / `isControlItem` primitives are unit-tested (suite 1).
 
 ## B. Manual test plan
 
@@ -115,16 +124,17 @@ New document: `docs/testing/layout-pane-manual-tests.md`.
 
 3. **Other important cases**
    - **Item groups:** save a group, "temporarily show" → the grouped hidden items appear briefly, then auto-rehide.
-   - **Spacers:** add a spacer, adjust its width slider → visible gap changes on the menu bar; delete it → gap disappears; confirm spacers are **not** captured into profiles/groups.
+   - **Spacers:** add a spacer, adjust its width slider → visible gap changes on the menu bar; delete it → gap disappears; confirm spacers are **not** captured into profiles/groups. (This end-to-end exclusion stays **manual**: the filtering lives in the `private` methods `makeProfile` / `uniqueItemTags` at [`MenuBarLayoutProfilesSettings.swift:168`](../../../Ice/Settings/Models/MenuBarLayoutProfilesSettings.swift) and [`:230`](../../../Ice/Settings/Models/MenuBarLayoutProfilesSettings.swift), so it can't be reached without either running the app or adding a pure helper — the latter is out of scope. The underlying `MenuBarItemTag.isSpacerItem` classification *is* covered automatically in suite 1, so the manual check only needs to confirm the wiring.)
    - **Relaunch persistence:** create a profile, quit, relaunch → the profile still lists with correct counts.
    - **Empty-section edges:** apply a profile with an empty section; save a profile with nothing hidden.
    - **Permission gating:** revoke Screen Recording → the Layout pane disables with its explanation; re-grant → it re-enables.
 
 ## Success criteria
 
-- `IceTests` target builds and all Swift Testing cases pass locally via `xcodebuild test` (and are runnable in CI without TCC).
+- `IceTests` target builds and all Swift Testing cases pass locally via `xcodebuild test`. Tests are CI-runnable: they rely only on read-only, non-prompting permission probes (no TCC grant required) and touch no `NSStatusItem`s or EventTaps.
 - The four test suites cover every pure member listed in section A.
-- The AppDelegate guard is the only change to production code.
+- The AppDelegate `XCTestConfigurationFilePath` guard is the only change to production code; the accepted eager-`AppState` residual is documented, not "fixed."
+- Backup timestamp assertions are timezone-robust (shape via regex, or expected built in the current timezone) — no exact-string assertion from an absolute `Date`.
 - `docs/testing/layout-pane-manual-tests.md` exists with runnable, unambiguous steps and expected results for all three scenario groups.
 - No change to `MenuBarItemManager` / EventTap code.
 
