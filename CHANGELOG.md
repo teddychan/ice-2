@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.9.1 - 2026-07-06
+
+### Changed
+
+- **Clearer "up to date" update message.** The dialog shown when you check for updates and you're already on the latest version has been reworded for clarity.
+- **Richer version in About.** The About pane now shows the version as `v<version> (<build>) · <UTC build time>`, so it's easier to tell exactly which build you're running.
+
 ## 2.9.0 - 2026-07-06
 
 ### Fixed

@@ -15,7 +15,7 @@ enum AboutConfig {
     static var content: AboutContent {
         AboutContent(
             appName: "Ice 2",
-            versionString: "Version \(Constants.versionString)",
+            versionString: DragonAbout.versionString(),
             copyright: Constants.copyrightString,
             links: [
                 // Primary link: the app's marketing page on dragonapp.com.

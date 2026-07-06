@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/teddychan/dragon-kit",
       "state" : {
-        "revision" : "cae1bcb2b7eba65bb1af084c19d0d31306379f40",
-        "version" : "1.2.1"
+        "revision" : "fbc9ff884240e448f3f4c17dc1871eb68f84a029",
+        "version" : "1.3.0"
       }
     },
     {
