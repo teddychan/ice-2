@@ -8,7 +8,7 @@ covered by the automated `IceTests` suite. Run this checklist by hand.
 ## Preconditions
 
 - [ ] Run a **TCC-permissioned build** — the release-identity build **or** the
-      installed app — **not** the isolated `com.jordanbaird.Ice.debug` build
+      installed app — **not** the isolated `com.dragonapp.ice.debug` build
       (it cannot hold the grants).
 - [ ] **Accessibility** and **Screen Recording** are granted to that build.
 - [ ] Start from a known menu bar with at least two movable third-party items.
