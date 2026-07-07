@@ -19,6 +19,7 @@
 		7188A68C2E27F9ED008F131D /* MenuBarItemService.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = 7188A6832E27F9ED008F131D /* MenuBarItemService.xpc */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		71A065092E680C620087DB38 /* Semaphore in Frameworks */ = {isa = PBXBuildFile; productRef = 71A065082E680C620087DB38 /* Semaphore */; };
 		883544A1BDB23DEB15E409B2 /* MenuBarLayoutProfileTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5B2BD6986E421B6263F2D3 /* MenuBarLayoutProfileTests.swift */; };
+		986A47EC7057DE6842643937 /* SettingsBackupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12990E4E70C4107E87D970D7 /* SettingsBackupTests.swift */; };
 		DA6DC1703A2B3C4D5E6F7083 /* DragonKit in Frameworks */ = {isa = PBXBuildFile; productRef = DA6DC1702A2B3C4D5E6F7082 /* DragonKit */; };
 		DCC69CC55ECE780ACFFCE0E3 /* MenuBarSectionNameTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83522341C381D492260EB102 /* MenuBarSectionNameTests.swift */; };
 /* End PBXBuildFile section */
@@ -55,6 +56,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		12990E4E70C4107E87D970D7 /* SettingsBackupTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsBackupTests.swift; sourceTree = "<group>"; };
 		4A5B2BD6986E421B6263F2D3 /* MenuBarLayoutProfileTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MenuBarLayoutProfileTests.swift; sourceTree = "<group>"; };
 		6866D199BAA4CC3EF01677AD /* MenuBarItemTagTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MenuBarItemTagTests.swift; sourceTree = "<group>"; };
 		7166832A2A767E6A006ABF84 /* Ice.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Ice.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -200,6 +202,7 @@
 				83522341C381D492260EB102 /* MenuBarSectionNameTests.swift */,
 				6866D199BAA4CC3EF01677AD /* MenuBarItemTagTests.swift */,
 				4A5B2BD6986E421B6263F2D3 /* MenuBarLayoutProfileTests.swift */,
+				12990E4E70C4107E87D970D7 /* SettingsBackupTests.swift */,
 			);
 			name = IceTests;
 			path = IceTests;
@@ -385,6 +388,7 @@
 				DCC69CC55ECE780ACFFCE0E3 /* MenuBarSectionNameTests.swift in Sources */,
 				35564E94C0C83A0B3313403A /* MenuBarItemTagTests.swift in Sources */,
 				883544A1BDB23DEB15E409B2 /* MenuBarLayoutProfileTests.swift in Sources */,
+				986A47EC7057DE6842643937 /* SettingsBackupTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
