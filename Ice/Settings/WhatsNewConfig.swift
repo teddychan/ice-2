@@ -14,11 +14,11 @@ enum WhatsNewConfig {
     static var content: WhatsNewContent {
         WhatsNewContent(
             version: Constants.versionString,
-            date: "2026-07-07",
-            summary: "A fresh app icon — two ice cubes for Ice 2.",
+            date: "2026-07-08",
+            summary: "Settings panes are now in the standard Dragon order.",
             sections: [
                 ChangeSection(kind: .changed, entries: [
-                    "Refreshed the app icon: two ice cubes to represent Ice 2, keeping the familiar blue glass look.",
+                    "Moved Updates below What's New in Settings, so Ice's sidebar matches the other Dragon apps (ClipMenu, KeyKey, Spectacle).",
                 ]),
             ]
         )

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.9.4 - 2026-07-08
+
+### Changed
+
+- **Settings pane order.** Moved Updates below What's New so Ice's Settings sidebar follows the shared Dragon app order (General → the app's own panes → Permissions → Backup & Restore → What's New → Updates → About).
+
 ## 2.9.3 - 2026-07-07
 
 ### Changed
