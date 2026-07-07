@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.9.2 - 2026-07-06
+
+### Fixed
+
+- **"Check for Updates" now finds new releases.** The build number is now derived from the git commit count each release, so Sparkle correctly detects newer versions (previous releases all shared the same build number, which made update checks report "up to date"). No functional changes otherwise — same as 2.9.1.
+
 ## 2.9.1 - 2026-07-06
 
 ### Changed
