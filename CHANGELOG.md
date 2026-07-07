@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.9.3 - 2026-07-07
+
+### Changed
+
+- **New app icon.** The Ice 2 icon now shows two ice cubes — a nod to "Ice 2" — while keeping the familiar blue tile and glass look.
+
 ## 2.9.2 - 2026-07-06
 
 ### Fixed

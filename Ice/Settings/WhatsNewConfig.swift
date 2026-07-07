@@ -14,18 +14,11 @@ enum WhatsNewConfig {
     static var content: WhatsNewContent {
         WhatsNewContent(
             version: Constants.versionString,
-            date: "2026-07-06",
-            summary: "Layout gets its own spot in Settings, plus a first-launch crash fix and a new What's New tab.",
+            date: "2026-07-07",
+            summary: "A fresh app icon — two ice cubes for Ice 2.",
             sections: [
-                ChangeSection(kind: .fixed, entries: [
-                    "Fixed a crash that could happen on first launch, before Accessibility was granted.",
-                ]),
                 ChangeSection(kind: .changed, entries: [
-                    "Moved the menu bar Layout editor out of Appearance into its own Settings tab, right after Appearance.",
-                    "Refreshed the About and Permissions screens and corrected the Settings sidebar text size.",
-                ]),
-                ChangeSection(kind: .added, entries: [
-                    "Added this What's New tab so you can see what changed in each version.",
+                    "Refreshed the app icon: two ice cubes to represent Ice 2, keeping the familiar blue glass look.",
                 ]),
             ]
         )
