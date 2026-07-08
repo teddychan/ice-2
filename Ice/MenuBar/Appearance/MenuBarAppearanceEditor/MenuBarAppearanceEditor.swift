@@ -54,6 +54,9 @@ struct MenuBarAppearanceEditor: View {
                     systemImage: "lightbulb"
                 )
             }
+            if case .settings = location, appState.settings.general.showIceIcon {
+                MenuBarIconSettings(settings: appState.settings.general)
+            }
             IceSection {
                 isDynamicToggle
                 removesMenuBarBackgroundToggle
@@ -136,6 +139,112 @@ struct MenuBarAppearanceEditor: View {
                 "Use inset shape on screens with notch",
                 isOn: $appearanceManager.configuration.isInset
             )
+        }
+    }
+}
+
+/// The "Menu Bar Icon" chooser, shown in the Appearance settings pane when the Ice 2 icon is visible.
+private struct MenuBarIconSettings: View {
+    @EnvironmentObject var appState: AppState
+    @ObservedObject var settings: GeneralSettings
+    @State private var isImportingCustomIceIcon = false
+    @State private var isPresentingError = false
+    @State private var presentedError: LocalizedErrorWrapper?
+
+    var body: some View {
+        IceSection("Menu Bar Icon") {
+            iceIconPicker
+        }
+    }
+
+    @ViewBuilder
+    private var iceIconPicker: some View {
+        let labelKey = LocalizedStringKey("Ice 2 icon")
+
+        IceMenu(labelKey) {
+            Picker(labelKey, selection: $settings.iceIcon) {
+                ForEach(ControlItemImageSet.userSelectableIceIcons) { imageSet in
+                    Button {
+                        settings.iceIcon = imageSet
+                    } label: {
+                        iceIconMenuItem(for: imageSet)
+                    }
+                    .tag(imageSet)
+                }
+                if let lastCustomIceIcon = settings.lastCustomIceIcon {
+                    Button {
+                        settings.iceIcon = lastCustomIceIcon
+                    } label: {
+                        iceIconMenuItem(for: lastCustomIceIcon)
+                    }
+                    .tag(lastCustomIceIcon)
+                }
+            }
+            .pickerStyle(.inline)
+            .labelsHidden()
+
+            Divider()
+
+            Button("Choose image…") {
+                isImportingCustomIceIcon = true
+            }
+        } title: {
+            iceIconMenuItem(for: settings.iceIcon)
+        }
+        .annotation("Choose a custom icon to show in the menu bar.")
+        .fileImporter(
+            isPresented: $isImportingCustomIceIcon,
+            allowedContentTypes: [.image]
+        ) { result in
+            do {
+                let url = try result.get()
+                if url.startAccessingSecurityScopedResource() {
+                    defer { url.stopAccessingSecurityScopedResource() }
+                    let data = try Data(contentsOf: url)
+                    settings.iceIcon = ControlItemImageSet(name: .custom, image: .data(data))
+                }
+            } catch {
+                presentedError = LocalizedErrorWrapper(error)
+                isPresentingError = true
+            }
+        }
+        .alert(isPresented: $isPresentingError, error: presentedError) {
+            Button("OK") {
+                presentedError = nil
+                isPresentingError = false
+            }
+        }
+
+        if case .custom = settings.iceIcon.name {
+            Toggle("Custom icon uses dynamic appearance", isOn: $settings.customIceIconIsTemplate)
+                .annotation {
+                    Text(
+                        """
+                        Display the icon as a monochrome image that dynamically adjusts to match \
+                        the menu bar's appearance. This setting removes all color from the icon, \
+                        but ensures consistent rendering with both light and dark backgrounds.
+                        """
+                    )
+                    .padding(.trailing, 50)
+                }
+        }
+    }
+
+    @ViewBuilder
+    private func iceIconMenuItem(for imageSet: ControlItemImageSet) -> some View {
+        Label {
+            Text(imageSet.name.rawValue)
+        } icon: {
+            if let nsImage = imageSet.hidden.nsImage(for: appState) {
+                switch imageSet.name {
+                case .custom:
+                    Image(size: CGSize(width: 18, height: 18)) { context in
+                        context.draw(Image(nsImage: nsImage), in: context.clipBoundingRect)
+                    }
+                default:
+                    Image(nsImage: nsImage)
+                }
+            }
         }
     }
 }
