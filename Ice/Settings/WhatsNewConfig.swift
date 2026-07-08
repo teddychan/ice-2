@@ -15,13 +15,11 @@ enum WhatsNewConfig {
         WhatsNewContent(
             version: Constants.versionString,
             date: "2026-07-08",
-            summary: "A simpler, cleaner Settings window.",
+            summary: "Fewer, clearer options in General.",
             sections: [
                 ChangeSection(kind: .changed, entries: [
-                    "General settings are decluttered into clear sections — Show Hidden Items, Rehide, and Ice 2 Bar — so the options you use most are front and center.",
-                    "Advanced extras now tuck away behind expandable rows: automatic Ice 2 Bar and menu bar item spacing stay out of the way until you need them.",
-                    "The Settings sidebar groups What's New, Updates, and About together, separated from the functional panes above.",
-                    "Removed a duplicate Permissions list from the Advanced pane — Permissions still has its own dedicated pane.",
+                    "Simpler show options: the two separate hover settings are now a single \"Show on hover\" that reacts to both the menu bar and the Ice 2 icon, with one delay.",
+                    "The menu bar icon chooser (icon, custom image, dynamic appearance) moved to the Appearance settings, alongside the other look-and-feel options. General keeps the simple \"Show Ice 2 icon\" switch.",
                 ]),
             ]
         )

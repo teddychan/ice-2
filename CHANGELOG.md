@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.9.6 - 2026-07-08
+
+### Changed
+
+- **Simpler show options.** The two separate hover settings in General ("Show on hover over empty menu bar" and "Show on hover over Ice 2 icon") are now a single **Show on hover** that reacts to both, with one shared delay. Your existing hover preference is preserved.
+- **Icon chooser moved to Appearance.** The menu bar icon chooser — icon, custom image, and dynamic appearance — now lives in the **Appearance** pane alongside the other menu bar look-and-feel options. General keeps the simple **Show Ice 2 icon** switch.
+
 ## 2.9.5 - 2026-07-08
 
 ### Changed

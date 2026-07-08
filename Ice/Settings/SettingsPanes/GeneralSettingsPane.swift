@@ -9,11 +9,30 @@ import SwiftUI
 struct GeneralSettingsPane: View {
     @EnvironmentObject var appState: AppState
     @ObservedObject var settings: GeneralSettings
-    @State private var isImportingCustomIceIcon = false
-    @State private var isPresentingError = false
-    @State private var presentedError: LocalizedErrorWrapper?
     @State private var isApplyingItemSpacingOffset = false
     @State private var tempItemSpacingOffset: CGFloat = 0
+
+    /// A single toggle backing both hover-to-show triggers (empty menu bar and Ice 2 icon).
+    private var showOnHover: Binding<Bool> {
+        Binding(
+            get: { settings.showOnHoverEmptyMenuBar || settings.showOnHoverOverIceIcon },
+            set: { newValue in
+                settings.showOnHoverEmptyMenuBar = newValue
+                settings.showOnHoverOverIceIcon = newValue
+            }
+        )
+    }
+
+    /// A single delay shared by both hover-to-show triggers.
+    private var hoverDelay: Binding<TimeInterval> {
+        Binding(
+            get: { settings.showOnHoverEmptyMenuBarDelay },
+            set: { newValue in
+                settings.showOnHoverEmptyMenuBarDelay = newValue
+                settings.showOnHoverOverIceIconDelay = newValue
+            }
+        )
+    }
 
     private var itemSpacingOffsetKey: LocalizedStringKey {
         switch tempItemSpacingOffset {
@@ -65,107 +84,8 @@ struct GeneralSettingsPane: View {
 
     @ViewBuilder
     private var iceIconOptions: some View {
-        showIceIcon
-        if settings.showIceIcon {
-            iceIconPicker
-        }
-    }
-
-    @ViewBuilder
-    private var showIceIcon: some View {
         Toggle("Show Ice 2 icon", isOn: $settings.showIceIcon)
-            .annotation("Click to show hidden menu bar items. Right-click to access Ice 2's settings.")
-    }
-
-    @ViewBuilder
-    private var iceIconPicker: some View {
-        let labelKey = LocalizedStringKey("Ice 2 icon")
-
-        IceMenu(labelKey) {
-            Picker(labelKey, selection: $settings.iceIcon) {
-                ForEach(ControlItemImageSet.userSelectableIceIcons) { imageSet in
-                    Button {
-                        settings.iceIcon = imageSet
-                    } label: {
-                        iceIconMenuItem(for: imageSet)
-                    }
-                    .tag(imageSet)
-                }
-                if let lastCustomIceIcon = settings.lastCustomIceIcon {
-                    Button {
-                        settings.iceIcon = lastCustomIceIcon
-                    } label: {
-                        iceIconMenuItem(for: lastCustomIceIcon)
-                    }
-                    .tag(lastCustomIceIcon)
-                }
-            }
-            .pickerStyle(.inline)
-            .labelsHidden()
-
-            Divider()
-
-            Button("Choose image…") {
-                isImportingCustomIceIcon = true
-            }
-        } title: {
-            iceIconMenuItem(for: settings.iceIcon)
-        }
-        .annotation("Choose a custom icon to show in the menu bar.")
-        .fileImporter(
-            isPresented: $isImportingCustomIceIcon,
-            allowedContentTypes: [.image]
-        ) { result in
-            do {
-                let url = try result.get()
-                if url.startAccessingSecurityScopedResource() {
-                    defer { url.stopAccessingSecurityScopedResource() }
-                    let data = try Data(contentsOf: url)
-                    settings.iceIcon = ControlItemImageSet(name: .custom, image: .data(data))
-                }
-            } catch {
-                presentedError = LocalizedErrorWrapper(error)
-                isPresentingError = true
-            }
-        }
-        .alert(isPresented: $isPresentingError, error: presentedError) {
-            Button("OK") {
-                presentedError = nil
-                isPresentingError = false
-            }
-        }
-
-        if case .custom = settings.iceIcon.name {
-            Toggle("Custom icon uses dynamic appearance", isOn: $settings.customIceIconIsTemplate)
-                .annotation {
-                    Text(
-                        """
-                        Display the icon as a monochrome image that dynamically adjusts to match \
-                        the menu bar's appearance. This setting removes all color from the icon, \
-                        but ensures consistent rendering with both light and dark backgrounds.
-                        """
-                    )
-                    .padding(.trailing, 50)
-                }
-        }
-    }
-
-    @ViewBuilder
-    private func iceIconMenuItem(for imageSet: ControlItemImageSet) -> some View {
-        Label {
-            Text(imageSet.name.rawValue)
-        } icon: {
-            if let nsImage = imageSet.hidden.nsImage(for: appState) {
-                switch imageSet.name {
-                case .custom:
-                    Image(size: CGSize(width: 18, height: 18)) { context in
-                        context.draw(Image(nsImage: nsImage), in: context.clipBoundingRect)
-                    }
-                default:
-                    Image(nsImage: nsImage)
-                }
-            }
-        }
+            .annotation("Click to show hidden menu bar items. Right-click to access Ice 2's settings. Customize the icon in the Appearance settings.")
     }
 
     // MARK: Ice Bar Options
@@ -286,32 +206,17 @@ struct GeneralSettingsPane: View {
         Toggle("Show on click", isOn: $settings.showOnClick)
             .annotation("Click inside an empty area of the menu bar to show hidden menu bar items.")
 
-        Toggle("Show on hover over empty menu bar", isOn: $settings.showOnHoverEmptyMenuBar)
-            .annotation("Hover over an empty area of the menu bar to show hidden menu bar items.")
-        if settings.showOnHoverEmptyMenuBar {
+        Toggle("Show on hover", isOn: showOnHover)
+            .annotation("Hover over an empty area of the menu bar or the Ice 2 icon to show hidden menu bar items.")
+        if showOnHover.wrappedValue {
             IceSlider(
-                formattedToSeconds(settings.showOnHoverEmptyMenuBarDelay),
-                value: $settings.showOnHoverEmptyMenuBarDelay,
+                formattedToSeconds(hoverDelay.wrappedValue),
+                value: hoverDelay,
                 in: 0...1,
                 step: 0.1
             )
             .annotation("The amount of time to wait before showing hidden items.")
         }
-
-        VStack(alignment: .leading, spacing: 6) {
-            Toggle("Show on hover over Ice 2 icon", isOn: $settings.showOnHoverOverIceIcon)
-                .annotation("Hover over the Ice 2 icon to show hidden menu bar items. Requires the Ice 2 icon to be shown.")
-            if settings.showOnHoverOverIceIcon {
-                IceSlider(
-                    formattedToSeconds(settings.showOnHoverOverIceIconDelay),
-                    value: $settings.showOnHoverOverIceIconDelay,
-                    in: 0...1,
-                    step: 0.1
-                )
-                .annotation("The amount of time to wait before showing hidden items.")
-            }
-        }
-        .disabled(!settings.showIceIcon)
 
         Toggle("Show on scroll", isOn: $settings.showOnScroll)
             .annotation("Scroll or swipe in the menu bar to show hidden menu bar items.")
