@@ -40,11 +40,19 @@ struct SettingsView: View {
         .navigationTitle(navigationTitle)
     }
 
+    /// The "meta" panes, grouped separately at the bottom of the sidebar.
+    private let metaIdentifiers: [SettingsNavigationIdentifier] = [.whatsNew, .updates, .about]
+
+    /// The functional panes, shown at the top of the sidebar.
+    private var primaryIdentifiers: [SettingsNavigationIdentifier] {
+        SettingsNavigationIdentifier.allCases.filter { !metaIdentifiers.contains($0) }
+    }
+
     @ViewBuilder
     private var sidebar: some View {
         List(selection: $navigationState.settingsNavigationIdentifier) {
             Section {
-                ForEach(SettingsNavigationIdentifier.allCases) { identifier in
+                ForEach(primaryIdentifiers) { identifier in
                     sidebarItem(for: identifier)
                 }
             } header: {
@@ -54,6 +62,13 @@ struct SettingsView: View {
                     .foregroundStyle(sidebarTextStyle)
                     .padding(.leading, sidebarPadding)
                     .padding(.bottom, 8)
+            }
+            .collapsible(false)
+
+            Section {
+                ForEach(metaIdentifiers) { identifier in
+                    sidebarItem(for: identifier)
+                }
             }
             .collapsible(false)
         }

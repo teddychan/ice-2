@@ -15,10 +15,13 @@ enum WhatsNewConfig {
         WhatsNewContent(
             version: Constants.versionString,
             date: "2026-07-08",
-            summary: "Settings panes are now in the standard Dragon order.",
+            summary: "A simpler, cleaner Settings window.",
             sections: [
                 ChangeSection(kind: .changed, entries: [
-                    "Moved Updates below What's New in Settings, so Ice's sidebar matches the other Dragon apps (ClipMenu, KeyKey, Spectacle).",
+                    "General settings are decluttered into clear sections — Show Hidden Items, Rehide, and Ice 2 Bar — so the options you use most are front and center.",
+                    "Advanced extras now tuck away behind expandable rows: automatic Ice 2 Bar and menu bar item spacing stay out of the way until you need them.",
+                    "The Settings sidebar groups What's New, Updates, and About together, separated from the functional panes above.",
+                    "Removed a duplicate Permissions list from the Advanced pane — Permissions still has its own dedicated pane.",
                 ]),
             ]
         )

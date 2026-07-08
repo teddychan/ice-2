@@ -37,19 +37,19 @@ struct GeneralSettingsPane: View {
         IceForm {
             IceSection {
                 appOptions
-            }
-            IceSection {
                 iceIconOptions
             }
-            IceSection {
+            IceSection("Show Hidden Items") {
+                showOptions
+            }
+            IceSection("Rehide") {
+                rehideOptions
+            }
+            IceSection("Ice 2 Bar") {
                 iceBarOptions
             }
             IceSection {
-                showOptions
-                rehideOptions
-            }
-            IceSection {
-                spacingOptions
+                advancedOptions
             }
         }
     }
@@ -173,15 +173,30 @@ struct GeneralSettingsPane: View {
     @ViewBuilder
     private var iceBarOptions: some View {
         useIceBar
-        autoEnableIceBar
-        if settings.autoEnableIceBar {
-            iceBarAutoEnableModePicker
-            if settings.iceBarAutoEnableMode == .screenWidth {
-                iceBarDisplayWidthThreshold
-            }
-        }
         if settings.useIceBar {
             iceBarLocationPicker
+        }
+        DisclosureGroup {
+            autoEnableIceBar
+            if settings.autoEnableIceBar {
+                iceBarAutoEnableModePicker
+                if settings.iceBarAutoEnableMode == .screenWidth {
+                    iceBarDisplayWidthThreshold
+                }
+            }
+        } label: {
+            Text("Automatic Ice 2 Bar")
+        }
+    }
+
+    // MARK: Advanced Options
+
+    @ViewBuilder
+    private var advancedOptions: some View {
+        DisclosureGroup {
+            spacingOptions
+        } label: {
+            Text("Advanced")
         }
     }
 

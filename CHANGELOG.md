@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.9.5 - 2026-07-08
+
+### Changed
+
+- **Simpler, cleaner Settings.** The General pane is reorganized into clear sections (Show Hidden Items, Rehide, Ice 2 Bar) so the most-used options are front and center. Advanced extras — automatic Ice 2 Bar and menu bar item spacing — now sit behind expandable "Automatic Ice 2 Bar" and "Advanced" rows, out of the way until you need them.
+- **Grouped sidebar.** The Settings sidebar now groups What's New, Updates, and About together, separated from the functional panes above.
+- **Removed a duplicate.** The Advanced pane no longer repeats the Permissions list — Permissions still has its own dedicated pane.
+
 ## 2.9.4 - 2026-07-08
 
 ### Changed

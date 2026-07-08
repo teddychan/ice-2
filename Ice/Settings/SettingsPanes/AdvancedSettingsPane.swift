@@ -39,9 +39,6 @@ struct AdvancedSettingsPane: View {
                 enableSecondaryContextMenu
                 tempShowInterval
             }
-            IceSection("Permissions") {
-                allPermissions
-            }
         }
     }
 
@@ -186,36 +183,5 @@ struct AdvancedSettingsPane: View {
                 }
         }
         .annotation("The amount of time to wait before hiding temporarily shown menu bar items.")
-    }
-
-    @ViewBuilder
-    private var allPermissions: some View {
-        ForEach(appState.permissions.allPermissions) { permission in
-            LabeledContent {
-                if permission.hasPermission {
-                    Label {
-                        Text("Permission Granted")
-                    } icon: {
-                        Image(systemName: "checkmark.circle")
-                            .foregroundStyle(.green)
-                    }
-                } else {
-                    VStack(alignment: .trailing, spacing: 4) {
-                        Button("Grant Permission") {
-                            permission.performRequest()
-                        }
-
-                        if permission.mayRequireRelaunch {
-                            Button("Relaunch Ice 2") {
-                                appState.relaunch()
-                            }
-                        }
-                    }
-                }
-            } label: {
-                Text(permission.title)
-            }
-            .frame(height: 22)
-        }
     }
 }
