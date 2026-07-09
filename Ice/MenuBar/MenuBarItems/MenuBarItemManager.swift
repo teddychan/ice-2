@@ -412,6 +412,44 @@ extension MenuBarItemManager {
             await cacheItemsRegardless(itemWindowIDs)
         }
     }
+
+    /// Refreshes the item cache so it reflects the user's current menu bar
+    /// layout, then returns.
+    ///
+    /// Rearranging items in the layout bar posts move events but does not
+    /// itself update the cache; the cache is otherwise only refreshed by
+    /// debounced system events, and `cacheItemsRegardless` intentionally
+    /// skips for one second after a move. This method waits out that window
+    /// (so the forced cache below is not skipped and reads settled item
+    /// positions) and then forces a cache. Callers use it before capturing a
+    /// layout profile so the snapshot reflects the latest arrangement rather
+    /// than a stale cache.
+    func refreshCacheForLayoutCapture() async {
+        let sinceLastMove = lastMoveOperationTimestamp?.duration(to: .now)
+        let delay = Self.layoutCaptureRefreshDelay(sinceLastMove: sinceLastMove)
+        if delay > .zero {
+            try? await Task.sleep(for: delay)
+        }
+        await cacheItemsRegardless()
+    }
+
+    /// Returns how long to wait before force-caching for a layout capture,
+    /// given how long ago the most recent move operation occurred (`nil` if
+    /// there has been no move).
+    ///
+    /// The wait ensures that, once elapsed, more than one second has passed
+    /// since the last move, so the subsequent cache is not skipped by the
+    /// post-move guard in `cacheItemsRegardless`. Returns zero when the last
+    /// move is already old enough or never happened.
+    nonisolated static func layoutCaptureRefreshDelay(sinceLastMove: Duration?) -> Duration {
+        guard let sinceLastMove else {
+            return .zero
+        }
+        // Slightly longer than the one-second post-move skip window so the
+        // guard is guaranteed to have elapsed, not merely reached.
+        let window = Duration.seconds(1) + .milliseconds(50)
+        return max(window - sinceLastMove, .zero)
+    }
 }
 
 // MARK: - Event Helpers

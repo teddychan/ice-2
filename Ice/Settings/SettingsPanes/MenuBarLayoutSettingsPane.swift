@@ -13,6 +13,7 @@ struct MenuBarLayoutSettingsPane: View {
     @State private var newProfileName = ""
     @State private var newGroupName = ""
     @State private var applyingProfileID: MenuBarLayoutProfile.ID?
+    @State private var isCapturingLayout = false
     @State private var showingGroupID: MenuBarItemGroup.ID?
     @State private var isPresentingError = false
     @State private var presentedError: LocalizedErrorWrapper?
@@ -104,10 +105,19 @@ struct MenuBarLayoutSettingsPane: View {
             TextField("Profile name", text: $newProfileName)
 
             Button("Save Current Layout") {
-                profileSettings.createProfile(named: newProfileName)
-                newProfileName = ""
+                saveCurrentLayout()
             }
-            .disabled(!hasItems)
+            .disabled(!hasItems || isCapturingLayout)
+        }
+    }
+
+    private func saveCurrentLayout() {
+        let name = newProfileName
+        newProfileName = ""
+        isCapturingLayout = true
+        Task {
+            defer { isCapturingLayout = false }
+            await profileSettings.createProfile(named: name)
         }
     }
 
@@ -132,17 +142,25 @@ struct MenuBarLayoutSettingsPane: View {
             Button("Apply") {
                 applyProfile(profile)
             }
-            .disabled(applyingProfileID != nil)
+            .disabled(applyingProfileID != nil || isCapturingLayout)
 
             Button("Update") {
-                profileSettings.updateProfile(profile)
+                updateProfile(profile)
             }
-            .disabled(!hasItems || applyingProfileID != nil)
+            .disabled(!hasItems || applyingProfileID != nil || isCapturingLayout)
 
             Button("Delete", role: .destructive) {
                 profileSettings.deleteProfile(profile)
             }
-            .disabled(applyingProfileID != nil)
+            .disabled(applyingProfileID != nil || isCapturingLayout)
+        }
+    }
+
+    private func updateProfile(_ profile: MenuBarLayoutProfile) {
+        isCapturingLayout = true
+        Task {
+            defer { isCapturingLayout = false }
+            await profileSettings.updateProfile(profile)
         }
     }
 

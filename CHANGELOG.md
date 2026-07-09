@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.9.7 - 2026-07-09
+
+### Fixed
+
+- **"Update" on a layout profile now saves your latest arrangement.** After dragging menu bar items between sections, clicking **Update** on a saved profile could record the previous layout instead of the current one, so the profile looked unchanged (deleting and re-saving worked around it). Ice 2 now refreshes the menu bar layout before capturing, so both **Update** and **Save Current Layout** always store what's actually in your menu bar.
+
 ## 2.9.6 - 2026-07-08
 
 ### Changed

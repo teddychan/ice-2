@@ -26,6 +26,26 @@ struct MenuBarLayoutProfile: Codable, Hashable, Identifiable {
     func itemCount(for section: MenuBarSection.Name) -> Int {
         itemTags(for: section).count
     }
+
+    /// Builds the per-section snapshots for a layout profile from the current
+    /// menu bar layout, expressed as item tags keyed by section.
+    ///
+    /// There is exactly one snapshot per section, in canonical section order,
+    /// even for sections with no items. Ice's own spacer items are excluded:
+    /// they are positioned by AppKit via their status-item autosave names, not
+    /// by the layout system, so capturing them would have profile-apply
+    /// synthetically move them (and surface phantom "Spacer" entries to the
+    /// user).
+    static func makeSectionSnapshots(
+        from tagsBySection: [MenuBarSection.Name: [MenuBarItemTag]]
+    ) -> [SectionSnapshot] {
+        MenuBarSection.Name.allCases.map { section in
+            SectionSnapshot(
+                section: section,
+                itemTags: (tagsBySection[section] ?? []).filter { !$0.isSpacerItem }
+            )
+        }
+    }
 }
 
 struct MenuBarItemGroup: Codable, Hashable, Identifiable {
@@ -52,8 +72,35 @@ final class MenuBarLayoutProfilesSettings: ObservableObject {
 
     private(set) weak var appState: AppState?
 
+    /// Returns the user's current menu bar layout as item tags per section,
+    /// refreshing the underlying item cache first so the result reflects the
+    /// latest arrangement rather than a stale cache.
+    ///
+    /// This is the single source of truth for capturing a layout profile, and
+    /// is injectable so the capture, create, and update logic can be
+    /// unit-tested without a live menu bar. The default implementation is
+    /// installed in `performSetup(with:)`.
+    var captureCurrentLayout: () async -> [MenuBarSection.Name: [MenuBarItemTag]] = { [:] }
+
     func performSetup(with appState: AppState) {
         self.appState = appState
+        captureCurrentLayout = { [weak appState] in
+            guard let appState else {
+                return [:]
+            }
+            // Refresh first: rearranging items in the layout bar does not
+            // update the item cache on its own, so without this the capture
+            // would read the pre-rearrangement layout (the "Update doesn't
+            // save my changes" bug).
+            await appState.itemManager.refreshCacheForLayoutCapture()
+            var tagsBySection = [MenuBarSection.Name: [MenuBarItemTag]]()
+            for section in MenuBarSection.Name.allCases {
+                tagsBySection[section] = appState.itemManager.itemCache
+                    .managedItems(for: section)
+                    .map(\.tag)
+            }
+            return tagsBySection
+        }
         loadInitialState()
         configureCancellables()
     }
@@ -108,25 +155,22 @@ final class MenuBarLayoutProfilesSettings: ObservableObject {
             .store(in: &cancellables)
     }
 
-    func createProfile(named name: String) {
-        guard let profile = makeProfile(name: name) else {
-            return
-        }
-        profiles.append(profile)
+    func createProfile(named name: String) async {
+        let tagsBySection = await captureCurrentLayout()
+        profiles.append(makeProfile(name: name, tagsBySection: tagsBySection))
     }
 
-    func updateProfile(_ profile: MenuBarLayoutProfile) {
-        guard
-            let index = profiles.firstIndex(where: { $0.id == profile.id }),
-            let updatedProfile = makeProfile(
-                id: profile.id,
-                name: profile.name,
-                createdAt: profile.createdAt
-            )
-        else {
+    func updateProfile(_ profile: MenuBarLayoutProfile) async {
+        let tagsBySection = await captureCurrentLayout()
+        guard let index = profiles.firstIndex(where: { $0.id == profile.id }) else {
             return
         }
-        profiles[index] = updatedProfile
+        profiles[index] = makeProfile(
+            id: profile.id,
+            name: profile.name,
+            createdAt: profile.createdAt,
+            tagsBySection: tagsBySection
+        )
     }
 
     func deleteProfile(_ profile: MenuBarLayoutProfile) {
@@ -168,30 +212,16 @@ final class MenuBarLayoutProfilesSettings: ObservableObject {
     private func makeProfile(
         id: UUID = UUID(),
         name: String,
-        createdAt: Date = Date()
-    ) -> MenuBarLayoutProfile? {
-        guard let appState else {
-            return nil
-        }
-        let now = Date()
-        let sections = MenuBarSection.Name.allCases.map { section in
-            MenuBarLayoutProfile.SectionSnapshot(
-                section: section,
-                // Exclude Ice's own spacer items: they are positioned by AppKit
-                // via their status-item autosave names, not by the layout system,
-                // so capturing them would have profile-apply synthetically move
-                // them (and surface phantom "Spacer" entries to the user).
-                itemTags: appState.itemManager.itemCache.managedItems(for: section)
-                    .filter { !$0.isSpacerItem }
-                    .map(\.tag)
-            )
-        }
-        return MenuBarLayoutProfile(
+        createdAt: Date = Date(),
+        updatedAt: Date = Date(),
+        tagsBySection: [MenuBarSection.Name: [MenuBarItemTag]]
+    ) -> MenuBarLayoutProfile {
+        MenuBarLayoutProfile(
             id: id,
             name: normalizedProfileName(name),
             createdAt: createdAt,
-            updatedAt: now,
-            sections: sections
+            updatedAt: updatedAt,
+            sections: MenuBarLayoutProfile.makeSectionSnapshots(from: tagsBySection)
         )
     }
 

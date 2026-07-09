@@ -14,12 +14,11 @@ enum WhatsNewConfig {
     static var content: WhatsNewContent {
         WhatsNewContent(
             version: Constants.versionString,
-            date: "2026-07-08",
-            summary: "Fewer, clearer options in General.",
+            date: "2026-07-09",
+            summary: "Layout profile fix.",
             sections: [
-                ChangeSection(kind: .changed, entries: [
-                    "Simpler show options: the two separate hover settings are now a single \"Show on hover\" that reacts to both the menu bar and the Ice 2 icon, with one delay.",
-                    "The menu bar icon chooser (icon, custom image, dynamic appearance) moved to the Appearance settings, alongside the other look-and-feel options. General keeps the simple \"Show Ice 2 icon\" switch.",
+                ChangeSection(kind: .fixed, entries: [
+                    "\"Update\" on a saved layout profile now records your current arrangement. After dragging items between sections, Update could keep the old layout; Ice 2 now refreshes the menu bar before saving, so Update and Save Current Layout both store what's really in your menu bar.",
                 ]),
             ]
         )
