@@ -188,6 +188,87 @@ struct MenuBarLayoutProfileCaptureTests {
         #expect(settings.profiles.count == 1)
         #expect(settings.profiles[0].itemTags(for: .visible) == [tag("A")])
     }
+
+    /// If the capture comes back with no items at all (refresh failed, revoked
+    /// permission, or a cleared cache), Update must not clobber the saved
+    /// profile with an empty layout.
+    @Test func updateProfileIgnoresEmptyDictCapture() async {
+        let settings = MenuBarLayoutProfilesSettings()
+        settings.captureCurrentLayout = { [.visible: [self.tag("A"), self.tag("B")]] }
+        await settings.createProfile(named: "Work")
+        let original = settings.profiles[0]
+
+        settings.captureCurrentLayout = { [:] }
+        await settings.updateProfile(original)
+
+        #expect(settings.profiles.count == 1)
+        #expect(settings.profiles[0].itemTags(for: .visible) == [tag("A"), tag("B")])
+    }
+
+    @Test func updateProfileIgnoresAllSectionsEmptyCapture() async {
+        let settings = MenuBarLayoutProfilesSettings()
+        settings.captureCurrentLayout = { [.visible: [self.tag("A")]] }
+        await settings.createProfile(named: "Work")
+        let original = settings.profiles[0]
+
+        settings.captureCurrentLayout = { [.visible: [], .hidden: [], .alwaysHidden: []] }
+        await settings.updateProfile(original)
+
+        #expect(settings.profiles[0].itemTags(for: .visible) == [tag("A")])
+    }
+
+    @Test func updateProfileAdvancesUpdatedAtButKeepsCreatedAt() async {
+        let settings = MenuBarLayoutProfilesSettings()
+        settings.captureCurrentLayout = { [.visible: [self.tag("A")]] }
+        await settings.createProfile(named: "Work")
+        let original = settings.profiles[0]
+
+        settings.captureCurrentLayout = { [.visible: [self.tag("A"), self.tag("B")]] }
+        await settings.updateProfile(original)
+        let updated = settings.profiles[0]
+
+        #expect(updated.createdAt == original.createdAt)
+        #expect(updated.updatedAt >= original.updatedAt)
+    }
+
+    @Test func blankNameGetsUniqueDefault() async {
+        let settings = MenuBarLayoutProfilesSettings()
+        settings.captureCurrentLayout = { [.visible: [self.tag("A")]] }
+        await settings.createProfile(named: "   ")
+        await settings.createProfile(named: "")
+        #expect(settings.profiles[0].name == "Layout Profile 1")
+        #expect(settings.profiles[1].name == "Layout Profile 2")
+    }
+
+    @Test func blankNameFillsSmallestFreeIndexAfterDelete() async {
+        let settings = MenuBarLayoutProfilesSettings()
+        settings.captureCurrentLayout = { [.visible: [self.tag("A")]] }
+        await settings.createProfile(named: "")   // "Layout Profile 1"
+        await settings.createProfile(named: "")   // "Layout Profile 2"
+        settings.deleteProfile(settings.profiles[0]) // frees "Layout Profile 1"
+        await settings.createProfile(named: "")
+        #expect(settings.profiles.contains { $0.name == "Layout Profile 1" })
+    }
+
+    @Test func nonEmptyNameIsTrimmed() async {
+        let settings = MenuBarLayoutProfilesSettings()
+        settings.captureCurrentLayout = { [.visible: [self.tag("A")]] }
+        await settings.createProfile(named: "  Work  ")
+        #expect(settings.profiles[0].name == "Work")
+    }
+
+    @Test func deleteRemovesOnlyTheTargetProfile() async {
+        let settings = MenuBarLayoutProfilesSettings()
+        settings.captureCurrentLayout = { [.visible: [self.tag("A")]] }
+        await settings.createProfile(named: "First")
+        await settings.createProfile(named: "Second")
+        let first = settings.profiles[0]
+        settings.deleteProfile(first)
+        #expect(settings.profiles.count == 1)
+        #expect(settings.profiles[0].name == "Second")
+        settings.deleteProfile(first) // already gone → no-op
+        #expect(settings.profiles.count == 1)
+    }
 }
 
 // MARK: - Layout-capture cache refresh delay
@@ -206,5 +287,14 @@ struct MenuBarLayoutCaptureRefreshDelayTests {
     @Test func oldMoveMeansNoDelay() {
         let delay = MenuBarItemManager.layoutCaptureRefreshDelay(sinceLastMove: .seconds(2))
         #expect(delay == .zero)
+    }
+
+    @Test func moveAtExactWindowMeansNoDelay() {
+        // The skip window is exactly 1s + 50ms; a move at the boundary needs no wait.
+        #expect(MenuBarItemManager.layoutCaptureRefreshDelay(sinceLastMove: .milliseconds(1050)) == .zero)
+    }
+
+    @Test func moveJustInsideWindowWaitsRemainder() {
+        #expect(MenuBarItemManager.layoutCaptureRefreshDelay(sinceLastMove: .milliseconds(1000)) == .milliseconds(50))
     }
 }

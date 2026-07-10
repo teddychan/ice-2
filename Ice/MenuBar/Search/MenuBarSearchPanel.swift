@@ -334,7 +334,7 @@ private struct MenuBarSearchContentView: View {
                 }
                 items.append(SearchItem(headerItem, name.displayString))
 
-                for item in itemManager.itemCache.managedItems(for: name).reversed() {
+                for item in itemManager.itemCache[name].reversed() {
                     if model.mode == .temporarilyShow, name == .visible {
                         continue
                     }

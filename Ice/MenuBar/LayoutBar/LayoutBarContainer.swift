@@ -85,7 +85,7 @@ final class LayoutBarContainer: NSView {
                     guard let self else {
                         return
                     }
-                    setArrangedViews(items: cache.managedItems(for: section))
+                    setArrangedViews(items: cache[section])
                 }
                 .store(in: &c)
 

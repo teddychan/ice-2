@@ -252,8 +252,8 @@ struct MenuBarLayoutSettingsPane: View {
     private func availableHiddenItemCount(for group: MenuBarItemGroup) -> Int {
         let tags = Set(group.itemTags)
         let items = (
-            itemManager.itemCache.managedItems(for: .hidden) +
-            itemManager.itemCache.managedItems(for: .alwaysHidden)
+            itemManager.itemCache[.hidden] +
+            itemManager.itemCache[.alwaysHidden]
         )
         return items.filter { tags.contains($0.tag) }.count
     }

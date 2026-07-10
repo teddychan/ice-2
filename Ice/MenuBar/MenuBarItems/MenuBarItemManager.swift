@@ -180,12 +180,6 @@ extension MenuBarItemManager {
             self.displayID = displayID
         }
 
-        // TODO: This is redundant now, so remove it.
-        /// Returns the managed menu bar items for the given section.
-        func managedItems(for section: MenuBarSection.Name) -> [MenuBarItem] {
-            self[section]
-        }
-
         /// Returns the address for the menu bar item with the given identity,
         /// if it exists in the cache.
         func address(for item: MenuBarItem) -> (section: MenuBarSection.Name, index: Int)? {
@@ -1453,8 +1447,8 @@ extension MenuBarItemManager {
 
         let tags = Set(group.itemTags)
         let items = (
-            itemCache.managedItems(for: .hidden) +
-            itemCache.managedItems(for: .alwaysHidden)
+            itemCache[.hidden] +
+            itemCache[.alwaysHidden]
         )
         .filter { tags.contains($0.tag) && !$0.isSpacerItem }
 

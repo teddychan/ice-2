@@ -82,18 +82,21 @@ final class IceBarColorManager: ObservableObject {
             )
             .receive(on: DispatchQueue.main)
             .sink { [weak self, weak iceBarPanel] in
+                // Only refresh while the Ice Bar is actually visible. When it's
+                // hidden there's no point capturing the screen every 5s — the
+                // show path (`updateAllProperties`) re-captures a fresh image
+                // before the panel is ordered front.
                 guard
                     let self,
                     let iceBarPanel,
+                    iceBarPanel.isVisible,
                     let screen = iceBarPanel.screen
                 else {
                     return
                 }
                 updateWindowImage(for: screen)
-                if iceBarPanel.isVisible {
-                    withAnimation {
-                        self.updateColorInfo(with: iceBarPanel.frame, screen: screen)
-                    }
+                withAnimation {
+                    self.updateColorInfo(with: iceBarPanel.frame, screen: screen)
                 }
             }
             .store(in: &c)

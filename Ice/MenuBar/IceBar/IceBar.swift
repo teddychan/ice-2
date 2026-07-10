@@ -313,7 +313,7 @@ private struct IceBarContentView: View {
     let section: MenuBarSection.Name
 
     private var items: [MenuBarItem] {
-        itemManager.itemCache.managedItems(for: section)
+        itemManager.itemCache[section]
     }
 
     private var configuration: MenuBarAppearanceConfigurationV2 {

@@ -83,9 +83,16 @@ struct MenuBarItem: CustomStringConvertible {
         return NSRunningApplication(processIdentifier: sourcePID)
     }
 
-    // TODO: Generate this once, during initialization.
     /// A name associated with the item, suited for display.
-    var displayName: String {
+    ///
+    /// This is computed once, during initialization.
+    let displayName: String
+
+    /// Computes the display name for the given item properties.
+    ///
+    /// The result is stored in ``displayName`` at initialization, as all of
+    /// its inputs are immutable for the lifetime of the item.
+    private static func makeDisplayName(tag: MenuBarItemTag, title: String?, sourcePID: pid_t?) -> String {
         /// Converts "UpperCamelCase" to "Title Case".
         ///
         /// Ignores cases where a single lowercase letter immediately
@@ -94,7 +101,7 @@ struct MenuBarItem: CustomStringConvertible {
             String(s).replacing(/([a-z]{2})([A-Z])/) { $0.output.1 + " " + $0.output.2 }
         }
 
-        guard !isControlItem else {
+        guard !tag.isControlItem else {
             return Constants.displayName
         }
 
@@ -104,7 +111,7 @@ struct MenuBarItem: CustomStringConvertible {
 
         lazy var fallbackName = "Menu Bar Item"
 
-        guard let sourceApplication else {
+        guard let sourceApplication = sourcePID.flatMap({ NSRunningApplication(processIdentifier: $0) }) else {
             return fallbackName
         }
 
@@ -116,7 +123,7 @@ struct MenuBarItem: CustomStringConvertible {
 
         lazy var bestName = sourceName ?? title
 
-        guard !isBentoBox else {
+        guard !tag.isBentoBox else {
             if tag == .controlCenter {
                 return bestName
             }
@@ -188,6 +195,7 @@ struct MenuBarItem: CustomStringConvertible {
         self.bounds = itemWindow.bounds
         self.title = itemWindow.title
         self.isOnScreen = itemWindow.isOnScreen
+        self.displayName = Self.makeDisplayName(tag: self.tag, title: self.title, sourcePID: self.sourcePID)
     }
 
     /// Creates a menu bar item without checks.
@@ -203,6 +211,7 @@ struct MenuBarItem: CustomStringConvertible {
         self.bounds = itemWindow.bounds
         self.title = itemWindow.title
         self.isOnScreen = itemWindow.isOnScreen
+        self.displayName = Self.makeDisplayName(tag: self.tag, title: self.title, sourcePID: self.sourcePID)
     }
 }
 

@@ -95,8 +95,7 @@ final class MenuBarLayoutProfilesSettings: ObservableObject {
             await appState.itemManager.refreshCacheForLayoutCapture()
             var tagsBySection = [MenuBarSection.Name: [MenuBarItemTag]]()
             for section in MenuBarSection.Name.allCases {
-                tagsBySection[section] = appState.itemManager.itemCache
-                    .managedItems(for: section)
+                tagsBySection[section] = appState.itemManager.itemCache[section]
                     .map(\.tag)
             }
             return tagsBySection
@@ -162,6 +161,14 @@ final class MenuBarLayoutProfilesSettings: ObservableObject {
 
     func updateProfile(_ profile: MenuBarLayoutProfile) async {
         let tagsBySection = await captureCurrentLayout()
+        // A capture with no items in any section means the refresh failed (no
+        // app state, revoked permission, or a cleared cache) rather than a real
+        // layout — control items are never filtered out of a capture, so a
+        // genuine layout always has at least one item. Don't overwrite a saved
+        // profile with an empty capture.
+        guard tagsBySection.values.contains(where: { !$0.isEmpty }) else {
+            return
+        }
         guard let index = profiles.firstIndex(where: { $0.id == profile.id }) else {
             return
         }
@@ -234,8 +241,8 @@ final class MenuBarLayoutProfilesSettings: ObservableObject {
             return nil
         }
 
-        let hiddenItems = appState.itemManager.itemCache.managedItems(for: .hidden)
-        let alwaysHiddenItems = appState.itemManager.itemCache.managedItems(for: .alwaysHidden)
+        let hiddenItems = appState.itemManager.itemCache[.hidden]
+        let alwaysHiddenItems = appState.itemManager.itemCache[.alwaysHidden]
         var items = hiddenItems + alwaysHiddenItems
 
         if items.isEmpty {

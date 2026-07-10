@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.9.8 - 2026-07-10
+
+### Fixed
+
+- **Updating a layout profile can no longer erase it.** If capturing the current menu bar layout failed — for example right after Ice 2 launched, or if Screen Recording permission had been revoked — clicking **Update** on a saved profile could overwrite it with an empty layout. Ice 2 now ignores an empty capture and leaves your saved profile untouched.
+
+### Improved
+
+- **Lower idle CPU and energy use.** The Ice 2 Bar no longer captures the screen every few seconds while it's hidden — it only refreshes its background color while actually visible — and menu bar item names are now computed once instead of on every access. This continues the idle-power work from 2.8.4–2.8.6.
+
 ## 2.9.7 - 2026-07-09
 
 ### Fixed
