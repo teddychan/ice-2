@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+### Tests
+
+- **Expanded the unit-test suite for the pure-logic layer.** Added 63 new test cases (45 → 108 total) across 8 new files in the `IceTests` target, all passing:
+  - `ModifiersTests` — symbolic string, NSEvent/CoreGraphics/Carbon flag conversions (round-trips), and `Codable`.
+  - `KeyCodeTests` — raw values, custom symbol mappings, key-equivalent fallback, and `Codable`.
+  - `KeyCombinationTests` — display value, `NSEvent` init, system-reserved lookup, equality, and the two-element `Codable` encoding (including the wrong-count decode error).
+  - `HotkeyActionTests` — persisted raw-value strings, `allCases`, and `Codable` (guards against renames that would break saved hotkeys).
+  - `PredicatesTests` — the throwing and non-throwing predicate factories.
+  - `IceColorTests` — component-preserving `Codable` round-trip and the invalid-ICC decode error path.
+  - `IceGradientTests` — color stops, alpha/location transforms, `NSGradient` conversion, interpolated/average color, and `Codable`.
+  - `ExtensionsTests` — `clamped`, `removingDuplicates`, `CGColor.brightness`, and `EdgeInsets` helpers.
+- **Coverage of the targeted logic types:** `Modifiers` 0→100%, `KeyCode` 0→95%, `KeyCombination` 0→92%, `IceGradient` 6→74%, `Predicates` 0→64%, `IceColor` 0→49%. The remaining uncovered lines in these files are system-coupled (SwiftUI view bodies, Carbon/TIS system calls) and are not unit-testable headlessly. Overall app-target line coverage moved from 5.4% to 7.4%; the bulk of the app is GUI/system integration that requires a live session with granted permissions.
+
 ## 2.9.8 - 2026-07-10
 
 ### Fixed
