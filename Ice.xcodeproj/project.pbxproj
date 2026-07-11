@@ -30,6 +30,7 @@
 		883544A1BDB23DEB15E409B2 /* MenuBarLayoutProfileTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A5B2BD6986E421B6263F2D3 /* MenuBarLayoutProfileTests.swift */; };
 		95AE1A0B775C85363C4404DC /* SettingsEnumsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7E9DDFB62D4FA07946CC797 /* SettingsEnumsTests.swift */; };
 		986A47EC7057DE6842643937 /* SettingsBackupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12990E4E70C4107E87D970D7 /* SettingsBackupTests.swift */; };
+		BAA1F5944C8280680E42F490 /* DefaultsAndSettingsLoadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A415CBF1182F36DCF75316EC /* DefaultsAndSettingsLoadTests.swift */; };
 		CB1C634067FACF3660D7435C /* KeyCodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B081058EC5AE64B9D485511 /* KeyCodeTests.swift */; };
 		DA6DC1703A2B3C4D5E6F7083 /* DragonKit in Frameworks */ = {isa = PBXBuildFile; productRef = DA6DC1702A2B3C4D5E6F7082 /* DragonKit */; };
 		DCC69CC55ECE780ACFFCE0E3 /* MenuBarSectionNameTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83522341C381D492260EB102 /* MenuBarSectionNameTests.swift */; };
@@ -84,6 +85,7 @@
 		8D4AA61E3DFF2CBC460604F1 /* IceTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IceTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		943118A230952141233F87D3 /* MenuBarTriggerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MenuBarTriggerTests.swift; sourceTree = "<group>"; };
 		9B081058EC5AE64B9D485511 /* KeyCodeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KeyCodeTests.swift; sourceTree = "<group>"; };
+		A415CBF1182F36DCF75316EC /* DefaultsAndSettingsLoadTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DefaultsAndSettingsLoadTests.swift; sourceTree = "<group>"; };
 		BC782BAB2CBAE725214BC3D2 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		C23731A85E77C82F006FD936 /* IceColorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IceColorTests.swift; sourceTree = "<group>"; };
 		CEC00E31681F07866FE98D6B /* HotkeyActionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HotkeyActionTests.swift; sourceTree = "<group>"; };
@@ -242,6 +244,7 @@
 				943118A230952141233F87D3 /* MenuBarTriggerTests.swift */,
 				2D3EE3A5FEDD60DB5B5DF93F /* UtilityHelpersTests.swift */,
 				F6B207F953D5E17989C6C3B5 /* HotkeyTests.swift */,
+				A415CBF1182F36DCF75316EC /* DefaultsAndSettingsLoadTests.swift */,
 			);
 			name = IceTests;
 			path = IceTests;
@@ -441,6 +444,7 @@
 				298CE54C9B0BE7DB32C3D2C3 /* MenuBarTriggerTests.swift in Sources */,
 				12863111709580A862D997E4 /* UtilityHelpersTests.swift in Sources */,
 				83DC40FE39537ACCA4890A12 /* HotkeyTests.swift in Sources */,
+				BAA1F5944C8280680E42F490 /* DefaultsAndSettingsLoadTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
