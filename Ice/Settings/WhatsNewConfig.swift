@@ -14,14 +14,11 @@ enum WhatsNewConfig {
     static var content: WhatsNewContent {
         WhatsNewContent(
             version: Constants.versionString,
-            date: "2026-07-10",
-            summary: "Idle-power and layout-profile fixes.",
+            date: "2026-07-11",
+            summary: "A behind-the-scenes reliability release.",
             sections: [
-                ChangeSection(kind: .fixed, entries: [
-                    "Updating a saved layout profile can no longer erase it. If capturing the current layout failed, Update could overwrite the profile with an empty layout; Ice 2 now ignores an empty capture and leaves your saved profile untouched.",
-                ]),
                 ChangeSection(kind: .improved, entries: [
-                    "Lower idle CPU and energy use. The Ice 2 Bar no longer captures the screen every few seconds while it's hidden, and menu bar item names are now computed once instead of on every access.",
+                    "Nothing changes in how Ice 2 looks or works. Under the hood, we added a large automated test suite that continuously checks Ice 2's core logic — your settings, backup & restore, keyboard shortcuts, and saved menu bar layouts. It acts as a safety net that catches mistakes before an update ships, so future releases are much less likely to accidentally break something that already works.",
                 ]),
             ]
         )

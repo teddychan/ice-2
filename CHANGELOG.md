@@ -1,32 +1,10 @@
 # Changelog
 
-## Unreleased
+## 2.9.9 - 2026-07-11
 
-### Tests
+### Behind the scenes
 
-- **Expanded the unit-test suite for the pure-logic layer.** Added 63 new test cases (45 → 108 total) across 8 new files in the `IceTests` target, all passing:
-  - `ModifiersTests` — symbolic string, NSEvent/CoreGraphics/Carbon flag conversions (round-trips), and `Codable`.
-  - `KeyCodeTests` — raw values, custom symbol mappings, key-equivalent fallback, and `Codable`.
-  - `KeyCombinationTests` — display value, `NSEvent` init, system-reserved lookup, equality, and the two-element `Codable` encoding (including the wrong-count decode error).
-  - `HotkeyActionTests` — persisted raw-value strings, `allCases`, and `Codable` (guards against renames that would break saved hotkeys).
-  - `PredicatesTests` — the throwing and non-throwing predicate factories.
-  - `IceColorTests` — component-preserving `Codable` round-trip and the invalid-ICC decode error path.
-  - `IceGradientTests` — color stops, alpha/location transforms, `NSGradient` conversion, interpolated/average color, and `Codable`.
-  - `ExtensionsTests` — `clamped`, `removingDuplicates`, `CGColor.brightness`, and `EdgeInsets` helpers.
-- **Coverage of the targeted logic types:** `Modifiers` 0→100%, `KeyCode` 0→95%, `KeyCombination` 0→92%, `IceGradient` 6→74%, `Predicates` 0→64%, `IceColor` 0→49%. The remaining uncovered lines in these files are system-coupled (SwiftUI view bodies, Carbon/TIS system calls) and are not unit-testable headlessly. Overall app-target line coverage moved from 5.4% to 7.4%; the bulk of the app is GUI/system integration that requires a live session with granted permissions.
-- **Backup & restore and layout profiles.** Added 11 more test cases (108 → 119 total) covering the backup/restore file round-trip and the layout-profile model:
-  - `SettingsBackupTests` — `writeBackup`→`restore` round-trip, malformed-file rejection, `performBackup` write-and-prune, and the folder/config helpers (`defaultFolder`, `configuredFolder`, `automaticBackupEnabled`, `currentAppVersion`). Raises `SettingsBackup` coverage 65→96%.
-  - `MenuBarLayoutProfileTests` — `applyProfile`/`temporarilyShowGroup` guards when no `AppState` is present, and the `ApplyError` description.
-- **Layout-movement note:** the profile/group *model* (capture, create, update, delete, section snapshots) is unit-tested, but the actual movement *engine* (`MenuBarItemManager`) drives real menu-bar items via synthesized CGEvents and Accessibility and can only be exercised by the manual test checklist, not units.
-- **Appearance configs, settings enums, and misc utilities.** Added 30 more test cases (119 → 149 total) across 5 new files:
-  - `AppearanceConfigTests` — `MenuBarEndCap`/`MenuBarShapeKind`/`MenuBarTintKind` metadata + `Codable`, and `MenuBarFullShapeInfo`/`MenuBarSplitShapeInfo` `hasRoundedShape`, defaults, and round-trips (→ 100%).
-  - `SettingsEnumsTests` — `RehideStrategy`, `IceBarAutoEnableMode`, `IceBarLocation`, `SectionDividerStyle` raw values, `allCases`, ids, localized titles, and out-of-range `init?` (`IceBarLocation` → 100%).
-  - `MenuBarTriggerTests` — `MenuBarTrigger.bundleIdentifier`/`matches`, action raw values, `Codable`, and `MenuBarTriggerTarget` equality.
-  - `UtilityHelpersTests` — `withMutableCopy` (mutation + throwing), `LocalizedErrorWrapper` (both branches, → 100%), `SystemAppearance` titles (→ 51%).
-  - `HotkeyTests` — `Hotkey` init, disabled-without-`AppState`, and `Equatable`/`Hashable` (→ 56%).
-- Whole-app line coverage moved 7.4% → 8.2%; the ceiling remains the GUI/system layer, which needs a live session, not units.
-- **Settings-model load & persistence.** Made the `Defaults` helper's backing store injectable (new `Defaults.store`, defaulting to `.standard` — behavior-preserving) so the settings models can be driven headlessly against a throwaway `UserDefaults` suite. Added 9 test cases in a serialized `DefaultsAndSettingsLoadTests` suite covering the `Defaults` wrapper and the `GeneralSettings`/`AdvancedSettings`/`MenuBarTriggerSettings` load & persist paths (constructing a real, un-booted `AppState`). Coverage: `GeneralSettings` 10→91%, `AdvancedSettings` 14→100%, `Defaults` 0→81%, `MenuBarTriggerSettings` 10→52%. Whole-app line coverage 8.2% → 10.6%.
-- **Hotkeys settings.** Added 4 more test cases (158 → 162 total) for `HotkeysSettings`: one hotkey per action, `hotkey(withAction:)` lookup, and load/persist of a stored key combination (which also exercises real registration). Coverage: `HotkeysSettings` 12→90%, `Hotkey` 56→84%, `HotkeyRegistry` 1→45%. Whole-app line coverage 10.6% → 11.5%.
+- **A reliability release — nothing changes in how Ice 2 looks or works.** Under the hood, we added a large automated test suite (162 checks) that continuously verifies Ice 2's core logic: your **settings**, **backup & restore**, **keyboard shortcuts**, and **saved menu bar layouts**. Think of it as a safety net — it catches mistakes before an update ships, so future releases are much less likely to accidentally break something that already works.
 
 ## 2.9.8 - 2026-07-10
 
