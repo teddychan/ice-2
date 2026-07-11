@@ -1,0 +1,69 @@
+//
+//  UtilityHelpersTests.swift
+//  IceTests
+//
+
+import Foundation
+import Testing
+@testable import Ice_2
+
+struct UtilityHelpersTests {
+    // MARK: withMutableCopy
+
+    @Test func withMutableCopyReturnsMutatedCopy() {
+        let result = withMutableCopy(of: [1, 2, 3]) { $0.append(4) }
+        #expect(result == [1, 2, 3, 4])
+    }
+
+    @Test func withMutableCopyLeavesOriginalUntouched() {
+        let original = [1, 2, 3]
+        _ = withMutableCopy(of: original) { $0.removeAll() }
+        #expect(original == [1, 2, 3])
+    }
+
+    @Test func withMutableCopyPropagatesThrownError() {
+        struct Boom: Error {}
+        #expect(throws: Boom.self) {
+            try withMutableCopy(of: 0) { _ in throw Boom() }
+        }
+    }
+
+    // MARK: LocalizedErrorWrapper
+
+    @Test func wrapperPassesThroughLocalizedErrorFields() {
+        struct Detailed: LocalizedError {
+            var errorDescription: String? { "desc" }
+            var failureReason: String? { "reason" }
+            var helpAnchor: String? { "anchor" }
+            var recoverySuggestion: String? { "suggestion" }
+        }
+        let wrapped = LocalizedErrorWrapper(Detailed())
+        #expect(wrapped.errorDescription == "desc")
+        #expect(wrapped.failureReason == "reason")
+        #expect(wrapped.helpAnchor == "anchor")
+        #expect(wrapped.recoverySuggestion == "suggestion")
+    }
+
+    @Test func wrapperUsesLocalizedDescriptionForPlainError() {
+        let plain = NSError(domain: "IceTests", code: 7, userInfo: [NSLocalizedDescriptionKey: "plain failure"])
+        let wrapped = LocalizedErrorWrapper(plain)
+        #expect(wrapped.errorDescription == "plain failure")
+        #expect(wrapped.failureReason == nil)
+        #expect(wrapped.helpAnchor == nil)
+        #expect(wrapped.recoverySuggestion == nil)
+    }
+
+    // MARK: SystemAppearance
+
+    @Test func systemAppearanceTitleKeys() {
+        #expect(SystemAppearance.light.titleKey == "Light Appearance")
+        #expect(SystemAppearance.dark.titleKey == "Dark Appearance")
+    }
+
+    @MainActor
+    @Test func currentSystemAppearanceResolvesToALightOrDarkTitle() {
+        // Exercises the exact/best-match resolution against the host appearance.
+        let title = SystemAppearance.current.titleKey
+        #expect(title == "Light Appearance" || title == "Dark Appearance")
+    }
+}

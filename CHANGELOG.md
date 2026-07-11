@@ -18,6 +18,13 @@
   - `SettingsBackupTests` — `writeBackup`→`restore` round-trip, malformed-file rejection, `performBackup` write-and-prune, and the folder/config helpers (`defaultFolder`, `configuredFolder`, `automaticBackupEnabled`, `currentAppVersion`). Raises `SettingsBackup` coverage 65→96%.
   - `MenuBarLayoutProfileTests` — `applyProfile`/`temporarilyShowGroup` guards when no `AppState` is present, and the `ApplyError` description.
 - **Layout-movement note:** the profile/group *model* (capture, create, update, delete, section snapshots) is unit-tested, but the actual movement *engine* (`MenuBarItemManager`) drives real menu-bar items via synthesized CGEvents and Accessibility and can only be exercised by the manual test checklist, not units.
+- **Appearance configs, settings enums, and misc utilities.** Added 30 more test cases (119 → 149 total) across 5 new files:
+  - `AppearanceConfigTests` — `MenuBarEndCap`/`MenuBarShapeKind`/`MenuBarTintKind` metadata + `Codable`, and `MenuBarFullShapeInfo`/`MenuBarSplitShapeInfo` `hasRoundedShape`, defaults, and round-trips (→ 100%).
+  - `SettingsEnumsTests` — `RehideStrategy`, `IceBarAutoEnableMode`, `IceBarLocation`, `SectionDividerStyle` raw values, `allCases`, ids, localized titles, and out-of-range `init?` (`IceBarLocation` → 100%).
+  - `MenuBarTriggerTests` — `MenuBarTrigger.bundleIdentifier`/`matches`, action raw values, `Codable`, and `MenuBarTriggerTarget` equality.
+  - `UtilityHelpersTests` — `withMutableCopy` (mutation + throwing), `LocalizedErrorWrapper` (both branches, → 100%), `SystemAppearance` titles (→ 51%).
+  - `HotkeyTests` — `Hotkey` init, disabled-without-`AppState`, and `Equatable`/`Hashable` (→ 56%).
+- Whole-app line coverage moved 7.4% → 8.2%; the ceiling remains the GUI/system layer, which needs a live session, not units.
 
 ## 2.9.8 - 2026-07-10
 
