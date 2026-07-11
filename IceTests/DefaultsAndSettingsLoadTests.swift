@@ -186,4 +186,57 @@ struct DefaultsAndSettingsLoadTests {
             #expect(settings.triggers.first?.bundleIdentifier == "com.apple.Safari")
         }
     }
+
+    // MARK: - HotkeysSettings
+
+    @MainActor
+    @Test func hotkeysSettingsHasOneHotkeyPerActionInitiallyUnset() {
+        let settings = HotkeysSettings()
+        #expect(settings.hotkeys.count == HotkeyAction.allCases.count)
+        let actions = Set(settings.hotkeys.map(\.action))
+        #expect(actions == Set(HotkeyAction.allCases))
+        #expect(settings.hotkeys.allSatisfy { $0.keyCombination == nil })
+    }
+
+    @MainActor
+    @Test func hotkeyWithActionReturnsMatchingHotkey() {
+        let settings = HotkeysSettings()
+        #expect(settings.hotkey(withAction: .searchMenuBarItems)?.action == .searchMenuBarItems)
+        #expect(settings.hotkey(withAction: .toggleHiddenSection)?.action == .toggleHiddenSection)
+    }
+
+    @MainActor
+    @Test func hotkeysSettingsLoadsStoredCombination() async throws {
+        try await withScratchStore { scratch in
+            // Obscure combination that can't collide with a real global hotkey.
+            let combo = KeyCombination(key: .f19, modifiers: [.control, .option, .command])
+            let data = try JSONEncoder().encode(combo as KeyCombination?)
+            scratch.set([HotkeyAction.searchMenuBarItems.rawValue: data], forKey: Defaults.Key.hotkeys.rawValue)
+
+            let settings = HotkeysSettings()
+            settings.performSetup(with: AppState())
+            try? await Task.sleep(for: .milliseconds(50))
+
+            #expect(settings.hotkey(withAction: .searchMenuBarItems)?.keyCombination == combo)
+            // Actions with no stored combination stay unset.
+            #expect(settings.hotkey(withAction: .toggleAutoRehide)?.keyCombination == nil)
+        }
+    }
+
+    @MainActor
+    @Test func hotkeysSettingsPersistsCombinationChange() async throws {
+        try await withScratchStore { scratch in
+            let settings = HotkeysSettings()
+            settings.performSetup(with: AppState())
+
+            let combo = KeyCombination(key: .f19, modifiers: [.control, .option, .command])
+            settings.hotkey(withAction: .enableIceBar)?.keyCombination = combo
+            try? await Task.sleep(for: .milliseconds(50))
+
+            let dict = try #require(scratch.dictionary(forKey: Defaults.Key.hotkeys.rawValue) as? [String: Data])
+            let stored = try #require(dict[HotkeyAction.enableIceBar.rawValue])
+            let decoded = try JSONDecoder().decode(KeyCombination?.self, from: stored)
+            #expect(decoded == combo)
+        }
+    }
 }

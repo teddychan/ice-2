@@ -26,6 +26,7 @@
   - `HotkeyTests` — `Hotkey` init, disabled-without-`AppState`, and `Equatable`/`Hashable` (→ 56%).
 - Whole-app line coverage moved 7.4% → 8.2%; the ceiling remains the GUI/system layer, which needs a live session, not units.
 - **Settings-model load & persistence.** Made the `Defaults` helper's backing store injectable (new `Defaults.store`, defaulting to `.standard` — behavior-preserving) so the settings models can be driven headlessly against a throwaway `UserDefaults` suite. Added 9 test cases in a serialized `DefaultsAndSettingsLoadTests` suite covering the `Defaults` wrapper and the `GeneralSettings`/`AdvancedSettings`/`MenuBarTriggerSettings` load & persist paths (constructing a real, un-booted `AppState`). Coverage: `GeneralSettings` 10→91%, `AdvancedSettings` 14→100%, `Defaults` 0→81%, `MenuBarTriggerSettings` 10→52%. Whole-app line coverage 8.2% → 10.6%.
+- **Hotkeys settings.** Added 4 more test cases (158 → 162 total) for `HotkeysSettings`: one hotkey per action, `hotkey(withAction:)` lookup, and load/persist of a stored key combination (which also exercises real registration). Coverage: `HotkeysSettings` 12→90%, `Hotkey` 56→84%, `HotkeyRegistry` 1→45%. Whole-app line coverage 10.6% → 11.5%.
 
 ## 2.9.8 - 2026-07-10
 
