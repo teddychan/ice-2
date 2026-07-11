@@ -147,4 +147,107 @@ struct SettingsBackupTests {
         #expect(remaining.count == 1)
         #expect(remaining.first?.lastPathComponent == "Ice-Settings-2026-01-03-000000.icebackup")
     }
+
+    // MARK: - writeBackup / restore (file round-trip)
+
+    @Test func writeBackupThenRestoreReproducesValues() throws {
+        let (source, sSuite) = makeScratch()
+        let (target, tSuite) = makeScratch()
+        let folder = FileManager.default.temporaryDirectory
+            .appending(path: "IceTests-" + UUID().uuidString)
+        defer {
+            UserDefaults.standard.removePersistentDomain(forName: sSuite)
+            UserDefaults.standard.removePersistentDomain(forName: tSuite)
+            try? FileManager.default.removeItem(at: folder)
+        }
+        source.set("dark", forKey: Defaults.Key.iceIcon.rawValue)
+        source.set(7, forKey: Defaults.Key.showOnHoverDelay.rawValue)
+
+        // writeBackup also creates the (missing) destination folder.
+        let url = try SettingsBackup.writeBackup(
+            of: source, to: folder, appVersion: "3.1", date: Date(timeIntervalSince1970: 100)
+        )
+        #expect(FileManager.default.fileExists(atPath: url.path))
+        #expect(url.pathExtension == SettingsBackup.fileExtension)
+
+        try SettingsBackup.restore(from: url, into: target)
+        #expect(target.string(forKey: Defaults.Key.iceIcon.rawValue) == "dark")
+        #expect(target.integer(forKey: Defaults.Key.showOnHoverDelay.rawValue) == 7)
+    }
+
+    @Test func restoreThrowsOnMalformedFile() throws {
+        let (target, tSuite) = makeScratch()
+        let folder = FileManager.default.temporaryDirectory
+            .appending(path: "IceTests-" + UUID().uuidString)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        defer {
+            UserDefaults.standard.removePersistentDomain(forName: tSuite)
+            try? FileManager.default.removeItem(at: folder)
+        }
+        let url = folder.appending(path: "Ice-Settings-2026-01-01-000000.icebackup")
+        try Data("not a plist".utf8).write(to: url)
+        #expect(throws: (any Error).self) {
+            try SettingsBackup.restore(from: url, into: target)
+        }
+    }
+
+    @Test func performBackupWritesToConfiguredFolderAndPrunes() throws {
+        let (source, sSuite) = makeScratch()
+        let folder = FileManager.default.temporaryDirectory
+            .appending(path: "IceTests-" + UUID().uuidString)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        defer {
+            UserDefaults.standard.removePersistentDomain(forName: sSuite)
+            try? FileManager.default.removeItem(at: folder)
+        }
+        source.set(folder.path, forKey: Defaults.Key.backupFolderPath.rawValue)
+        source.set("v", forKey: Defaults.Key.iceIcon.rawValue)
+
+        // Pre-seed two older backups so keeping:1 trims after the fresh write.
+        for stamp in ["2020-01-01-000000", "2020-01-02-000000"] {
+            try Data("x".utf8).write(to: folder.appending(path: "Ice-Settings-\(stamp).icebackup"))
+        }
+        // A far-future date makes the new file sort newest.
+        let url = try SettingsBackup.performBackup(
+            defaults: source, appVersion: "v", date: Date(timeIntervalSince1970: 2_000_000_000), keeping: 1
+        )
+        #expect(FileManager.default.fileExists(atPath: url.path))
+        let remaining = SettingsBackup.listBackups(in: folder)
+        #expect(remaining.count == 1)
+        #expect(remaining.first?.lastPathComponent == url.lastPathComponent)
+    }
+
+    // MARK: - Folder / config helpers
+
+    @Test func defaultFolderIsDocumentsIceBackups() {
+        let home = URL(fileURLWithPath: "/Users/test", isDirectory: true)
+        #expect(SettingsBackup.defaultFolder(home: home).path == "/Users/test/Documents/Ice Backups")
+    }
+
+    @Test func configuredFolderUsesStoredPathWhenSet() {
+        let (defaults, suite) = makeScratch()
+        defer { UserDefaults.standard.removePersistentDomain(forName: suite) }
+        defaults.set("/tmp/my-backups", forKey: Defaults.Key.backupFolderPath.rawValue)
+        #expect(SettingsBackup.configuredFolder(defaults).path == "/tmp/my-backups")
+    }
+
+    @Test func configuredFolderFallsBackToDefaultWhenUnsetOrEmpty() {
+        let (defaults, suite) = makeScratch()
+        defer { UserDefaults.standard.removePersistentDomain(forName: suite) }
+        #expect(SettingsBackup.configuredFolder(defaults) == SettingsBackup.defaultFolder())
+        defaults.set("", forKey: Defaults.Key.backupFolderPath.rawValue)
+        #expect(SettingsBackup.configuredFolder(defaults) == SettingsBackup.defaultFolder())
+    }
+
+    @Test func automaticBackupEnabledDefaultsTrueAndRespectsStored() {
+        let (defaults, suite) = makeScratch()
+        defer { UserDefaults.standard.removePersistentDomain(forName: suite) }
+        #expect(SettingsBackup.automaticBackupEnabled(defaults))
+        defaults.set(false, forKey: Defaults.Key.automaticBackupEnabled.rawValue)
+        #expect(!SettingsBackup.automaticBackupEnabled(defaults))
+    }
+
+    @Test func currentAppVersionIsNonEmpty() {
+        #expect(!SettingsBackup.currentAppVersion.isEmpty)
+    }
 }

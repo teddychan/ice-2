@@ -269,6 +269,40 @@ struct MenuBarLayoutProfileCaptureTests {
         settings.deleteProfile(first) // already gone → no-op
         #expect(settings.profiles.count == 1)
     }
+
+    // MARK: - Apply / group guards without a live AppState
+
+    @Test func applyProfileWithoutAppStateThrows() async {
+        let settings = MenuBarLayoutProfilesSettings()
+        let profile = MenuBarLayoutProfile(
+            id: UUID(), name: "X",
+            createdAt: Date(timeIntervalSince1970: 0),
+            updatedAt: Date(timeIntervalSince1970: 0),
+            sections: []
+        )
+        await #expect(throws: MenuBarLayoutProfilesSettings.ApplyError.self) {
+            try await settings.applyProfile(profile)
+        }
+    }
+
+    @Test func temporarilyShowGroupWithoutAppStateReturnsZero() async {
+        let settings = MenuBarLayoutProfilesSettings()
+        let group = MenuBarItemGroup(
+            id: UUID(), name: "G",
+            createdAt: Date(timeIntervalSince1970: 0),
+            updatedAt: Date(timeIntervalSince1970: 0),
+            itemTags: []
+        )
+        let count = await settings.temporarilyShowGroup(group)
+        #expect(count == 0)
+    }
+
+    @Test func applyErrorHasUserFacingDescription() {
+        #expect(
+            MenuBarLayoutProfilesSettings.ApplyError.missingAppState.errorDescription
+                == "Ice is not ready to apply layout profiles."
+        )
+    }
 }
 
 // MARK: - Layout-capture cache refresh delay

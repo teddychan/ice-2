@@ -14,6 +14,10 @@
   - `IceGradientTests` — color stops, alpha/location transforms, `NSGradient` conversion, interpolated/average color, and `Codable`.
   - `ExtensionsTests` — `clamped`, `removingDuplicates`, `CGColor.brightness`, and `EdgeInsets` helpers.
 - **Coverage of the targeted logic types:** `Modifiers` 0→100%, `KeyCode` 0→95%, `KeyCombination` 0→92%, `IceGradient` 6→74%, `Predicates` 0→64%, `IceColor` 0→49%. The remaining uncovered lines in these files are system-coupled (SwiftUI view bodies, Carbon/TIS system calls) and are not unit-testable headlessly. Overall app-target line coverage moved from 5.4% to 7.4%; the bulk of the app is GUI/system integration that requires a live session with granted permissions.
+- **Backup & restore and layout profiles.** Added 11 more test cases (108 → 119 total) covering the backup/restore file round-trip and the layout-profile model:
+  - `SettingsBackupTests` — `writeBackup`→`restore` round-trip, malformed-file rejection, `performBackup` write-and-prune, and the folder/config helpers (`defaultFolder`, `configuredFolder`, `automaticBackupEnabled`, `currentAppVersion`). Raises `SettingsBackup` coverage 65→96%.
+  - `MenuBarLayoutProfileTests` — `applyProfile`/`temporarilyShowGroup` guards when no `AppState` is present, and the `ApplyError` description.
+- **Layout-movement note:** the profile/group *model* (capture, create, update, delete, section snapshots) is unit-tested, but the actual movement *engine* (`MenuBarItemManager`) drives real menu-bar items via synthesized CGEvents and Accessibility and can only be exercised by the manual test checklist, not units.
 
 ## 2.9.8 - 2026-07-10
 
