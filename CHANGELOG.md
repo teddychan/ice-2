@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.9.10 - 2026-07-25
+
+### Fixed
+
+- **The menu bar color can no longer be calculated from an empty screen capture.** When a capture of the menu bar area came back completely transparent — which can happen while displays are being reconfigured or right after waking from sleep — Ice 2 produced an invalid ("not a number") average color and passed it along as if it were real, which could tint the Ice 2 Bar or the item search panel with a garbage color. Ice 2 now treats an empty capture as "no color available" and keeps the previous color instead.
+
+### Improved
+
+- **Faster lookup of the wallpaper behind the menu bar.** This lookup inspected each window's owning application before checking its title, which meant building a process object for every window on screen. Checking the title first makes the scan roughly 40× faster (about 1 ms down to 25 µs on a typical desktop). It runs whenever Ice 2 refreshes the menu bar appearance overlay, the Ice 2 Bar, or the item search panel.
+
+### Behind the scenes
+
+- **More automated checks.** The test suite grew from 162 to 261 checks, now also covering menu bar image processing, appearance-settings upgrades, menu bar window identification, and the shared concurrency helpers. Both fixes above were found while writing those tests.
+
 ## 2.9.9 - 2026-07-11
 
 ### Behind the scenes

@@ -160,6 +160,14 @@ extension CGImage {
             }
         }
 
+        // Every pixel was below the alpha threshold, so no pixel contributed
+        // to the average and there is no color to report. Without this guard
+        // the divisions below are 0/0, which yields a NaN color that callers
+        // can't distinguish from a real one.
+        guard count > 0 else {
+            return nil
+        }
+
         // Components are currently in integer format (0 to 255), but need
         // to be converted to floating point (0 to 1). Makes more sense to
         // scale the count up to match the components, rather than scale

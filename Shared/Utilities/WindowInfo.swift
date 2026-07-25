@@ -121,9 +121,12 @@ extension WindowInfo {
     static func wallpaperWindow(from windows: [WindowInfo], for display: CGDirectDisplayID) -> WindowInfo? {
         let displayBounds = CGDisplayBounds(display)
         return windows.first { window in
+            // Check the title first. It's a cheap string comparison, whereas
+            // the owner check constructs an NSRunningApplication for every
+            // window it inspects, which dominates the cost of this scan.
+            window.title?.hasPrefix("Wallpaper") == true &&
             // Wallpaper window belongs to the Dock process.
             window.owningApplication?.bundleIdentifier == "com.apple.dock" &&
-            window.title?.hasPrefix("Wallpaper") == true &&
             displayBounds.contains(window.bounds)
         }
     }
