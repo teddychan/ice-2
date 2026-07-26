@@ -30,10 +30,10 @@ cd "$repo_root"
 echo "==> Building $SCHEME ($CONFIG)…"
 xcodebuild -scheme "$SCHEME" -configuration "$CONFIG" \
   -destination 'generic/platform=macOS' \
-  build CODE_SIGNING_ALLOWED=NO -quiet
+  build -quiet
 
 products_dir="$(xcodebuild -scheme "$SCHEME" -configuration "$CONFIG" \
-  -destination 'generic/platform=macOS' -showBuildSettings CODE_SIGNING_ALLOWED=NO 2>/dev/null \
+  -destination 'generic/platform=macOS' -showBuildSettings 2>/dev/null \
   | awk -F' = ' '/ BUILT_PRODUCTS_DIR = /{print $2; exit}')"
 
 src="$products_dir/Ice 2.app"
@@ -59,6 +59,8 @@ if ! "$pb" -c "Set :CFBundleDisplayName $DEBUG_NAME" "$dst/Contents/Info.plist" 
   "$pb" -c "Add :CFBundleDisplayName string $DEBUG_NAME" "$dst/Contents/Info.plist"
 fi
 
+# The Debug configuration already ad-hoc signs, but the PlistBuddy edits above
+# invalidate that signature ("invalid Info.plist"), so the copy must be re-signed.
 echo "==> Ad-hoc signing…"
 codesign --force --deep --sign - "$dst" >/dev/null 2>&1
 
