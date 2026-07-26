@@ -229,15 +229,15 @@ processing and window identification, code signing checks, settings persistence 
 backup, and the shared concurrency helpers. Anything that needs live `NSStatusItem`s,
 event taps, or granted permissions is covered by the manual checklist in
 [docs/testing/layout-pane-manual-tests.md](docs/testing/layout-pane-manual-tests.md)
-instead.
+instead. CI runs the suite on every pull request; the Debug configuration signs ad-hoc,
+so no Apple Development certificate is needed to run it locally either.
+
+[![Tests](https://github.com/teddychan/ice-2/actions/workflows/tests.yml/badge.svg)](https://github.com/teddychan/ice-2/actions/workflows/tests.yml)
 
 ```bash
 xcodebuild test -project Ice.xcodeproj -scheme Ice \
-  -destination 'platform=macOS,arch=arm64' CODE_SIGNING_ALLOWED=NO
+  -destination 'platform=macOS,arch=arm64'
 ```
-
-`CODE_SIGNING_ALLOWED=NO` lets the suite run without the project's Apple Development
-signing certificate; drop it if you have one.
 
 | Metric | Value |
 |---|---|
