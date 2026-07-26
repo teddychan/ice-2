@@ -48,6 +48,7 @@ profiles, and searches your items.
 - [Menu bar sections](#menu-bar-sections)
 - [Troubleshooting](#troubleshooting)
 - [Building from source](#building-from-source)
+- [Tests](#tests)
 - [Contributing](#contributing)
 - [Credits](#credits)
 - [License](#license)
@@ -217,6 +218,37 @@ bash scripts/run-debug.sh
 Swift sources are linted with [SwiftLint](https://github.com/realm/SwiftLint)
 (`.swiftlint.yml`); CI runs `swiftlint lint --strict` on every pull request that
 touches Swift files.
+
+## Tests
+
+The unit tests live in `IceTests/` and are written with Swift Testing. They cover the
+pure, permission-free parts of Ice 2: menu bar item tags and layout profiles, section
+names and triggers, appearance configuration and its settings upgrades, colors and
+gradients, hotkeys (key codes, modifiers, combinations, and actions), menu bar image
+processing and window identification, code signing checks, settings persistence and
+backup, and the shared concurrency helpers. Anything that needs live `NSStatusItem`s,
+event taps, or granted permissions is covered by the manual checklist in
+[docs/testing/layout-pane-manual-tests.md](docs/testing/layout-pane-manual-tests.md)
+instead.
+
+```bash
+xcodebuild test -project Ice.xcodeproj -scheme Ice \
+  -destination 'platform=macOS,arch=arm64' CODE_SIGNING_ALLOWED=NO
+```
+
+`CODE_SIGNING_ALLOWED=NO` lets the suite run without the project's Apple Development
+signing certificate; drop it if you have one.
+
+| Metric | Value |
+|---|---|
+| Test cases | 261 passing |
+| Line coverage | 14.3% of the `Ice 2.app` target |
+| Measured on | v2.9.10 (`f55a610`), Xcode 26.6 on macOS 26.5.2 |
+
+Coverage is low by nature rather than by neglect: most of the app target is SwiftUI
+settings views and menu-bar machinery that needs live status items, event taps, and
+granted permissions, none of which run headlessly. The tests concentrate on the logic
+that can be exercised without them.
 
 ## Contributing
 
