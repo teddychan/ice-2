@@ -25,6 +25,16 @@ struct MenuBarAppearanceConfigurationV2: Hashable {
         }
     }
 
+    /// A Boolean value that indicates whether the configuration draws the
+    /// desktop wallpaper.
+    ///
+    /// The wallpaper is only ever drawn to fill in the parts of the menu bar
+    /// that the configuration cuts away, so configurations that merely tint,
+    /// outline, or shadow the menu bar don't need it captured.
+    var needsDesktopWallpaper: Bool {
+        removesMenuBarBackground || roundsScreenCorners || shapeKind != .noShape
+    }
+
     var current: MenuBarAppearancePartialConfiguration {
         if isDynamic {
             switch SystemAppearance.current {

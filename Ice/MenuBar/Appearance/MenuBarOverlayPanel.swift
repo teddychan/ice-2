@@ -202,7 +202,10 @@ final class MenuBarOverlayPanel: NSPanel {
         Timer.publish(every: 5, on: .main, in: .default)
             .autoconnect()
             .sink { [weak self] _ in
-                self?.insertUpdateFlag(.desktopWallpaper)
+                guard let self, needsDesktopWallpaper else {
+                    return
+                }
+                insertUpdateFlag(.desktopWallpaper)
             }
             .store(in: &c)
 
@@ -248,9 +251,48 @@ final class MenuBarOverlayPanel: NSPanel {
                     self?.alphaValue = isHidden ? 0 : 1
                 }
                 .store(in: &c)
+
+            // Capture right away when a configuration that draws the wallpaper is
+            // applied, instead of leaving the panel unpainted until the next poll.
+            // The initial value is dropped, since `show()` already captures when
+            // the panel is first ordered front.
+            //
+            // The hop to the main queue is required: `@Published` publishes from
+            // `willSet`, so the manager still holds the previous configuration
+            // during the emission, and the update this schedules runs
+            // synchronously. Without the hop, the update would read the old
+            // configuration and decide it doesn't need the wallpaper after all.
+            appState.appearanceManager.$configuration
+                .map(\.needsDesktopWallpaper)
+                .removeDuplicates()
+                .dropFirst()
+                .receive(on: DispatchQueue.main)
+                .sink { [weak self] needsWallpaper in
+                    guard let self, needsWallpaper else {
+                        return
+                    }
+                    insertUpdateFlag(.desktopWallpaper)
+                }
+                .store(in: &c)
         }
 
         cancellables = c
+    }
+
+    /// A Boolean value that indicates whether the panel has a reason to capture
+    /// the desktop wallpaper.
+    ///
+    /// A panel is created for any nondefault appearance, but only some of them
+    /// draw the wallpaper, and none of them are visible while their own display
+    /// is hidden. Capturing in either case is wasted work — and, since capturing
+    /// requires screen recording permission, a wasted entry in the system's
+    /// privacy report.
+    private var needsDesktopWallpaper: Bool {
+        guard let appState else {
+            return false
+        }
+        return appState.appearanceManager.configuration.needsDesktopWallpaper
+            && !ScreenState.isHidden(for: owningScreen.displayID)
     }
 
     /// Inserts the given update flag into the panel's current list of update flags.
@@ -299,6 +341,7 @@ final class MenuBarOverlayPanel: NSPanel {
     /// of the given display.
     private func updateDesktopWallpaper(for display: CGDirectDisplayID, with windows: [WindowInfo]) {
         guard
+            needsDesktopWallpaper,
             let wallpaperWindow = WindowInfo.wallpaperWindow(from: windows, for: display),
             let menuBarWindow = WindowInfo.menuBarWindow(from: windows, for: display)
         else {

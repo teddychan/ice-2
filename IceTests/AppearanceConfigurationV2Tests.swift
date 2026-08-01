@@ -185,6 +185,35 @@ struct AppearanceConfigurationV2Tests {
         #expect(configuration.current.borderWidth == expected)
     }
 
+    // MARK: needsDesktopWallpaper
+
+    @Test func tintBorderAndShadowDoNotNeedTheWallpaper() {
+        // These are drawn on top of the menu bar, so the panel never has to
+        // fill anything back in, and never has to capture the screen.
+        var configuration = MenuBarAppearanceConfigurationV2.defaultConfiguration
+        configuration.staticConfiguration.tintKind = .solid
+        configuration.staticConfiguration.hasBorder = true
+        configuration.staticConfiguration.hasShadow = true
+        #expect(!configuration.needsDesktopWallpaper)
+    }
+
+    @Test func cutawayConfigurationsNeedTheWallpaper() {
+        for makeConfiguration in [
+            { (c: inout MenuBarAppearanceConfigurationV2) in c.removesMenuBarBackground = true },
+            { (c: inout MenuBarAppearanceConfigurationV2) in c.roundsScreenCorners = true },
+            { (c: inout MenuBarAppearanceConfigurationV2) in c.shapeKind = .full },
+            { (c: inout MenuBarAppearanceConfigurationV2) in c.shapeKind = .split },
+        ] {
+            var configuration = MenuBarAppearanceConfigurationV2.defaultConfiguration
+            makeConfiguration(&configuration)
+            #expect(configuration.needsDesktopWallpaper)
+        }
+    }
+
+    @Test func defaultConfigurationDoesNotNeedTheWallpaper() {
+        #expect(!MenuBarAppearanceConfigurationV2.defaultConfiguration.needsDesktopWallpaper)
+    }
+
     // MARK: Defaults
 
     @Test func defaultConfigurationIsInsetAndUntinted() {

@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.9.11 - 2026-08-01
+
+### Improved
+
+- **Ice 2 looks at your screen far less often.** To draw a menu bar shape, remove the menu bar background, or round the screen corners, Ice 2 needs to know what your wallpaper looks like behind the menu bar. macOS no longer tells apps when the wallpaper changes, so Ice 2 has to look for itself every five seconds. It was doing that around the clock — including while the display was asleep or the screen was locked, where nothing it draws is visible, and for appearance settings that only tint, outline, or shadow the menu bar and never use the wallpaper at all. Ice 2 now looks only when the result will actually be drawn.
+
+- **Why you may have seen a big number in the privacy report.** macOS counts each of those looks under **System Settings → Privacy & Security → Screen & System Audio Recording**, and occasionally shows the running total in a notification — which is how it could reach tens of thousands in a month. That number should grow much more slowly from now on. To be clear about what was being counted: Ice 2 has never recorded audio, and it only ever captures the menu bar strip and the wallpaper directly behind it. macOS combines screen and audio into a single permission, so its wording mentions both.
+
 ## 2.9.10 - 2026-07-25
 
 ### Fixed
