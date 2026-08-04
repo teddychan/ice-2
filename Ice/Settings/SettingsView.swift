@@ -4,6 +4,7 @@
 //
 
 import DragonKit
+import DragonKitUpdates
 import SwiftUI
 
 struct SettingsView: View {
@@ -120,7 +121,11 @@ struct SettingsView: View {
         case .hotkeys:
             HotkeysSettingsPane(settings: appState.settings.hotkeys)
         case .updates:
-            UpdatesSettingsPane(updatesManager: appState.updatesManager)
+            // DragonKit's pane owns the auto-check / auto-download toggles, the
+            // "Check for Updates…" button, and the last-checked time. As with Uninstall,
+            // Ice 2 renders `paneBody` directly because it owns its own sidebar.
+            UpdatesSettingsPane(updater: appState.updatesManager.updater)
+                .paneBody
         case .advanced:
             AdvancedSettingsPane(settings: appState.settings.advanced)
         case .permissions:
