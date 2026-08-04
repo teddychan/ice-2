@@ -8,5 +8,13 @@
 	<string>https://www.dragonapp.com/ice-2/appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>p+F/ivF5bAYcmuNuCMNHcRv123A6LHFpCBagFm7Adu8=</string>
+	<!-- The default for scheduled background update checks. Two jobs: it stops Sparkle
+	     from ever showing its one-time "check for updates automatically?" permission
+	     prompt (what the removed SPUUpdaterDelegate did by returning NO from
+	     updaterShouldPromptForPermissionToCheckForUpdates:), and it states the default
+	     Sparkle already applied while the key was absent. A user's own choice in
+	     Settings ▸ Updates is stored in user defaults, which takes precedence. -->
+	<key>SUEnableAutomaticChecks</key>
+	<false/>
 </dict>
 </plist>

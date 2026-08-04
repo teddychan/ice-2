@@ -4,7 +4,6 @@
 //
 
 import DragonKit
-import LaunchAtLogin
 import SwiftUI
 
 struct GeneralSettingsPane: View {
@@ -12,6 +11,9 @@ struct GeneralSettingsPane: View {
     @ObservedObject var settings: GeneralSettings
     @State private var isApplyingItemSpacingOffset = false
     @State private var tempItemSpacingOffset: CGFloat = 0
+    /// Mirror of the OS login-item registration, re-read whenever the pane appears so a
+    /// change made in System Settings shows up here.
+    @State private var launchesAtLogin = LoginItem.isEnabled
 
     /// A single toggle backing both hover-to-show triggers (empty menu bar and Ice 2 icon).
     private var showOnHover: Binding<Bool> {
@@ -76,9 +78,20 @@ struct GeneralSettingsPane: View {
 
     // MARK: App Options
 
+    /// Launch at login, via DragonKit's `LoginItem` — the single code path every Dragon app
+    /// (and the shared uninstall flow) uses to drive `SMAppService.mainApp`.
     @ViewBuilder
     private var appOptions: some View {
-        LaunchAtLogin.Toggle()
+        Toggle("Launch at login", isOn: Binding(
+            get: { launchesAtLogin },
+            set: { newValue in
+                LoginItem.setEnabled(newValue)
+                // Read the status back: registration can fail, and the toggle should show
+                // what the OS actually did rather than what was asked for.
+                launchesAtLogin = LoginItem.isEnabled
+            }
+        ))
+        .onAppear { launchesAtLogin = LoginItem.isEnabled }
     }
 
     // MARK: Ice Icon Options

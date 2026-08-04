@@ -8,8 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		12863111709580A862D997E4 /* UtilityHelpersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3EE3A5FEDD60DB5B5DF93F /* UtilityHelpersTests.swift */; };
-		170423D92B56DE78004A2549 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 170423D82B56DE78004A2549 /* Sparkle */; };
-		175061912B1543DD003144CD /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = 175061902B1543DD003144CD /* LaunchAtLogin */; };
 		1787C4272B16890B002F50DF /* AXSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 1787C4262B16890B002F50DF /* AXSwift */; };
 		17EA92DE1008D6773AC39E03 /* IceColorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C23731A85E77C82F006FD936 /* IceColorTests.swift */; };
 		17F71BB52B880B4500905CBA /* CompactSlider in Frameworks */ = {isa = PBXBuildFile; productRef = 17F71BB42B880B4500905CBA /* CompactSlider */; };
@@ -39,6 +37,7 @@
 		BAA1F5944C8280680E42F490 /* DefaultsAndSettingsLoadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A415CBF1182F36DCF75316EC /* DefaultsAndSettingsLoadTests.swift */; };
 		CB1C634067FACF3660D7435C /* KeyCodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B081058EC5AE64B9D485511 /* KeyCodeTests.swift */; };
 		DA6DC1703A2B3C4D5E6F7083 /* DragonKit in Frameworks */ = {isa = PBXBuildFile; productRef = DA6DC1702A2B3C4D5E6F7082 /* DragonKit */; };
+		DA6DC1713A2B3C4D5E6F7085 /* DragonKitUpdates in Frameworks */ = {isa = PBXBuildFile; productRef = DA6DC1712A2B3C4D5E6F7084 /* DragonKitUpdates */; };
 		DCC69CC55ECE780ACFFCE0E3 /* MenuBarSectionNameTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83522341C381D492260EB102 /* MenuBarSectionNameTests.swift */; };
 		DFBC7C32FBD412329442365B /* ExtensionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F29224478E4DA927C88733C8 /* ExtensionsTests.swift */; };
 		EB7044F527F93442F4101F0D /* CodeSigningTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDEBB5C379A572DC09662235 /* CodeSigningTests.swift */; };
@@ -174,13 +173,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				170423D92B56DE78004A2549 /* Sparkle in Frameworks */,
 				7127A9FF2C4886D100D99DEF /* IfritStatic in Frameworks */,
-				175061912B1543DD003144CD /* LaunchAtLogin in Frameworks */,
 				1787C4272B16890B002F50DF /* AXSwift in Frameworks */,
 				17F71BB52B880B4500905CBA /* CompactSlider in Frameworks */,
 				71A065092E680C620087DB38 /* Semaphore in Frameworks */,
 				DA6DC1703A2B3C4D5E6F7083 /* DragonKit in Frameworks */,
+				DA6DC1713A2B3C4D5E6F7085 /* DragonKitUpdates in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -319,13 +317,12 @@
 			);
 			name = Ice;
 			packageProductDependencies = (
-				175061902B1543DD003144CD /* LaunchAtLogin */,
 				1787C4262B16890B002F50DF /* AXSwift */,
-				170423D82B56DE78004A2549 /* Sparkle */,
 				17F71BB42B880B4500905CBA /* CompactSlider */,
 				7127A9FE2C4886D100D99DEF /* IfritStatic */,
 				71A065082E680C620087DB38 /* Semaphore */,
 				DA6DC1702A2B3C4D5E6F7082 /* DragonKit */,
+				DA6DC1712A2B3C4D5E6F7084 /* DragonKitUpdates */,
 			);
 			productName = Ice;
 			productReference = 7166832A2A767E6A006ABF84 /* Ice.app */;
@@ -383,9 +380,7 @@
 			);
 			mainGroup = 716683212A767E6A006ABF84;
 			packageReferences = (
-				1750618F2B1543DD003144CD /* XCRemoteSwiftPackageReference "LaunchAtLogin-Modern" */,
 				1787C4252B16890B002F50DF /* XCRemoteSwiftPackageReference "AXSwift" */,
-				170423D72B56DE78004A2549 /* XCRemoteSwiftPackageReference "Sparkle" */,
 				17F71BB32B880B4500905CBA /* XCRemoteSwiftPackageReference "CompactSlider" */,
 				7127A9FB2C4881BC00D99DEF /* XCRemoteSwiftPackageReference "Ifrit" */,
 				71A065072E680C620087DB38 /* XCRemoteSwiftPackageReference "Semaphore" */,
@@ -845,22 +840,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		170423D72B56DE78004A2549 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/sparkle-project/Sparkle";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.5.2;
-			};
-		};
-		1750618F2B1543DD003144CD /* XCRemoteSwiftPackageReference "LaunchAtLogin-Modern" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/sindresorhus/LaunchAtLogin-Modern";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
-			};
-		};
 		1787C4252B16890B002F50DF /* XCRemoteSwiftPackageReference "AXSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/tmandry/AXSwift";
@@ -904,16 +883,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		170423D82B56DE78004A2549 /* Sparkle */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 170423D72B56DE78004A2549 /* XCRemoteSwiftPackageReference "Sparkle" */;
-			productName = Sparkle;
-		};
-		175061902B1543DD003144CD /* LaunchAtLogin */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1750618F2B1543DD003144CD /* XCRemoteSwiftPackageReference "LaunchAtLogin-Modern" */;
-			productName = LaunchAtLogin;
-		};
 		1787C4262B16890B002F50DF /* AXSwift */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 1787C4252B16890B002F50DF /* XCRemoteSwiftPackageReference "AXSwift" */;
@@ -943,6 +912,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = DA6DC1701A2B3C4D5E6F7081 /* XCRemoteSwiftPackageReference "dragon-kit" */;
 			productName = DragonKit;
+		};
+		DA6DC1712A2B3C4D5E6F7084 /* DragonKitUpdates */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DA6DC1701A2B3C4D5E6F7081 /* XCRemoteSwiftPackageReference "dragon-kit" */;
+			productName = DragonKitUpdates;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -1,5 +1,5 @@
 {
-  "originHash" : "c254720ba435a738fa3ce166d356a841bc551687e830cf124477dd97fbcc21a8",
+  "originHash" : "02ebe741cf281515d4e602e9f4b1a526903871b7e983ee3a7a35f03d36dcffda",
   "pins" : [
     {
       "identity" : "axswift",
@@ -38,15 +38,6 @@
       }
     },
     {
-      "identity" : "launchatlogin-modern",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/sindresorhus/LaunchAtLogin-Modern",
-      "state" : {
-        "revision" : "a04ec1c363be3627734f6dad757d82f5d4fa8fcc",
-        "version" : "1.1.0"
-      }
-    },
-    {
       "identity" : "semaphore",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/groue/Semaphore",
@@ -60,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/sparkle-project/Sparkle",
       "state" : {
-        "revision" : "9a1d2a19d3595fcf8d9c447173f9a1687b3dcadb",
-        "version" : "2.8.0"
+        "revision" : "b6496a74a087257ef5e6da1c5b29a447a60f5bd7",
+        "version" : "2.9.4"
       }
     }
   ],

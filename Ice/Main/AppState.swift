@@ -49,9 +49,6 @@ final class AppState: ObservableObject {
     /// Manager for app updates.
     let updatesManager = UpdatesManager()
 
-    /// Manager for user notifications.
-    let userNotificationManager = UserNotificationManager()
-
     /// Storage for internal observers.
     private var cancellables = Set<AnyCancellable>()
 
@@ -71,7 +68,6 @@ final class AppState: ObservableObject {
         await itemManager.performSetup(with: self)
         imageCache.performSetup(with: self)
         updatesManager.performSetup(with: self)
-        userNotificationManager.performSetup(with: self)
 
         configureCancellables()
     }
@@ -200,11 +196,6 @@ final class AppState: ObservableObject {
             }
             .store(in: &c)
         settings.objectWillChange
-            .sink { [weak self] in
-                self?.objectWillChange.send()
-            }
-            .store(in: &c)
-        updatesManager.objectWillChange
             .sink { [weak self] in
                 self?.objectWillChange.send()
             }
