@@ -41,7 +41,7 @@ struct SettingsView: View {
     }
 
     /// The "meta" panes, grouped separately at the bottom of the sidebar.
-    private let metaIdentifiers: [SettingsNavigationIdentifier] = [.whatsNew, .updates, .about]
+    private let metaIdentifiers: [SettingsNavigationIdentifier] = [.whatsNew, .updates, .about, .uninstall]
 
     /// The functional panes, shown at the top of the sidebar.
     private var primaryIdentifiers: [SettingsNavigationIdentifier] {
@@ -131,6 +131,15 @@ struct SettingsView: View {
             WhatsNewPane(content: WhatsNewConfig.content)
         case .about:
             AboutPane(content: AboutConfig.content)
+        case .uninstall:
+            // DragonKit's pane confirms inline and runs the teardown itself; Cancel goes back
+            // to General. `paneBody` is the pane's content — Ice 2 owns its own sidebar, so it
+            // renders that directly instead of going through the kit's `SettingsShell`.
+            UninstallSettingsPane(
+                config: IceUninstallConfig.config,
+                onCancel: { navigationState.settingsNavigationIdentifier = .general }
+            )
+            .paneBody
         }
     }
 }

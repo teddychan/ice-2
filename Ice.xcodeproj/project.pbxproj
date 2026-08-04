@@ -42,6 +42,7 @@
 		DCC69CC55ECE780ACFFCE0E3 /* MenuBarSectionNameTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83522341C381D492260EB102 /* MenuBarSectionNameTests.swift */; };
 		DFBC7C32FBD412329442365B /* ExtensionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F29224478E4DA927C88733C8 /* ExtensionsTests.swift */; };
 		EB7044F527F93442F4101F0D /* CodeSigningTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BDEBB5C379A572DC09662235 /* CodeSigningTests.swift */; };
+		ED2C71A45B90F3186AC4D027 /* UninstallConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4E01B7739AD62F08C15D4B3 /* UninstallConfigTests.swift */; };
 		EEC5232C90D9CEE81286467E /* PredicatesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C94DAF88A92F6747D67CCC8 /* PredicatesTests.swift */; };
 		F19D55B35458F123AD7FFEF5 /* CGImageProcessingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 371FFD52849B676061381844 /* CGImageProcessingTests.swift */; };
 /* End PBXBuildFile section */
@@ -103,6 +104,7 @@
 		BC782BAB2CBAE725214BC3D2 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		BDEBB5C379A572DC09662235 /* CodeSigningTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CodeSigningTests.swift; sourceTree = "<group>"; };
 		C23731A85E77C82F006FD936 /* IceColorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IceColorTests.swift; sourceTree = "<group>"; };
+		C4E01B7739AD62F08C15D4B3 /* UninstallConfigTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UninstallConfigTests.swift; sourceTree = "<group>"; };
 		CEC00E31681F07866FE98D6B /* HotkeyActionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HotkeyActionTests.swift; sourceTree = "<group>"; };
 		D5D9FF7076B412B16B603C8C /* KeyCombinationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KeyCombinationTests.swift; sourceTree = "<group>"; };
 		E7E9DDFB62D4FA07946CC797 /* SettingsEnumsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsEnumsTests.swift; sourceTree = "<group>"; };
@@ -269,6 +271,7 @@
 				AAF2282483FF8E16A487D9C3 /* SharedExtensionsTests.swift */,
 				EF413CD9CC7D016105A22EF0 /* WindowInfoTests.swift */,
 				BDEBB5C379A572DC09662235 /* CodeSigningTests.swift */,
+				C4E01B7739AD62F08C15D4B3 /* UninstallConfigTests.swift */,
 			);
 			name = IceTests;
 			path = IceTests;
@@ -477,6 +480,7 @@
 				91967593C089C4EA20BA497D /* SharedExtensionsTests.swift in Sources */,
 				6AA9FF5BA60A12C390EECE31 /* WindowInfoTests.swift in Sources */,
 				EB7044F527F93442F4101F0D /* CodeSigningTests.swift in Sources */,
+				ED2C71A45B90F3186AC4D027 /* UninstallConfigTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -894,7 +898,7 @@
 			repositoryURL = "https://github.com/teddychan/dragon-kit";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.5.0;
+				minimumVersion = 2.0.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

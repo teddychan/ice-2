@@ -6,7 +6,6 @@
 import Cocoa
 import Combine
 import DragonKit
-import LaunchAtLogin
 
 // MARK: - ControlItem
 
@@ -561,14 +560,14 @@ final class ControlItem {
         // Standard lifecycle items (SKILL.md §5A), flattened to the top level
         // rather than nested in an "Ice 2" submenu. They come from DragonKit so
         // every Dragon app shows the same titles, symbols, and order instead of
-        // drifting. `items(_:)` supplies the divider before Uninstall/Quit
-        // itself, so the separator above is the only one added here.
+        // drifting. `items(_:)` supplies the divider before Quit itself, so the
+        // separator above is the only one added here. Uninstall is deliberately
+        // absent — it lives in Settings ▸ Uninstall (see `IceUninstallConfig`).
         for item in DragonAppMenu.items(DragonAppMenu.Config(
             appName: "Ice 2",
             onAbout: { [weak self] in self?.openAbout() },
             onSettings: { [weak self] in self?.openSettings() },
-            onCheckForUpdates: { [weak self] in self?.checkForUpdates() },
-            onUninstall: { [weak self] in self?.performUninstall() }
+            onCheckForUpdates: { [weak self] in self?.checkForUpdates() }
         )) {
             menu.addItem(item)
         }
@@ -634,46 +633,6 @@ final class ControlItem {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             appState.activate(withPolicy: .regular)
             appState.openWindow(.settings)
-        }
-    }
-
-    /// Confirms and performs a clean uninstall of the app.
-    @objc private func performUninstall() {
-        appState?.activate(withPolicy: .regular)
-        // Standardized §5A confirmation sheet (checklist + destructive button).
-        UninstallWindowController.shared.present { [weak self] in
-            self?.runUninstall()
-        }
-    }
-
-    /// Tears down on-disk + system state, then quits. Called only after the user
-    /// confirms in the Uninstall sheet.
-    private func runUninstall() {
-        // Unregister the login item.
-        LaunchAtLogin.isEnabled = false
-
-        // Remove the UserDefaults domain and preferences file. Use the running
-        // bundle's id so a debug build (com.dragonapp.ice.debug) cleans its OWN
-        // domain/state and never the installed release's.
-        let bundleIdentifier = Bundle.main.bundleIdentifier ?? "com.dragonapp.ice"
-        UserDefaults.standard.removePersistentDomain(forName: bundleIdentifier)
-
-        let fileManager = FileManager.default
-        let library = fileManager.homeDirectoryForCurrentUser.appending(path: "Library")
-        let leftovers = [
-            library.appending(path: "Preferences/\(bundleIdentifier).plist"),
-            library.appending(path: "Saved Application State/\(bundleIdentifier).savedState"),
-        ]
-        for url in leftovers {
-            try? fileManager.removeItem(at: url)
-        }
-
-        // Move the app bundle to the Trash, then quit.
-        let bundleURL = Bundle.main.bundleURL
-        NSWorkspace.shared.recycle([bundleURL]) { _, _ in
-            DispatchQueue.main.async {
-                NSApp.terminate(nil)
-            }
         }
     }
 }
