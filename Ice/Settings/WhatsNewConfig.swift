@@ -15,16 +15,14 @@ enum WhatsNewConfig {
         WhatsNewContent(
             version: Constants.versionString,
             date: "2026-08-04",
-            summary: "Uninstalling Ice 2 has moved into Settings.",
+            summary: "Update checks are quiet and considerate again.",
             sections: [
-                ChangeSection(kind: .changed, entries: [
-                    "Removing Ice 2 used to be an Uninstall item in the Ice 2 menu that opened a separate window. It is now the last pane in the Settings sidebar, under Uninstall, and the confirmation appears right there in the pane. What gets removed is unchanged: the app and its login item, your settings, layout profiles, and hotkeys, and Ice 2's saved application state.",
-                ]),
-                ChangeSection(kind: .removed, entries: [
-                    "The Uninstall item no longer appears in the Ice 2 menu. An unrecoverable action does not belong one click away from Quit in the everyday menu — Settings ▸ Uninstall is now the way to remove Ice 2 from inside the app.",
-                ]),
                 ChangeSection(kind: .fixed, entries: [
-                    "Uninstalling no longer leaves an emptied settings file behind. macOS rewrites an app's preferences file as the app quits, which could recreate the file Ice 2 had just deleted. Ice 2 now deletes those leftovers again once it has quit.",
+                    "Scheduled update checks stop interrupting you. When Ice 2 checks for updates on its own schedule, it shows the update window quietly instead of pulling you out of what you were doing. Version 2.10.0 moved updates onto the shared Dragon app framework and lost that, so a background check could take over the screen unprompted.",
+                    "Ice 2 tells you when a background check finds an update. The notification titled \"A new update is available\" is back. Because the update window deliberately does not steal focus, it can sit behind whatever you are working in — the notification is how you know it is there. It applies only if you have Automatically check for updates turned on, which is where macOS asks permission to show notifications; declining changes nothing about how updates work.",
+                ]),
+                ChangeSection(kind: .changed, entries: [
+                    "If you are coming from 2.9.x: uninstalling Ice 2 has moved into Settings. It used to be an Uninstall item in the Ice 2 menu that opened a separate window; since 2.10.0 it is the last pane in the Settings sidebar, with the confirmation right there in the pane. What gets removed is unchanged: the app and its login item, your settings, layout profiles, and hotkeys, and Ice 2's saved application state. That flow was rewritten in 2.10.0 on top of the shared framework — the same steps, covered by automated tests, but it is a rewrite of a destructive, one-way path, so please report anything that misbehaves.",
                 ]),
             ]
         )

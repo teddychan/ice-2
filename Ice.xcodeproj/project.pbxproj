@@ -702,7 +702,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 2.10.0;
+				MARKETING_VERSION = 2.11.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.dragonapp.ice;
 				PRODUCT_NAME = "Ice 2";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -737,7 +737,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 2.10.0;
+				MARKETING_VERSION = 2.11.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.dragonapp.ice;
 				PRODUCT_NAME = "Ice 2";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -877,7 +877,7 @@
 			repositoryURL = "https://github.com/teddychan/dragon-kit";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.1;
+				minimumVersion = 2.1.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

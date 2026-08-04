@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.11.0 - 2026-08-04
+
+### Fixed
+
+- **Scheduled update checks stop interrupting you again.** When Ice 2 checks for updates on its own schedule, it shows the update window quietly, without pulling you out of what you were doing. Version 2.10.0 moved updates onto the shared Dragon app framework that Ice 2 uses for its menu, permissions, and settings — and in that move Ice 2 stopped asking for the quiet behaviour, so a check running in the background could take over the screen unprompted. It asks for it again.
+
+- **Ice 2 tells you when a background check finds an update.** The notification titled "A new update is available" is back. Because the update window deliberately does not steal focus, it can sit behind whatever you are working in — the notification is how you know it is there. This also went missing in 2.10.0. It applies only if you have **Automatically check for updates** turned on in Settings ▸ Updates, which is where macOS will ask permission to show notifications; declining changes nothing about how updates work, you just do not get the nudge.
+
+### If you are updating from 2.9.x
+
+- **Uninstalling Ice 2 has moved into Settings.** It used to be an **Uninstall** item in the Ice 2 menu that opened a separate window. Since 2.10.0 it is the last pane in the Settings sidebar, under **Uninstall**, with the confirmation right there in the pane. What gets removed is unchanged: the app and its login item, your settings, layout profiles, and hotkeys, and Ice 2's saved application state. The flow was **rewritten** in 2.10.0 on top of the shared framework rather than Ice 2's own copy of that code — the steps are the same and they are covered by automated tests, but it is a rewrite of a destructive, one-way path, so if removing Ice 2 misbehaves for you, please report it.
+
 ## 2.10.0 - 2026-08-04
 
 ### Changed
