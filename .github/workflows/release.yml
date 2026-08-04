@@ -38,6 +38,12 @@ jobs:
       xcode_scheme: Ice
       xcode_export_options: .github/release/exportOptions.plist
       xcode_development_team: 4AF3KGGV29
+      # Fail the release (before notarization) if the tag doesn't match the
+      # exported app's CFBundleShortVersionString — i.e. the Ice target's
+      # MARKETING_VERSION in Ice.xcodeproj. Guards against tagging vX.Y.Z without
+      # bumping the project, which would ship an app reporting the old version and
+      # put a stale version in the Sparkle appcast.
+      assert_tag_matches_plist: true
       zip_name_template: 'Ice-2-{TAG}.zip'
       zip_keep_parent: true
       generate_appcast_glob: xcodebuild
