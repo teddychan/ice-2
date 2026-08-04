@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.10.0 - 2026-08-04
+
+### Changed
+
+- **Uninstall now lives in Settings.** Removing Ice 2 used to be an **Uninstall** item in the Ice 2 menu that opened a separate window. It is now the last pane in the Settings sidebar, under **Uninstall**, and the confirmation appears right there in the pane instead of in its own window. What gets removed is unchanged: the app and its login item, your settings, layout profiles, and hotkeys, and Ice 2's saved application state.
+
+### Removed
+
+- **The Uninstall item is gone from the Ice 2 menu.** An unrecoverable action does not belong one click away from **Quit** in the everyday menu. Settings ▸ Uninstall is now the way to remove Ice 2 from inside the app.
+
+### Fixed
+
+- **Uninstalling no longer leaves an emptied settings file behind.** macOS rewrites an app's preferences file as the app quits, which could recreate the file Ice 2 had just deleted. Ice 2 now deletes those leftovers again once it has quit, so nothing lingers.
+
+### Behind the scenes
+
+- **The uninstall flow was rewritten** on top of the shared Dragon app framework that Ice 2 already uses for its menu, updates, and permissions, replacing Ice 2's own copy of that code. The steps it performs are the same ones as before, and they are covered by automated tests — but this is a rewrite of a destructive, one-way path, so if removing Ice 2 misbehaves for you, please report it.
+
 ## 2.9.11 - 2026-08-01
 
 ### Improved
