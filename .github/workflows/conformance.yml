@@ -1,0 +1,20 @@
+name: DragonKit conformance
+
+# Thin caller: the rules (CONFORMANCE.md) and the checker live in dragon-kit and only there,
+# so Ice 2 picks up new rules automatically instead of keeping a copy that drifts — which is
+# the duplication the spec exists to prevent. What gets checked here is declared in
+# .dragon-conformance.json at the repo root.
+#
+# Pinned at @main because dragon-kit has no v2 tag for this workflow yet; move to @v2 once it
+# exists, so the pin covers the workflow's interface rather than tracking a branch.
+on:
+  pull_request:
+  workflow_dispatch: {}
+
+# The reusable workflow only checks out this repo and dragon-kit; read is all it needs.
+permissions:
+  contents: read
+
+jobs:
+  conformance:
+    uses: teddychan/dragon-kit/.github/workflows/conformance.yml@main
