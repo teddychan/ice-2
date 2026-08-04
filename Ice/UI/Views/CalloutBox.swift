@@ -120,8 +120,17 @@ struct CalloutBox<Content: View, Icon: View, ForegroundStyle: ShapeStyle>: View 
         )
     }
 
+    /// The rounded, filled container the callout sits in. Inlined here from the
+    /// former `IceGroupBox`, which existed only for this one call site — DragonKit
+    /// owns the settings-layout primitives (`DragonForm` / `DragonSection`) and has
+    /// no group-box equivalent, so a local generic wrapper is neither shared nor
+    /// needed (dragon-kit CONFORMANCE.md §R4).
+    private var backgroundShape: some InsettableShape {
+        RoundedRectangle(cornerRadius: 11, style: .continuous)
+    }
+
     var body: some View {
-        IceGroupBox {
+        VStack {
             Label {
                 content
             } icon: {
@@ -132,6 +141,13 @@ struct CalloutBox<Content: View, Icon: View, ForegroundStyle: ShapeStyle>: View 
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: Alignment(horizontal: alignment, vertical: .center))
         }
+        .padding(EdgeInsets(all: 12))
+        .background {
+            backgroundShape.fill(Color.primary.quinary)
+        }
+        .containerShape(backgroundShape)
+        .focusSection()
+        .accessibilityElement(children: .contain)
     }
 }
 

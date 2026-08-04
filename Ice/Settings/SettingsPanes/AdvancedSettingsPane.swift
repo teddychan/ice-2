@@ -3,6 +3,7 @@
 //  Ice
 //
 
+import DragonKit
 import SwiftUI
 
 struct AdvancedSettingsPane: View {
@@ -25,16 +26,16 @@ struct AdvancedSettingsPane: View {
     }
 
     var body: some View {
-        IceForm {
-            IceSection("Menu Bar Sections") {
+        DragonForm {
+            DragonSection("Menu Bar Sections") {
                 enableAlwaysHiddenSection
                 showAllSectionsOnUserDrag
                 sectionDividerStyle
             }
-            IceSection("Triggers") {
+            DragonSection("Triggers") {
                 menuBarTriggers
             }
-            IceSection("Other") {
+            DragonSection("Other") {
                 hideApplicationMenus
                 enableSecondaryContextMenu
                 tempShowInterval
@@ -98,7 +99,7 @@ struct AdvancedSettingsPane: View {
                 }
             }
         }
-        .annotation("When the app becomes focused, Ice shows the selected hidden items.")
+        .dragonAnnotation("When the app becomes focused, Ice shows the selected hidden items.")
 
         ForEach(triggerSettings.triggers, id: \.id) { trigger in
             LabeledContent {
@@ -135,7 +136,7 @@ struct AdvancedSettingsPane: View {
             "Hide app menus when showing menu bar items",
             isOn: $settings.hideApplicationMenus
         )
-        .annotation {
+        .dragonAnnotation {
             Text(
                 """
                 Make more room in the menu bar by hiding the current app menus if \
@@ -153,7 +154,7 @@ struct AdvancedSettingsPane: View {
             "Enable Ice 2 context menus on right click",
             isOn: $settings.enableSecondaryContextMenu
         )
-        .annotation {
+        .dragonAnnotation {
             Text(
                 """
                 Right-click Ice 2's control items or an empty area of the menu bar to \
@@ -182,6 +183,6 @@ struct AdvancedSettingsPane: View {
                     maxSliderLabelWidth = max(maxSliderLabelWidth, frame.width)
                 }
         }
-        .annotation("The amount of time to wait before hiding temporarily shown menu bar items.")
+        .dragonAnnotation("The amount of time to wait before hiding temporarily shown menu bar items.")
     }
 }

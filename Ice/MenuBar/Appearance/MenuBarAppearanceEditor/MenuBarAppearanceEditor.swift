@@ -3,6 +3,7 @@
 //  Ice
 //
 
+import DragonKit
 import SwiftUI
 
 struct MenuBarAppearanceEditor: View {
@@ -44,7 +45,7 @@ struct MenuBarAppearanceEditor: View {
 
     @ViewBuilder
     private var mainForm: some View {
-        IceForm {
+        DragonForm {
             if
                 case .settings = location,
                 appState.settings.advanced.enableSecondaryContextMenu
@@ -57,7 +58,7 @@ struct MenuBarAppearanceEditor: View {
             if case .settings = location, appState.settings.general.showIceIcon {
                 MenuBarIconSettings(settings: appState.settings.general)
             }
-            IceSection {
+            DragonSection {
                 isDynamicToggle
                 removesMenuBarBackgroundToggle
                 roundsScreenCornersToggle
@@ -68,7 +69,7 @@ struct MenuBarAppearanceEditor: View {
             } else {
                 StaticPartialEditor(configuration: $appearanceManager.configuration)
             }
-            IceSection("Menu Bar Shape") {
+            DragonSection("Menu Bar Shape") {
                 shapePicker
                 isInset
             }
@@ -113,7 +114,7 @@ struct MenuBarAppearanceEditor: View {
     @ViewBuilder
     private var isDynamicToggle: some View {
         Toggle("Use dynamic appearance", isOn: $appearanceManager.configuration.isDynamic)
-            .annotation("Apply different settings based on the current system appearance.")
+            .dragonAnnotation("Apply different settings based on the current system appearance.")
     }
 
     @ViewBuilder
@@ -152,7 +153,7 @@ private struct MenuBarIconSettings: View {
     @State private var presentedError: LocalizedErrorWrapper?
 
     var body: some View {
-        IceSection("Menu Bar Icon") {
+        DragonSection("Menu Bar Icon") {
             iceIconPicker
         }
     }
@@ -191,7 +192,7 @@ private struct MenuBarIconSettings: View {
         } title: {
             iceIconMenuItem(for: settings.iceIcon)
         }
-        .annotation("Choose a custom icon to show in the menu bar.")
+        .dragonAnnotation("Choose a custom icon to show in the menu bar.")
         .fileImporter(
             isPresented: $isImportingCustomIceIcon,
             allowedContentTypes: [.image]
@@ -217,7 +218,7 @@ private struct MenuBarIconSettings: View {
 
         if case .custom = settings.iceIcon.name {
             Toggle("Custom icon uses dynamic appearance", isOn: $settings.customIceIconIsTemplate)
-                .annotation {
+                .dragonAnnotation {
                     Text(
                         """
                         Display the icon as a monochrome image that dynamically adjusts to match \
@@ -253,11 +254,11 @@ private struct UnlabeledPartialEditor: View {
     @Binding var configuration: MenuBarAppearancePartialConfiguration
 
     var body: some View {
-        IceSection {
+        DragonSection {
             tintPicker
             shadowToggle
         }
-        IceSection {
+        DragonSection {
             borderToggle
             borderColor
             borderWidth
@@ -342,7 +343,7 @@ private struct LabeledPartialEditor: View {
     let appearance: SystemAppearance
 
     var body: some View {
-        IceSection(options: .plain) {
+        DragonSection(options: .plain) {
             labelStack
         } content: {
             partialEditor

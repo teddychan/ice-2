@@ -3,6 +3,7 @@
 //  Ice
 //
 
+import DragonKit
 import SwiftUI
 
 struct PermissionsView: View {
@@ -71,7 +72,7 @@ struct PermissionsView: View {
 
     @ViewBuilder
     private var explanationBox: some View {
-        IceSection {
+        DragonSection {
             VStack {
                 Text("Ice 2 needs your permission to manage the menu bar.")
                     .fontWeight(.medium)
@@ -150,7 +151,7 @@ struct PermissionsView: View {
 
     @ViewBuilder
     private func permissionBox(_ permission: Permission) -> some View {
-        IceSection {
+        DragonSection {
             VStack(spacing: 12) {
                 Text(permission.title)
                     .font(.title.weight(.medium))

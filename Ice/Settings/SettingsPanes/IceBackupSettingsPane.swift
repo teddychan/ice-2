@@ -3,6 +3,7 @@
 //  Ice
 //
 
+import DragonKit
 import SwiftUI
 
 /// Ice 2's own folder-based backup pane. Deliberately not DragonKit's
@@ -37,12 +38,12 @@ struct IceBackupSettingsPane: View {
     }
 
     var body: some View {
-        IceForm {
-            IceSection("Backup Folder") {
+        DragonForm {
+            DragonSection("Backup Folder") {
                 folderRow
                 automaticBackupToggle
             }
-            IceSection("Backups") {
+            DragonSection("Backups") {
                 backupActions
                 backupList
             }
@@ -92,13 +93,13 @@ struct IceBackupSettingsPane: View {
                     .truncationMode(.middle)
             }
         }
-        .annotation("Choose a folder inside Dropbox, iCloud Drive, or Google Drive to sync your settings across your Macs. Backups are also kept for restoring after a reinstall or on a new Mac.")
+        .dragonAnnotation("Choose a folder inside Dropbox, iCloud Drive, or Google Drive to sync your settings across your Macs. Backups are also kept for restoring after a reinstall or on a new Mac.")
     }
 
     @ViewBuilder
     private var automaticBackupToggle: some View {
         Toggle("Automatically back up when quitting", isOn: $automaticBackup)
-            .annotation("Keeps the backup folder current so a synced copy is always up to date.")
+            .dragonAnnotation("Keeps the backup folder current so a synced copy is always up to date.")
     }
 
     // MARK: Backups
@@ -120,7 +121,7 @@ struct IceBackupSettingsPane: View {
                 }
             }
         }
-        .annotation("The newest \(SettingsBackup.defaultRetentionLimit) backups are kept; older ones are removed automatically.")
+        .dragonAnnotation("The newest \(SettingsBackup.defaultRetentionLimit) backups are kept; older ones are removed automatically.")
     }
 
     @ViewBuilder

@@ -3,6 +3,7 @@
 //  Ice
 //
 
+import DragonKit
 import SwiftUI
 
 struct HotkeysSettingsPane: View {
@@ -10,17 +11,17 @@ struct HotkeysSettingsPane: View {
     @ObservedObject var settings: HotkeysSettings
 
     var body: some View {
-        IceForm {
-            IceSection("Menu Bar Sections") {
+        DragonForm {
+            DragonSection("Menu Bar Sections") {
                 hotkeyRecorder(forSection: .hidden)
                 hotkeyRecorder(forSection: .alwaysHidden)
                 hotkeyRecorder(forAction: .toggleSectionDividerIcons)
             }
-            IceSection("Menu Bar Items") {
+            DragonSection("Menu Bar Items") {
                 hotkeyRecorder(forAction: .searchMenuBarItems)
                 hotkeyRecorder(forAction: .temporarilyShowMenuBarItem)
             }
-            IceSection("Other") {
+            DragonSection("Other") {
                 hotkeyRecorder(forAction: .enableIceBar)
                 hotkeyRecorder(forAction: .toggleAutoRehide)
                 hotkeyRecorder(forAction: .toggleApplicationMenus)

@@ -3,6 +3,7 @@
 //  Ice
 //
 
+import DragonKit
 import SwiftUI
 
 struct MenuBarLayoutSettingsPane: View {
@@ -32,7 +33,7 @@ struct MenuBarLayoutSettingsPane: View {
         } else if appState.menuBarManager.isMenuBarHiddenBySystemUserDefaults {
             cannotArrange
         } else {
-            IceForm(spacing: 20) {
+            DragonForm(spacing: 20) {
                 header
                 profiles
                 groups
@@ -44,7 +45,7 @@ struct MenuBarLayoutSettingsPane: View {
 
     @ViewBuilder
     private var header: some View {
-        IceSection {
+        DragonSection {
             VStack(spacing: 3) {
                 Text("Drag to arrange your menu bar items into different sections.")
                     .font(.title3.bold())
@@ -79,7 +80,7 @@ struct MenuBarLayoutSettingsPane: View {
 
     @ViewBuilder
     private var profiles: some View {
-        IceSection("Profiles") {
+        DragonSection("Profiles") {
             profileCreationRow
 
             if profileSettings.profiles.isEmpty {
@@ -188,7 +189,7 @@ struct MenuBarLayoutSettingsPane: View {
 
     @ViewBuilder
     private var groups: some View {
-        IceSection("Groups") {
+        DragonSection("Groups") {
             HStack {
                 TextField("Group name", text: $newGroupName)
 
@@ -270,7 +271,7 @@ struct MenuBarLayoutSettingsPane: View {
 
     @ViewBuilder
     private var spacers: some View {
-        IceSection("Spacers") {
+        DragonSection("Spacers") {
             HStack {
                 Text("Add flexible space between menu bar items.")
                     .foregroundStyle(.secondary)

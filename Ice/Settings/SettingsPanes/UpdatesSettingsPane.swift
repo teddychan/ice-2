@@ -3,6 +3,7 @@
 //  Ice
 //
 
+import DragonKit
 import SwiftUI
 
 /// Update preferences, split out of the About pane to match the shared
@@ -19,8 +20,8 @@ struct UpdatesSettingsPane: View {
     }
 
     var body: some View {
-        IceForm {
-            IceSection {
+        DragonForm {
+            DragonSection {
                 Toggle(
                     "Automatically check for updates",
                     isOn: $updatesManager.automaticallyChecksForUpdates
@@ -30,7 +31,7 @@ struct UpdatesSettingsPane: View {
                     isOn: $updatesManager.automaticallyDownloadsUpdates
                 )
             }
-            IceSection {
+            DragonSection {
                 LabeledContent {
                     Button("Check for Updates…") {
                         updatesManager.checkForUpdates()
