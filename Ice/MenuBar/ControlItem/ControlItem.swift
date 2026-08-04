@@ -5,6 +5,7 @@
 
 import Cocoa
 import Combine
+import DragonKit
 import LaunchAtLogin
 
 // MARK: - ControlItem
@@ -558,51 +559,19 @@ final class ControlItem {
         menu.addItem(.separator())
 
         // Standard lifecycle items (SKILL.md §5A), flattened to the top level
-        // rather than nested in an "Ice 2" submenu.
-        let aboutItem = menuItem(
-            title: "About Ice 2",
-            symbolName: "info.circle",
-            action: #selector(openAbout)
-        )
-        aboutItem.target = self
-        menu.addItem(aboutItem)
-
-        let checkForUpdatesItem = menuItem(
-            title: "Check for updates…",
-            symbolName: "arrow.triangle.2.circlepath",
-            action: #selector(checkForUpdates)
-        )
-        checkForUpdatesItem.target = self
-        menu.addItem(checkForUpdatesItem)
-
-        let settingsItem = menuItem(
-            title: "Settings…",
-            symbolName: "gearshape",
-            action: #selector(openSettings),
-            keyEquivalent: ","
-        )
-        settingsItem.keyEquivalentModifierMask = .command
-        settingsItem.target = self
-        menu.addItem(settingsItem)
-
-        menu.addItem(.separator())
-
-        let uninstallItem = menuItem(
-            title: "Uninstall Ice 2…",
-            symbolName: "trash",
-            action: #selector(performUninstall)
-        )
-        uninstallItem.target = self
-        menu.addItem(uninstallItem)
-
-        let quitItem = menuItem(
-            title: "Quit Ice 2",
-            symbolName: "power",
-            action: #selector(NSApp.terminate),
-            keyEquivalent: "q"
-        )
-        quitItem.keyEquivalentModifierMask = .command
-        menu.addItem(quitItem)
+        // rather than nested in an "Ice 2" submenu. They come from DragonKit so
+        // every Dragon app shows the same titles, symbols, and order instead of
+        // drifting. `items(_:)` supplies the divider before Uninstall/Quit
+        // itself, so the separator above is the only one added here.
+        for item in DragonAppMenu.items(DragonAppMenu.Config(
+            appName: "Ice 2",
+            onAbout: { [weak self] in self?.openAbout() },
+            onSettings: { [weak self] in self?.openSettings() },
+            onCheckForUpdates: { [weak self] in self?.checkForUpdates() },
+            onUninstall: { [weak self] in self?.performUninstall() }
+        )) {
+            menu.addItem(item)
+        }
 
         return menu
     }
