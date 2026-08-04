@@ -126,7 +126,7 @@ struct SettingsView: View {
         case .permissions:
             PermissionsPane(permissions: [.accessibility(), .screenRecording()])
         case .backup:
-            BackupSettingsPane()
+            IceBackupSettingsPane()
         case .whatsNew:
             WhatsNewPane(content: WhatsNewConfig.content)
         case .about:

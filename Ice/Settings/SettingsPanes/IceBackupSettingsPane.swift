@@ -1,11 +1,16 @@
 //
-//  BackupSettingsPane.swift
+//  IceBackupSettingsPane.swift
 //  Ice
 //
 
 import SwiftUI
 
-struct BackupSettingsPane: View {
+/// Ice 2's own folder-based backup pane. Deliberately not DragonKit's
+/// `BackupSettingsPane`, which snapshots a single UserDefaults suite — Ice 2 keeps
+/// versioned backup files in a user-chosen folder so settings can sync across Macs
+/// (see dragon-kit CONFORMANCE.md §R11). The `Ice` prefix keeps the name from
+/// shadowing the kit's pane (§R3).
+struct IceBackupSettingsPane: View {
     @EnvironmentObject var appState: AppState
 
     /// Backup folder. Defaults to ~/Documents/Ice Backups; the user can point it

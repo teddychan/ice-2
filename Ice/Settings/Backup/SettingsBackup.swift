@@ -5,6 +5,15 @@
 
 import Foundation
 
+/// Errors thrown when reading a backup file.
+///
+/// Named for its owner rather than the generic `BackupError`, which is a public
+/// DragonKit type name (see dragon-kit CONFORMANCE.md §R3).
+enum SettingsBackupError: Error, Equatable {
+    case malformed
+    case unsupportedVersion(Int)
+}
+
 /// Folder-based backup & restore of all of Ice's settings.
 ///
 /// Ice keeps every user setting in `UserDefaults.standard` under the keys in
@@ -38,11 +47,6 @@ enum SettingsBackup {
     /// The settings keys carried in a backup.
     static var backedUpKeys: [Defaults.Key] {
         Defaults.Key.allCases.filter { !excludedKeys.contains($0) }
-    }
-
-    enum BackupError: Error, Equatable {
-        case malformed
-        case unsupportedVersion(Int)
     }
 
     private enum PayloadKey {
@@ -115,11 +119,11 @@ enum SettingsBackup {
     static func deserialize(_ data: Data) throws -> [String: Any] {
         let object = try PropertyListSerialization.propertyList(from: data, options: [], format: nil)
         guard let payload = object as? [String: Any] else {
-            throw BackupError.malformed
+            throw SettingsBackupError.malformed
         }
         let version = payload[PayloadKey.schemaVersion] as? Int ?? 0
         guard version <= schemaVersion else {
-            throw BackupError.unsupportedVersion(version)
+            throw SettingsBackupError.unsupportedVersion(version)
         }
         return payload
     }

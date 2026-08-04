@@ -89,7 +89,7 @@ struct SettingsBackupTests {
             "defaults": [String: Any](),
         ]
         let data = try SettingsBackup.serialize(payload)
-        #expect(throws: SettingsBackup.BackupError.unsupportedVersion(SettingsBackup.schemaVersion + 1)) {
+        #expect(throws: SettingsBackupError.unsupportedVersion(SettingsBackup.schemaVersion + 1)) {
             _ = try SettingsBackup.deserialize(data)
         }
     }
@@ -100,7 +100,7 @@ struct SettingsBackupTests {
         let data = try PropertyListSerialization.data(
             fromPropertyList: ["a", "b"], format: .binary, options: 0
         )
-        #expect(throws: SettingsBackup.BackupError.malformed) {
+        #expect(throws: SettingsBackupError.malformed) {
             _ = try SettingsBackup.deserialize(data)
         }
     }
