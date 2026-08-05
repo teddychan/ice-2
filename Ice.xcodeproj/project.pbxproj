@@ -33,6 +33,7 @@
 		91967593C089C4EA20BA497D /* SharedExtensionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAF2282483FF8E16A487D9C3 /* SharedExtensionsTests.swift */; };
 		95AE1A0B775C85363C4404DC /* SettingsEnumsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7E9DDFB62D4FA07946CC797 /* SettingsEnumsTests.swift */; };
 		986A47EC7057DE6842643937 /* SettingsBackupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12990E4E70C4107E87D970D7 /* SettingsBackupTests.swift */; };
+		B1C4E7A20D53F8916AE2C094 /* ScratchDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = A70E2C41B96D5387F04A1DE3 /* ScratchDefaults.swift */; };
 		B7A44344DAD9EC55EEE80484 /* AppearanceConfigurationV2Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F665A8F8A6DCDEFFC549933 /* AppearanceConfigurationV2Tests.swift */; };
 		BAA1F5944C8280680E42F490 /* DefaultsAndSettingsLoadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A415CBF1182F36DCF75316EC /* DefaultsAndSettingsLoadTests.swift */; };
 		CB1C634067FACF3660D7435C /* KeyCodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B081058EC5AE64B9D485511 /* KeyCodeTests.swift */; };
@@ -99,6 +100,7 @@
 		9B081058EC5AE64B9D485511 /* KeyCodeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KeyCodeTests.swift; sourceTree = "<group>"; };
 		A15FF0BDD5C41C98A91805B7 /* ObjectStorageTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ObjectStorageTests.swift; sourceTree = "<group>"; };
 		A415CBF1182F36DCF75316EC /* DefaultsAndSettingsLoadTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DefaultsAndSettingsLoadTests.swift; sourceTree = "<group>"; };
+		A70E2C41B96D5387F04A1DE3 /* ScratchDefaults.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScratchDefaults.swift; sourceTree = "<group>"; };
 		AAF2282483FF8E16A487D9C3 /* SharedExtensionsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SharedExtensionsTests.swift; sourceTree = "<group>"; };
 		BC782BAB2CBAE725214BC3D2 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		BDEBB5C379A572DC09662235 /* CodeSigningTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CodeSigningTests.swift; sourceTree = "<group>"; };
@@ -270,6 +272,7 @@
 				EF413CD9CC7D016105A22EF0 /* WindowInfoTests.swift */,
 				BDEBB5C379A572DC09662235 /* CodeSigningTests.swift */,
 				C4E01B7739AD62F08C15D4B3 /* UninstallConfigTests.swift */,
+				A70E2C41B96D5387F04A1DE3 /* ScratchDefaults.swift */,
 			);
 			name = IceTests;
 			path = IceTests;
@@ -476,6 +479,7 @@
 				6AA9FF5BA60A12C390EECE31 /* WindowInfoTests.swift in Sources */,
 				EB7044F527F93442F4101F0D /* CodeSigningTests.swift in Sources */,
 				ED2C71A45B90F3186AC4D027 /* UninstallConfigTests.swift in Sources */,
+				B1C4E7A20D53F8916AE2C094 /* ScratchDefaults.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -10,16 +10,15 @@ import Testing
 struct SettingsBackupTests {
     /// A throwaway UserDefaults suite. Caller must clean it up (see `defer`).
     private func makeScratch() -> (defaults: UserDefaults, suite: String) {
-        let suite = "IceTests." + UUID().uuidString
-        return (UserDefaults(suiteName: suite)!, suite)
+        ScratchDefaults.make()
     }
 
     @Test func payloadRoundTripReproducesValues() {
         let (source, sSuite) = makeScratch()
         let (target, tSuite) = makeScratch()
         defer {
-            UserDefaults.standard.removePersistentDomain(forName: sSuite)
-            UserDefaults.standard.removePersistentDomain(forName: tSuite)
+            ScratchDefaults.destroy(sSuite)
+            ScratchDefaults.destroy(tSuite)
         }
         source.set("hello", forKey: Defaults.Key.iceIcon.rawValue)
         source.set(42, forKey: Defaults.Key.showOnHoverDelay.rawValue)
@@ -37,8 +36,8 @@ struct SettingsBackupTests {
         let (source, sSuite) = makeScratch()
         let (target, tSuite) = makeScratch()
         defer {
-            UserDefaults.standard.removePersistentDomain(forName: sSuite)
-            UserDefaults.standard.removePersistentDomain(forName: tSuite)
+            ScratchDefaults.destroy(sSuite)
+            ScratchDefaults.destroy(tSuite)
         }
         source.set("keep", forKey: Defaults.Key.iceIcon.rawValue)
         // A backed-up key present in target but absent from the payload must be removed.
@@ -55,7 +54,7 @@ struct SettingsBackupTests {
 
     @Test func excludedKeysNeverTravel() {
         let (source, sSuite) = makeScratch()
-        defer { UserDefaults.standard.removePersistentDomain(forName: sSuite) }
+        defer { ScratchDefaults.destroy(sSuite) }
         source.set("/tmp/x", forKey: Defaults.Key.backupFolderPath.rawValue)
         source.set(true, forKey: Defaults.Key.automaticBackupEnabled.rawValue)
 
@@ -70,7 +69,7 @@ struct SettingsBackupTests {
 
     @Test func serializeDeserializeRoundTrip() throws {
         let (source, sSuite) = makeScratch()
-        defer { UserDefaults.standard.removePersistentDomain(forName: sSuite) }
+        defer { ScratchDefaults.destroy(sSuite) }
         source.set("v", forKey: Defaults.Key.iceIcon.rawValue)
 
         let payload = SettingsBackup.makePayload(
@@ -156,8 +155,8 @@ struct SettingsBackupTests {
         let folder = FileManager.default.temporaryDirectory
             .appending(path: "IceTests-" + UUID().uuidString)
         defer {
-            UserDefaults.standard.removePersistentDomain(forName: sSuite)
-            UserDefaults.standard.removePersistentDomain(forName: tSuite)
+            ScratchDefaults.destroy(sSuite)
+            ScratchDefaults.destroy(tSuite)
             try? FileManager.default.removeItem(at: folder)
         }
         source.set("dark", forKey: Defaults.Key.iceIcon.rawValue)
@@ -181,7 +180,7 @@ struct SettingsBackupTests {
             .appending(path: "IceTests-" + UUID().uuidString)
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         defer {
-            UserDefaults.standard.removePersistentDomain(forName: tSuite)
+            ScratchDefaults.destroy(tSuite)
             try? FileManager.default.removeItem(at: folder)
         }
         let url = folder.appending(path: "Ice-Settings-2026-01-01-000000.icebackup")
@@ -197,7 +196,7 @@ struct SettingsBackupTests {
             .appending(path: "IceTests-" + UUID().uuidString)
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         defer {
-            UserDefaults.standard.removePersistentDomain(forName: sSuite)
+            ScratchDefaults.destroy(sSuite)
             try? FileManager.default.removeItem(at: folder)
         }
         source.set(folder.path, forKey: Defaults.Key.backupFolderPath.rawValue)
@@ -226,14 +225,14 @@ struct SettingsBackupTests {
 
     @Test func configuredFolderUsesStoredPathWhenSet() {
         let (defaults, suite) = makeScratch()
-        defer { UserDefaults.standard.removePersistentDomain(forName: suite) }
+        defer { ScratchDefaults.destroy(suite) }
         defaults.set("/tmp/my-backups", forKey: Defaults.Key.backupFolderPath.rawValue)
         #expect(SettingsBackup.configuredFolder(defaults).path == "/tmp/my-backups")
     }
 
     @Test func configuredFolderFallsBackToDefaultWhenUnsetOrEmpty() {
         let (defaults, suite) = makeScratch()
-        defer { UserDefaults.standard.removePersistentDomain(forName: suite) }
+        defer { ScratchDefaults.destroy(suite) }
         #expect(SettingsBackup.configuredFolder(defaults) == SettingsBackup.defaultFolder())
         defaults.set("", forKey: Defaults.Key.backupFolderPath.rawValue)
         #expect(SettingsBackup.configuredFolder(defaults) == SettingsBackup.defaultFolder())
@@ -241,7 +240,7 @@ struct SettingsBackupTests {
 
     @Test func automaticBackupEnabledDefaultsTrueAndRespectsStored() {
         let (defaults, suite) = makeScratch()
-        defer { UserDefaults.standard.removePersistentDomain(forName: suite) }
+        defer { ScratchDefaults.destroy(suite) }
         #expect(SettingsBackup.automaticBackupEnabled(defaults))
         defaults.set(false, forKey: Defaults.Key.automaticBackupEnabled.rawValue)
         #expect(!SettingsBackup.automaticBackupEnabled(defaults))

@@ -15,26 +15,24 @@ struct DefaultsAndSettingsLoadTests {
     /// Installs a fresh throwaway store, runs `body`, then restores the previous
     /// store and deletes the suite.
     private func withScratchStore(_ body: (UserDefaults) throws -> Void) rethrows {
-        let name = "IceTests.defaults." + UUID().uuidString
-        let scratch = UserDefaults(suiteName: name)!
+        let (scratch, suite) = ScratchDefaults.make(label: "defaults")
         let previous = Defaults.store
         Defaults.store = scratch
         defer {
             Defaults.store = previous
-            UserDefaults.standard.removePersistentDomain(forName: name)
+            ScratchDefaults.destroy(suite)
         }
         try body(scratch)
     }
 
     @MainActor
     private func withScratchStore(_ body: (UserDefaults) async throws -> Void) async rethrows {
-        let name = "IceTests.defaults." + UUID().uuidString
-        let scratch = UserDefaults(suiteName: name)!
+        let (scratch, suite) = ScratchDefaults.make(label: "defaults")
         let previous = Defaults.store
         Defaults.store = scratch
         defer {
             Defaults.store = previous
-            UserDefaults.standard.removePersistentDomain(forName: name)
+            ScratchDefaults.destroy(suite)
         }
         try await body(scratch)
     }
