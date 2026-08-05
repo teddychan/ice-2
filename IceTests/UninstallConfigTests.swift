@@ -61,6 +61,24 @@ struct UninstallConfigTests {
         }
     }
 
+    @Test func neverDeletesTheUsersBackups() {
+        // Uninstalling removes everything Ice 2 owns *except* backups — they exist precisely to
+        // outlive a reinstall or a move to a new Mac, so deleting them would defeat the feature.
+        // They're safe structurally rather than by luck: the default folder is under ~/Documents
+        // and a configured one can be anywhere (Dropbox, iCloud Drive), while every cleanup path
+        // is pinned inside ~/Library. This asserts the two can't overlap.
+        let defaultFolder = SettingsBackup.defaultFolder()
+        for url in config.extraCleanupPaths {
+            #expect(defaultFolder.path != url.path)
+            #expect(!defaultFolder.path.hasPrefix(url.path + "/"))
+        }
+
+        // And the reason it holds for a *configured* folder too, wherever the user pointed it:
+        // the default already lives outside the ~/Library subtree that bounds every cleanup path.
+        let library = FileManager.default.homeDirectoryForCurrentUser.appending(path: "Library")
+        #expect(!defaultFolder.path.hasPrefix(library.path + "/"))
+    }
+
     @Test func deletesNothingBeyondTheBundlesOwnFolders() {
         // Ice 2's settings live in `UserDefaults.standard` (`Defaults.store`), i.e. the
         // bundle-id domain the uninstaller already wipes — so no extra suites.
