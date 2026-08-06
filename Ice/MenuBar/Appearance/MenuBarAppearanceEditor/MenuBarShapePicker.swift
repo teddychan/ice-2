@@ -84,6 +84,7 @@ private struct MenuBarFullShapePicker: View, Equatable {
             }
             .resizable()
             .help("Square Cap")
+            .accessibilityLabel("Square cap")
             .tag(endCap)
         case .round:
             Image(size: CGSize(width: 12, height: 12)) { context in
@@ -96,6 +97,7 @@ private struct MenuBarFullShapePicker: View, Equatable {
             }
             .resizable()
             .help("Round Cap")
+            .accessibilityLabel("Round cap")
             .tag(endCap)
         }
     }
