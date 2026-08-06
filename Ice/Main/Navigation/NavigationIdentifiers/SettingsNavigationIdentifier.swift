@@ -22,6 +22,21 @@ enum SettingsNavigationIdentifier: String, NavigationIdentifier {
     case about = "About"
     case uninstall = "Uninstall"
 
+    /// The pane that displays live images of the user's menu bar items.
+    ///
+    /// Capturing those images is expensive and needs Screen Recording, so both the item
+    /// cache and the image cache only refresh while this pane is on screen. Naming the
+    /// pane once, here, keeps those two call sites tied to the pane that actually renders
+    /// the layout bar instead of each hardcoding a case.
+    ///
+    /// This is not incidental tidiness. Both sites read `.menuBarLayout` until 2.8.0
+    /// replaced that case with `.appearance` and `.layout`; the rename sent both to
+    /// `.appearance`, the one pane that shows no item images. The images then only
+    /// refreshed while the user was looking at a pane that did not display them, and a
+    /// failed capture stayed on screen as a placeholder for as long as the Layout pane
+    /// was open.
+    static let rendersMenuBarItemImages = Self.layout
+
     var iconResource: IconResource {
         switch self {
         case .general: .systemSymbol("gearshape")

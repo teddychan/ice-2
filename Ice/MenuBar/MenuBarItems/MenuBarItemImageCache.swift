@@ -305,23 +305,45 @@ final class MenuBarItemImageCache: ObservableObject {
         }
     }
 
+    /// Returns whether the cache should be updated for the given presentation state.
+    ///
+    /// The Ice Bar and the search panel show item images whenever they are open, so they
+    /// alone are enough. Otherwise images are only worth capturing while the app is
+    /// frontmost and showing the settings pane that renders them — capturing is expensive
+    /// and needs Screen Recording, so it must not run for a window nobody is looking at.
+    ///
+    /// Extracted from ``updateCache(sections:)`` so the rule can be pinned by tests: the
+    /// pane it names was wrong from 2.8.0 until this was written, which left the layout
+    /// bar showing stale images and placeholders for as long as it was open.
+    nonisolated static func shouldUpdateCache(
+        isIceBarPresented: Bool,
+        isSearchPresented: Bool,
+        isAppFrontmost: Bool,
+        isSettingsPresented: Bool,
+        settingsIdentifier: SettingsNavigationIdentifier
+    ) -> Bool {
+        if isIceBarPresented || isSearchPresented {
+            return true
+        }
+        return isAppFrontmost
+            && isSettingsPresented
+            && settingsIdentifier == .rendersMenuBarItemImages
+    }
+
     /// Updates the cache for the given sections, if necessary.
     func updateCache(sections: [MenuBarSection.Name]) async {
         guard let appState else {
             return
         }
 
-        let isIceBarPresented = await appState.navigationState.isIceBarPresented
-        let isSearchPresented = await appState.navigationState.isSearchPresented
-
-        if !isIceBarPresented && !isSearchPresented {
-            guard
-                await appState.navigationState.isAppFrontmost,
-                await appState.navigationState.isSettingsPresented,
-                await appState.navigationState.settingsNavigationIdentifier == .appearance
-            else {
-                return
-            }
+        guard await Self.shouldUpdateCache(
+            isIceBarPresented: appState.navigationState.isIceBarPresented,
+            isSearchPresented: appState.navigationState.isSearchPresented,
+            isAppFrontmost: appState.navigationState.isAppFrontmost,
+            isSettingsPresented: appState.navigationState.isSettingsPresented,
+            settingsIdentifier: appState.navigationState.settingsNavigationIdentifier
+        ) else {
+            return
         }
 
         guard await !appState.itemManager.lastMoveOperationOccurred(within: .seconds(1)) else {
@@ -332,26 +354,38 @@ final class MenuBarItemImageCache: ObservableObject {
         await updateCacheWithoutChecks(sections: sections)
     }
 
+    /// Returns the sections whose images are on screen for the given presentation state.
+    ///
+    /// Settings and the search panel show every section at once, so they need all of them.
+    /// The Ice Bar shows one section at a time and needs only that one. Nothing on screen
+    /// needs nothing captured.
+    nonisolated static func sectionsNeedingDisplay(
+        isSettingsPresented: Bool,
+        isSearchPresented: Bool,
+        isIceBarPresented: Bool,
+        iceBarSection: MenuBarSection.Name?
+    ) -> [MenuBarSection.Name] {
+        if isSettingsPresented || isSearchPresented {
+            return MenuBarSection.Name.allCases
+        }
+        if isIceBarPresented, let iceBarSection {
+            return [iceBarSection]
+        }
+        return []
+    }
+
     /// Updates the cache for all sections, if necessary.
     func updateCache() async {
         guard let appState else {
             return
         }
 
-        let isIceBarPresented = await appState.navigationState.isIceBarPresented
-        let isSearchPresented = await appState.navigationState.isSearchPresented
-        let isSettingsPresented = await appState.navigationState.isSettingsPresented
-
-        var sectionsNeedingDisplay = [MenuBarSection.Name]()
-
-        if isSettingsPresented || isSearchPresented {
-            sectionsNeedingDisplay = MenuBarSection.Name.allCases
-        } else if
-            isIceBarPresented,
-            let section = await appState.menuBarManager.iceBarPanel.currentSection
-        {
-            sectionsNeedingDisplay.append(section)
-        }
+        let sectionsNeedingDisplay = await Self.sectionsNeedingDisplay(
+            isSettingsPresented: appState.navigationState.isSettingsPresented,
+            isSearchPresented: appState.navigationState.isSearchPresented,
+            isIceBarPresented: appState.navigationState.isIceBarPresented,
+            iceBarSection: appState.menuBarManager.iceBarPanel.currentSection
+        )
 
         await updateCache(sections: sectionsNeedingDisplay)
     }

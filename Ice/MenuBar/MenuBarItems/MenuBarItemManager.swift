@@ -99,7 +99,7 @@ final class MenuBarItemManager: ObservableObject {
 
         appState.navigationState.$settingsNavigationIdentifier
             .sink { [weak self] identifier in
-                guard let self, identifier == .appearance else {
+                guard let self, identifier == .rendersMenuBarItemImages else {
                     return
                 }
                 Task {

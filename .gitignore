@@ -6,3 +6,6 @@ xcuserdata/
 dist/
 # Local git worktrees (e.g. created for parallel feature work).
 *-worktree/
+
+# Coverage artifacts from local test runs
+*.profraw
