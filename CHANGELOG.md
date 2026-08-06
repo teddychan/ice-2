@@ -1,5 +1,21 @@
 # Changelog
 
+## 2.12.0 - 2026-08-06
+
+### Fixed
+
+- **The Layout pane keeps up with your menu bar again.** Applying a layout profile rearranged the real menu bar immediately, but the Visible / Hidden / Always-Hidden bars in Settings could go on showing the old arrangement for up to half a minute, until something unrelated happened to nudge them. They now catch up about a second after the last item moves. The same staleness could also affect the profile *being applied*: if you dragged an item and pressed **Apply** within a second of it, Ice 2 worked from the layout as it was before your drag, and moved the wrong items.
+
+- **Dragging an item between sections no longer freezes the section you took it from.** Ice 2 pauses a section's bar while you drag out of it, so it doesn't rearrange under your cursor — but it only unpaused the section you dropped into. Drag from Hidden to Visible and the Hidden bar stopped updating for good, so an item that had moved kept showing in both places. Closing and reopening Settings was the only way out.
+
+- **Menu bar item icons refresh while you are looking at them.** Ice 2 only redraws its picture of your menu bar items while the pane that displays them is open, which is the Layout pane. Since 2.8.0 it had been checking for the Appearance pane instead — the one pane that shows no item icons — so the icons in the layout bars were whatever had been captured on some earlier visit. If capturing one item failed at that moment, it kept showing a lettered placeholder instead of its icon for as long as you stayed on the Layout pane.
+
+- **Restoring a backup, or using either "Relaunch Ice 2" button, brings Ice 2 back.** Ice 2 asked macOS to reopen it *before* quitting, while it was still running — so macOS simply brought the running copy to the front, reported success, and the quit that followed left nothing running at all. Ice 2 disappeared and did not come back. This affected restoring a settings backup and both Relaunch buttons.
+
+### Removed
+
+- **Item groups are gone.** The **Groups** section in Settings ▸ Layout — saving a set of hidden items under a name and revealing them with **Show** — has been removed, along with the option to point a trigger at a group. It saw very little use for the amount of the app it occupied, and layout profiles already cover arranging your menu bar. Any groups you saved are deleted from your settings when you update. **Triggers still work**: a trigger now always shows the hidden section when its app comes to the front, so the **Target** menu is gone and existing hidden-section triggers are untouched. If you had a trigger pointing at a group, only that trigger is dropped — the rest are kept.
+
 ## 2.11.0 - 2026-08-04
 
 ### Fixed
