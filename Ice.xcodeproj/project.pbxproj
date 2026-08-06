@@ -549,7 +549,7 @@
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Ice 2.app/Contents/MacOS/Ice 2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Ice 2 Debug.app/Contents/MacOS/Ice 2 Debug";
 			};
 			name = Debug;
 		};
@@ -712,7 +712,8 @@
 				);
 				MARKETING_VERSION = 2.11.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.dragonapp.ice.debug;
-				PRODUCT_NAME = "Ice 2";
+				PRODUCT_MODULE_NAME = Ice_2;
+				PRODUCT_NAME = "Ice 2 Debug";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 			};
