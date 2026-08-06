@@ -511,7 +511,7 @@ final class ControlItem {
             appState.settings.hotkeys.hotkey(withAction: action)
         }
 
-        let menu = NSMenu(title: "Ice 2")
+        let menu = NSMenu(title: Constants.displayName)
 
         // Quick-actions zone: the Ice-specific items only. Settings and
         // Check-for-updates live in the App menu below (de-dup per spec).
@@ -564,7 +564,7 @@ final class ControlItem {
         // separator above is the only one added here. Uninstall is deliberately
         // absent — it lives in Settings ▸ Uninstall (see `IceUninstallConfig`).
         for item in DragonAppMenu.items(DragonAppMenu.Config(
-            appName: "Ice 2",
+            appName: Constants.displayName,
             onAbout: { [weak self] in self?.openAbout() },
             onSettings: { [weak self] in self?.openSettings() },
             onCheckForUpdates: { [weak self] in self?.checkForUpdates() }

@@ -24,8 +24,17 @@ struct UninstallConfigTests {
         #expect(!config.bundleID.isEmpty)
     }
 
+    @Test func namesTheRunningBuildNotTheReleaseName() {
+        // Same rule as the bundle id above, for the name the confirmation sheet shows:
+        // the running bundle's display name, never a hardcoded "Ice 2". A debug build
+        // must say "Ice 2 Debug" so the sheet for a destructive, unrecoverable action
+        // can't be mistaken for the installed release's. Asserted against the bundle
+        // rather than a literal so it holds for both builds.
+        #expect(config.appName == Bundle.main.displayName)
+        #expect(config.appName == "Ice 2 Debug") // the test host is the Debug build
+    }
+
     @Test func namesExactlyWhatIsRemoved() {
-        #expect(config.appName == "Ice 2")
         #expect(config.checklistItems == [
             "The app and its login item",
             "Settings, layout profiles, and hotkeys",

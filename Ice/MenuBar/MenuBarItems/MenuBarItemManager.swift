@@ -1380,7 +1380,11 @@ extension MenuBarItemManager {
     /// through normal move operations. Items that are not currently available
     /// are skipped so profiles remain useful when apps are not running.
     func applyLayoutProfile(_ profile: MenuBarLayoutProfile) async throws {
-        await cacheItemsRegardless()
+        // The cache read below decides which items get moved where, so it has to
+        // be current. `cacheItemsRegardless` would be skipped if the user had
+        // just dragged something in the layout bar and hit Apply within a second
+        // of it, and the profile would then be applied against a stale layout.
+        await refreshCacheAfterItemMoves()
 
         let items = await MenuBarItem.getMenuBarItems(option: .activeSpace)
         guard let hiddenControlItem = items.first(matching: .hiddenControlItem) else {

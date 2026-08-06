@@ -29,7 +29,7 @@ enum IceUninstallConfig {
         let bundleID = Bundle.main.bundleIdentifier ?? "com.dragonapp.ice"
         let library = FileManager.default.homeDirectoryForCurrentUser.appending(path: "Library")
         return UninstallConfig(
-            appName: "Ice 2",
+            appName: Constants.displayName,
             bundleID: bundleID,
             checklistItems: [
                 "The app and its login item",

@@ -14,7 +14,7 @@ import DragonKit
 enum AboutConfig {
     static var content: AboutContent {
         AboutContent(
-            appName: "Ice 2",
+            appName: Constants.displayName,
             versionString: DragonAbout.versionString(),
             copyright: Constants.copyrightString,
             links: [
