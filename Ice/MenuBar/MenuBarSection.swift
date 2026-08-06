@@ -233,6 +233,36 @@ final class MenuBarSection {
         if isHidden { show() } else { hide() }
     }
 
+    /// Returns a Boolean value that indicates whether the mouse is below the
+    /// menu bar on the given screen.
+    private func isMouseBelowMenuBar(on screen: NSScreen) -> Bool {
+        guard let mouseLocation = MouseHelpers.locationAppKit else {
+            return false
+        }
+        return mouseLocation.y < screen.visibleFrame.maxY
+    }
+
+    /// Returns a Boolean value that indicates whether the mouse is inside the
+    /// given Ice Bar panel.
+    private func isMouseInsideIceBar(useIceBar: Bool, panel: NSPanel?) -> Bool {
+        guard
+            useIceBar,
+            let panel,
+            panel.isVisible,
+            let mouseLocation = MouseHelpers.locationAppKit
+        else {
+            return false
+        }
+        return panel.frame.insetBy(dx: -8, dy: -8).contains(mouseLocation)
+    }
+
+    /// Returns a Boolean value that indicates whether the section should be
+    /// rehidden, given the current location of the mouse.
+    private func shouldRehide(on screen: NSScreen, useIceBar: Bool, iceBarPanel: NSPanel?) -> Bool {
+        isMouseBelowMenuBar(on: screen)
+            && !isMouseInsideIceBar(useIceBar: useIceBar, panel: iceBarPanel)
+    }
+
     /// Starts running checks to determine when to rehide the section.
     private func startRehideChecks() {
         rehideTimer?.invalidate()
@@ -244,30 +274,6 @@ final class MenuBarSection {
             case .timed = appState.settings.general.rehideStrategy
         else {
             return
-        }
-
-        func isMouseBelowMenuBar(on screen: NSScreen) -> Bool {
-            guard let mouseLocation = MouseHelpers.locationAppKit else {
-                return false
-            }
-            return mouseLocation.y < screen.visibleFrame.maxY
-        }
-
-        func isMouseInsideIceBar(useIceBar: Bool, panel: NSPanel?) -> Bool {
-            guard
-                useIceBar,
-                let panel,
-                panel.isVisible,
-                let mouseLocation = MouseHelpers.locationAppKit
-            else {
-                return false
-            }
-            return panel.frame.insetBy(dx: -8, dy: -8).contains(mouseLocation)
-        }
-
-        func shouldRehide(on screen: NSScreen, useIceBar: Bool, iceBarPanel: NSPanel?) -> Bool {
-            isMouseBelowMenuBar(on: screen)
-                && !isMouseInsideIceBar(useIceBar: useIceBar, panel: iceBarPanel)
         }
 
         rehideMonitor = EventMonitor.universal(for: .mouseMoved) { [weak self] event in
@@ -296,7 +302,7 @@ final class MenuBarSection {
                             else {
                                 return
                             }
-                            if shouldRehide(
+                            if self.shouldRehide(
                                 on: screen,
                                 useIceBar: self.useIceBar,
                                 iceBarPanel: self.menuBarManager?.iceBarPanel

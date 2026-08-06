@@ -299,10 +299,18 @@ final class MenuBarItemImageCache: ObservableObject {
 
         let validKeys = await Set(appState.itemManager.itemCache.managedItems.map(ImageKey.init))
 
-        await MainActor.run { [newImages, validKeys] in
-            images = images.filter { validKeys.contains($0.key) }
-            images.merge(newImages) { (_, new) in new }
-        }
+        await mergeIntoCache(newImages, validKeys: validKeys)
+    }
+
+    /// Drops every cached image whose key is no longer valid, then merges in the
+    /// given images.
+    ///
+    /// ``images`` is `@Published` and read from SwiftUI, so it is only ever
+    /// mutated on the main actor.
+    @MainActor
+    private func mergeIntoCache(_ newImages: [ImageKey: CapturedImage], validKeys: Set<ImageKey>) {
+        images = images.filter { validKeys.contains($0.key) }
+        images.merge(newImages) { (_, new) in new }
     }
 
     /// Returns whether the cache should be updated for the given presentation state.
