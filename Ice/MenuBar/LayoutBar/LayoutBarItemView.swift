@@ -31,6 +31,14 @@ final class LayoutBarItemView: NSView {
     /// A Boolean value that indicates whether the item view is currently inside a container.
     var hasContainer = false
 
+    /// The container this view's current dragging session began in.
+    ///
+    /// The session freezes that container's arranged views for its duration, and this
+    /// is the only reference that can thaw them again: the drop is handled by whichever
+    /// container is under the cursor, which for a drag between sections is a different
+    /// object entirely.
+    private weak var draggingSourceContainer: LayoutBarContainer?
+
     /// The image displayed inside the view.
     private var cachedImage: MenuBarItemImageCache.CapturedImage? {
         didSet {
@@ -231,6 +239,7 @@ extension LayoutBarItemView: NSDraggingSource {
         // aren't arranged during a dragging session
         if let container = superview as? LayoutBarContainer {
             container.canSetArrangedViews = false
+            draggingSourceContainer = container
         }
 
         // prevent the dragging image from animating back to its original location
@@ -244,6 +253,16 @@ extension LayoutBarItemView: NSDraggingSource {
 
     func draggingSession(_ session: NSDraggingSession, endedAt screenPoint: NSPoint, operation: NSDragOperation) {
         defer {
+            // Thaw the container the drag started in. `performDragOperation` only
+            // thaws the container that *received* the drop, so dragging between two
+            // sections left the source frozen for good: it went on ignoring every
+            // item-cache update and kept showing the items it held before the drag,
+            // including ones now living in another section. Doing it here covers
+            // every way a session can end — dropped in another section, dropped
+            // back, or cancelled outside any container.
+            draggingSourceContainer?.canSetArrangedViews = true
+            draggingSourceContainer = nil
+
             // always remove container info at the end of a session
             oldContainerInfo = nil
         }
