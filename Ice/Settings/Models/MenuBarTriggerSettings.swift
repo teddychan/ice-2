@@ -8,11 +8,6 @@ import Combine
 import Foundation
 import OSLog
 
-enum MenuBarTriggerTarget: Hashable {
-    case hiddenSection
-    case itemGroup(UUID)
-}
-
 struct MenuBarTrigger: Codable, Hashable, Identifiable {
     enum Condition: Codable, Hashable {
         case frontmostApplication(bundleIdentifier: String)
@@ -20,7 +15,6 @@ struct MenuBarTrigger: Codable, Hashable, Identifiable {
 
     enum Action: String, Codable, Hashable {
         case showHiddenSection
-        case temporarilyShowItemGroup
     }
 
     var id: UUID
@@ -28,7 +22,6 @@ struct MenuBarTrigger: Codable, Hashable, Identifiable {
     var createdAt: Date
     var condition: Condition
     var action: Action
-    var itemGroupID: MenuBarItemGroup.ID?
 
     var bundleIdentifier: String? {
         switch condition {
@@ -69,16 +62,9 @@ final class MenuBarTriggerSettings: ObservableObject {
     }
 
     @discardableResult
-    func createFrontmostApplicationTrigger(target: MenuBarTriggerTarget) -> Bool {
+    func createFrontmostApplicationTrigger() -> Bool {
         guard let candidateApplication else {
             return false
-        }
-
-        let (action, itemGroupID): (MenuBarTrigger.Action, MenuBarItemGroup.ID?) = switch target {
-        case .hiddenSection:
-            (.showHiddenSection, nil)
-        case .itemGroup(let id):
-            (.temporarilyShowItemGroup, id)
         }
 
         let trigger = MenuBarTrigger(
@@ -86,14 +72,11 @@ final class MenuBarTriggerSettings: ObservableObject {
             name: candidateApplication.name,
             createdAt: Date(),
             condition: .frontmostApplication(bundleIdentifier: candidateApplication.bundleIdentifier),
-            action: action,
-            itemGroupID: itemGroupID
+            action: .showHiddenSection
         )
 
         guard !triggers.contains(where: {
-            $0.condition == trigger.condition &&
-                $0.action == trigger.action &&
-                $0.itemGroupID == trigger.itemGroupID
+            $0.condition == trigger.condition && $0.action == trigger.action
         }) else {
             return false
         }
@@ -112,9 +95,32 @@ final class MenuBarTriggerSettings: ObservableObject {
             return
         }
         do {
-            triggers = try decoder.decode([MenuBarTrigger].self, from: data)
+            triggers = try Self.decodeTriggers(from: data, using: decoder)
         } catch {
             Logger.serialization.error("Error decoding menu bar triggers: \(error, privacy: .public)")
+        }
+    }
+
+    /// Decodes stored triggers, discarding individually any that this version can
+    /// no longer represent.
+    ///
+    /// ``MenuBarTrigger/Action`` is a raw-value enum, so a trigger written by an
+    /// older version with an action that no longer exists — `temporarilyShowItemGroup`,
+    /// removed along with item groups — throws when decoded. Decoding the array in one
+    /// go would throw on the first such trigger and lose *every* trigger the user had,
+    /// including the ones this version still understands. Each element is decoded on its
+    /// own so only the obsolete ones are dropped.
+    nonisolated static func decodeTriggers(from data: Data, using decoder: JSONDecoder) throws -> [MenuBarTrigger] {
+        try decoder.decode([LenientTrigger].self, from: data).compactMap(\.trigger)
+    }
+
+    /// Decodes one trigger, yielding `nil` instead of throwing when it is no longer
+    /// representable, so one unreadable element cannot fail the whole array.
+    private struct LenientTrigger: Decodable {
+        let trigger: MenuBarTrigger?
+
+        init(from decoder: any Decoder) throws {
+            trigger = try? MenuBarTrigger(from: decoder)
         }
     }
 
@@ -173,16 +179,6 @@ final class MenuBarTriggerSettings: ObservableObject {
             switch trigger.action {
             case .showHiddenSection:
                 appState.menuBarManager.section(withName: .hidden)?.show()
-            case .temporarilyShowItemGroup:
-                guard
-                    let id = trigger.itemGroupID,
-                    let group = appState.settings.layoutProfiles.groups.first(where: { $0.id == id })
-                else {
-                    continue
-                }
-                Task {
-                    await appState.settings.layoutProfiles.temporarilyShowGroup(group)
-                }
             }
         }
     }

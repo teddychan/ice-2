@@ -28,6 +28,11 @@ final class AppSettings: ObservableObject {
 
     /// Performs the initial setup of the settings model.
     func performSetup(with appState: AppState) {
+        // Item groups were removed in 2.12.0. Nothing reads this key any more, so
+        // without this the blob would sit in every existing user's preferences for
+        // good. Removing an absent key is a no-op, so this costs nothing once done.
+        Defaults.removeObject(forKey: .menuBarItemGroups)
+
         advanced.performSetup(with: appState)
         general.performSetup(with: appState)
         hotkeys.performSetup(with: appState)

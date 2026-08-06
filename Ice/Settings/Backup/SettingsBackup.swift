@@ -41,6 +41,7 @@ enum SettingsBackup {
     /// own meta-settings (which are machine-specific and shouldn't travel).
     static let excludedKeys: Set<Defaults.Key> = [
         .showSectionDividers, .canToggleAlwaysHiddenSection, .sections,
+        .menuBarItemGroups,
         .backupFolderPath, .automaticBackupEnabled,
     ]
 

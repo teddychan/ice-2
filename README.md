@@ -118,7 +118,6 @@ rm -rf ~/Library/Application\ Support/com.dragonapp.ice \
 - [x] Menu bar item spacing (BETA)
 - [x] Profiles for menu bar layout
 - [x] Individual spacer items
-- [x] Menu bar item groups
 - [x] Show menu bar items when trigger conditions are met
 
 ### Menu bar appearance
@@ -185,7 +184,7 @@ versions of macOS. Older releases remain downloadable on the
 
 ### Can I back up, restore, or sync my settings?
 
-Yes. Open **Settings ▸ Backup & Restore** and choose a backup folder. Use **Back Up Now** to save a snapshot of all your Ice 2 settings (layout profiles, item groups, spacers, triggers, hotkeys, and appearance), and Ice 2 also backs up automatically when you quit. The newest 10 backups are kept; you can restore any of them with one click (Ice 2 relaunches to apply).
+Yes. Open **Settings ▸ Backup & Restore** and choose a backup folder. Use **Back Up Now** to save a snapshot of all your Ice 2 settings (layout profiles, spacers, triggers, hotkeys, and appearance), and Ice 2 also backs up automatically when you quit. The newest 10 backups are kept; you can restore any of them with one click (Ice 2 relaunches to apply).
 
 To **sync across Macs** or move to a new Mac, point the backup folder at a synced location such as Dropbox, iCloud Drive, or Google Drive — your settings then appear on your other Macs, where you can restore them.
 

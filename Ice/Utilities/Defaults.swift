@@ -161,7 +161,6 @@ extension Defaults {
         case rehideInterval = "RehideInterval"
         case itemSpacingOffset = "ItemSpacingOffset"
         case menuBarLayoutProfiles = "MenuBarLayoutProfiles"
-        case menuBarItemGroups = "MenuBarItemGroups"
         case menuBarSpacers = "MenuBarSpacers"
         case menuBarTriggers = "MenuBarTriggers"
 
@@ -189,5 +188,9 @@ extension Defaults {
 
         // MARK: Deprecated (Other)
         case sections = "Sections"
+        // Item groups were removed in 2.12.0. The key is kept so `AppSettings`
+        // can delete the leftover blob from existing installs, and so a restore
+        // can't put it back.
+        case menuBarItemGroups = "MenuBarItemGroups"
     }
 }

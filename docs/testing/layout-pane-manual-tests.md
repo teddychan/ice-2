@@ -51,14 +51,12 @@ covered by the automated `IceTests` suite. Run this checklist by hand.
 
 ## 3. Other important cases
 
-- [ ] **Item groups:** save a group of hidden items, click **Show**.
-  - Expected (menu bar): grouped items appear briefly, then auto-rehide.
 - [ ] **Spacers:** add a spacer and adjust its width slider.
   - Expected (menu bar): the gap between items changes live.
 - [ ] Delete the spacer.
   - Expected (menu bar): the gap disappears.
-- [ ] Save a profile/group while a spacer exists, then inspect the profile.
-  - Expected: the spacer is **not** captured into the profile or group.
+- [ ] Save a profile while a spacer exists, then inspect the profile.
+  - Expected: the spacer is **not** captured into the profile.
 - [ ] **Relaunch persistence:** create a profile, quit Ice, relaunch.
   - Expected: the profile still lists with correct counts.
 - [ ] **Empty-section edges:** apply a profile with an empty section; save a

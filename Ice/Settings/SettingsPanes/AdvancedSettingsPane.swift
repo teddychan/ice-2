@@ -10,7 +10,6 @@ struct AdvancedSettingsPane: View {
     @EnvironmentObject var appState: AppState
     @ObservedObject var settings: AdvancedSettings
     @State private var maxSliderLabelWidth: CGFloat = 0
-    @State private var selectedTriggerTarget = MenuBarTriggerTarget.hiddenSection
 
     private var menuBarManager: MenuBarManager {
         appState.menuBarManager
@@ -72,23 +71,12 @@ struct AdvancedSettingsPane: View {
     private var menuBarTriggers: some View {
         let triggerSettings = appState.settings.triggers
         let currentApplicationName = triggerSettings.candidateApplicationName
-        let groups = appState.settings.layoutProfiles.groups
 
         LabeledContent {
-            HStack {
-                IcePicker("Target", selection: $selectedTriggerTarget) {
-                    Text("Hidden section").tag(MenuBarTriggerTarget.hiddenSection)
-                    ForEach(groups) { group in
-                        Text(group.name).tag(MenuBarTriggerTarget.itemGroup(group.id))
-                    }
-                }
-                .labelsHidden()
-
-                Button("Add Current App") {
-                    triggerSettings.createFrontmostApplicationTrigger(target: selectedTriggerTarget)
-                }
-                .disabled(currentApplicationName == nil)
+            Button("Add Current App") {
+                triggerSettings.createFrontmostApplicationTrigger()
             }
+            .disabled(currentApplicationName == nil)
         } label: {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Show items for focused app")
@@ -99,7 +87,7 @@ struct AdvancedSettingsPane: View {
                 }
             }
         }
-        .dragonAnnotation("When the app becomes focused, Ice shows the selected hidden items.")
+        .dragonAnnotation("When the app becomes focused, Ice shows the hidden section.")
 
         ForEach(triggerSettings.triggers, id: \.id) { trigger in
             LabeledContent {
@@ -121,12 +109,6 @@ struct AdvancedSettingsPane: View {
         switch trigger.action {
         case .showHiddenSection:
             "Hidden section"
-        case .temporarilyShowItemGroup:
-            if let id = trigger.itemGroupID {
-                appState.settings.layoutProfiles.groups.first { $0.id == id }?.name ?? "Missing item group"
-            } else {
-                "Missing item group"
-            }
         }
     }
 

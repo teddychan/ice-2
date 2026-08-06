@@ -52,18 +52,6 @@ struct MenuBarLayoutProfileTests {
         #expect(decoded == profile)
     }
 
-    @Test func groupCountAndCodableRoundTrip() throws {
-        let group = MenuBarItemGroup(
-            id: UUID(), name: "G",
-            createdAt: Date(timeIntervalSince1970: 1),
-            updatedAt: Date(timeIntervalSince1970: 2),
-            itemTags: [tag("A"), tag("B")]
-        )
-        #expect(group.itemCount == 2)
-        let data = try JSONEncoder().encode(group)
-        let decoded = try JSONDecoder().decode(MenuBarItemGroup.self, from: data)
-        #expect(decoded == group)
-    }
 }
 
 // MARK: - Section snapshot capture
@@ -270,7 +258,7 @@ struct MenuBarLayoutProfileCaptureTests {
         #expect(settings.profiles.count == 1)
     }
 
-    // MARK: - Apply / group guards without a live AppState
+    // MARK: - Apply guards without a live AppState
 
     @Test func applyProfileWithoutAppStateThrows() async {
         let settings = MenuBarLayoutProfilesSettings()
@@ -283,18 +271,6 @@ struct MenuBarLayoutProfileCaptureTests {
         await #expect(throws: MenuBarLayoutProfilesSettings.ApplyError.self) {
             try await settings.applyProfile(profile)
         }
-    }
-
-    @Test func temporarilyShowGroupWithoutAppStateReturnsZero() async {
-        let settings = MenuBarLayoutProfilesSettings()
-        let group = MenuBarItemGroup(
-            id: UUID(), name: "G",
-            createdAt: Date(timeIntervalSince1970: 0),
-            updatedAt: Date(timeIntervalSince1970: 0),
-            itemTags: []
-        )
-        let count = await settings.temporarilyShowGroup(group)
-        #expect(count == 0)
     }
 
     @Test func applyErrorHasUserFacingDescription() {

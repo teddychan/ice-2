@@ -170,8 +170,7 @@ struct DefaultsAndSettingsLoadTests {
                 name: "Safari",
                 createdAt: Date(timeIntervalSince1970: 0),
                 condition: .frontmostApplication(bundleIdentifier: "com.apple.Safari"),
-                action: .showHiddenSection,
-                itemGroupID: nil
+                action: .showHiddenSection
             )
             let data = try JSONEncoder().encode([trigger])
             scratch.set(data, forKey: Defaults.Key.menuBarTriggers.rawValue)

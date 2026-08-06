@@ -48,22 +48,9 @@ struct MenuBarLayoutProfile: Codable, Hashable, Identifiable {
     }
 }
 
-struct MenuBarItemGroup: Codable, Hashable, Identifiable {
-    var id: UUID
-    var name: String
-    var createdAt: Date
-    var updatedAt: Date
-    var itemTags: [MenuBarItemTag]
-
-    var itemCount: Int {
-        itemTags.count
-    }
-}
-
 @MainActor
 final class MenuBarLayoutProfilesSettings: ObservableObject {
     @Published private(set) var profiles = [MenuBarLayoutProfile]()
-    @Published private(set) var groups = [MenuBarItemGroup]()
 
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
@@ -106,25 +93,12 @@ final class MenuBarLayoutProfilesSettings: ObservableObject {
 
     private func loadInitialState() {
         guard let data = Defaults.data(forKey: .menuBarLayoutProfiles) else {
-            loadInitialGroups()
             return
         }
         do {
             profiles = try decoder.decode([MenuBarLayoutProfile].self, from: data)
         } catch {
             Logger.serialization.error("Error decoding menu bar layout profiles: \(error, privacy: .public)")
-        }
-        loadInitialGroups()
-    }
-
-    private func loadInitialGroups() {
-        guard let data = Defaults.data(forKey: .menuBarItemGroups) else {
-            return
-        }
-        do {
-            groups = try decoder.decode([MenuBarItemGroup].self, from: data)
-        } catch {
-            Logger.serialization.error("Error decoding menu bar item groups: \(error, privacy: .public)")
         }
     }
 
@@ -138,18 +112,6 @@ final class MenuBarLayoutProfilesSettings: ObservableObject {
                 }
             } receiveValue: { data in
                 Defaults.set(data, forKey: .menuBarLayoutProfiles)
-            }
-            .store(in: &cancellables)
-
-        $groups
-            .encode(encoder: encoder)
-            .receive(on: DispatchQueue.main)
-            .sink { completion in
-                if case .failure(let error) = completion {
-                    Logger.serialization.error("Error encoding menu bar item groups: \(error, privacy: .public)")
-                }
-            } receiveValue: { data in
-                Defaults.set(data, forKey: .menuBarItemGroups)
             }
             .store(in: &cancellables)
     }
@@ -184,24 +146,6 @@ final class MenuBarLayoutProfilesSettings: ObservableObject {
         profiles.removeAll { $0.id == profile.id }
     }
 
-    func createGroup(named name: String) {
-        guard let group = makeGroup(name: name) else {
-            return
-        }
-        groups.append(group)
-    }
-
-    func deleteGroup(_ group: MenuBarItemGroup) {
-        groups.removeAll { $0.id == group.id }
-    }
-
-    func temporarilyShowGroup(_ group: MenuBarItemGroup) async -> Int {
-        guard let appState else {
-            return 0
-        }
-        return await appState.itemManager.temporarilyShowItems(in: group, clickingWith: .left)
-    }
-
     func applyProfile(_ profile: MenuBarLayoutProfile) async throws {
         guard let appState else {
             throw ApplyError.missingAppState
@@ -232,52 +176,6 @@ final class MenuBarLayoutProfilesSettings: ObservableObject {
         )
     }
 
-    private func makeGroup(
-        id: UUID = UUID(),
-        name: String,
-        createdAt: Date = Date()
-    ) -> MenuBarItemGroup? {
-        guard let appState else {
-            return nil
-        }
-
-        let hiddenItems = appState.itemManager.itemCache[.hidden]
-        let alwaysHiddenItems = appState.itemManager.itemCache[.alwaysHidden]
-        var items = hiddenItems + alwaysHiddenItems
-
-        if items.isEmpty {
-            items = appState.itemManager.itemCache.managedItems
-        }
-
-        let tags = uniqueItemTags(from: items)
-        guard !tags.isEmpty else {
-            return nil
-        }
-
-        let now = Date()
-        return MenuBarItemGroup(
-            id: id,
-            name: normalizedGroupName(name),
-            createdAt: createdAt,
-            updatedAt: now,
-            itemTags: tags
-        )
-    }
-
-    private func uniqueItemTags(from items: [MenuBarItem]) -> [MenuBarItemTag] {
-        var seen = Set<MenuBarItemTag>()
-        return items.compactMap { item in
-            // Skip control items and Ice's own spacers: item groups are meant to
-            // temporarily reveal real third-party items, and clicking a spacer is
-            // a no-op that would only pollute the group with phantom entries.
-            guard !item.isControlItem, !item.isSpacerItem, !seen.contains(item.tag) else {
-                return nil
-            }
-            seen.insert(item.tag)
-            return item.tag
-        }
-    }
-
     private func normalizedProfileName(_ name: String) -> String {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmed.isEmpty else {
@@ -286,16 +184,8 @@ final class MenuBarLayoutProfilesSettings: ObservableObject {
         return uniqueDefaultName(prefix: "Layout Profile", existing: profiles.map(\.name))
     }
 
-    private func normalizedGroupName(_ name: String) -> String {
-        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard trimmed.isEmpty else {
-            return trimmed
-        }
-        return uniqueDefaultName(prefix: "Item Group", existing: groups.map(\.name))
-    }
-
     /// Returns "<prefix> N" using the smallest N that is not already taken,
-    /// so default names stay unique even after profiles/groups are deleted.
+    /// so default names stay unique even after profiles are deleted.
     private func uniqueDefaultName(prefix: String, existing: [String]) -> String {
         let taken = Set(existing)
         var index = 1

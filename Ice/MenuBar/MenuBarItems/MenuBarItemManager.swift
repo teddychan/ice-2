@@ -1445,31 +1445,6 @@ extension MenuBarItemManager {
 // MARK: - Temporarily Showing Items
 
 extension MenuBarItemManager {
-    /// Temporarily shows every currently hidden item in the given group.
-    ///
-    /// Group membership is stored by tag, so items that are not currently
-    /// available are skipped. Visible items are skipped because they do not
-    /// need to be temporarily revealed.
-    func temporarilyShowItems(
-        in group: MenuBarItemGroup,
-        clickingWith mouseButton: CGMouseButton
-    ) async -> Int {
-        await cacheItemsRegardless()
-
-        let tags = Set(group.itemTags)
-        let items = (
-            itemCache[.hidden] +
-            itemCache[.alwaysHidden]
-        )
-        .filter { tags.contains($0.tag) && !$0.isSpacerItem }
-
-        for item in items {
-            await temporarilyShow(item: item, clickingWith: mouseButton)
-        }
-
-        return items.count
-    }
-
     /// Context for a temporarily shown menu bar item.
     private final class TemporarilyShownItemContext {
         /// The tag associated with the item.

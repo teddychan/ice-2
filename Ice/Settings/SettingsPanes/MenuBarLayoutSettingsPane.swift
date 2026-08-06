@@ -12,10 +12,8 @@ struct MenuBarLayoutSettingsPane: View {
     @ObservedObject var profileSettings: MenuBarLayoutProfilesSettings
     @ObservedObject var spacerManager: MenuBarSpacerManager
     @State private var newProfileName = ""
-    @State private var newGroupName = ""
     @State private var applyingProfileID: MenuBarLayoutProfile.ID?
     @State private var isCapturingLayout = false
-    @State private var showingGroupID: MenuBarItemGroup.ID?
     @State private var isPresentingError = false
     @State private var presentedError: LocalizedErrorWrapper?
 
@@ -36,7 +34,6 @@ struct MenuBarLayoutSettingsPane: View {
             DragonForm(spacing: 20) {
                 header
                 profiles
-                groups
                 spacers
                 layoutBars
             }
@@ -184,88 +181,6 @@ struct MenuBarLayoutSettingsPane: View {
                 presentedError = LocalizedErrorWrapper(error)
                 isPresentingError = true
             }
-        }
-    }
-
-    @ViewBuilder
-    private var groups: some View {
-        DragonSection("Groups") {
-            HStack {
-                TextField("Group name", text: $newGroupName)
-
-                Button("Save Hidden Items") {
-                    profileSettings.createGroup(named: newGroupName)
-                    newGroupName = ""
-                }
-                .disabled(!hasItems)
-            }
-
-            if profileSettings.groups.isEmpty {
-                Text("No saved item groups.")
-                    .foregroundStyle(.secondary)
-            } else {
-                ForEach(profileSettings.groups) { group in
-                    groupRow(group)
-                }
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func groupRow(_ group: MenuBarItemGroup) -> some View {
-        let availableCount = availableHiddenItemCount(for: group)
-
-        HStack {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(group.name)
-
-                Text(groupSummary(group, availableCount: availableCount))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-
-            Spacer()
-
-            if showingGroupID == group.id {
-                ProgressView()
-                    .controlSize(.small)
-            }
-
-            Button("Show") {
-                temporarilyShowGroup(group)
-            }
-            .disabled(availableCount == 0 || showingGroupID != nil)
-
-            Button("Delete", role: .destructive) {
-                profileSettings.deleteGroup(group)
-            }
-            .disabled(showingGroupID != nil)
-        }
-    }
-
-    private func groupSummary(
-        _ group: MenuBarItemGroup,
-        availableCount: Int
-    ) -> LocalizedStringKey {
-        "\(group.itemCount) saved, \(availableCount) available to show"
-    }
-
-    private func availableHiddenItemCount(for group: MenuBarItemGroup) -> Int {
-        let tags = Set(group.itemTags)
-        let items = (
-            itemManager.itemCache[.hidden] +
-            itemManager.itemCache[.alwaysHidden]
-        )
-        return items.filter { tags.contains($0.tag) }.count
-    }
-
-    private func temporarilyShowGroup(_ group: MenuBarItemGroup) {
-        showingGroupID = group.id
-        Task {
-            defer {
-                showingGroupID = nil
-            }
-            _ = await profileSettings.temporarilyShowGroup(group)
         }
     }
 
