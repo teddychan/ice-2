@@ -14,8 +14,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: NSApplicationDelegate Methods
 
     func applicationWillFinishLaunching(_ notification: Notification) {
-        LifecycleDiagnostics.install()
-
         NSApp.setActivationPolicy(.accessory)
 
         // Initial chore work.
@@ -36,7 +34,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         #if DEBUG
         // Don't perform setup if running as a preview.
         if ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" {
-            Logger.default.notice("Skipping setup - running as a preview")
             return
         }
         #endif
@@ -46,7 +43,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // but this skips the heavy menu-bar wiring (status items, EventTaps,
         // timers) so the test host stays inert. Mirrors the preview guard above.
         if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil {
-            Logger.default.notice("Skipping setup - running as a unit test host")
             return
         }
 
@@ -87,14 +83,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         return true
     }
 
-    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
-        LifecycleDiagnostics.logTerminationRequest()
-        return .terminateNow
-    }
-
     func applicationWillTerminate(_ notification: Notification) {
-        Logger.default.notice("Termination is proceeding")
-
         // Keep the (possibly synced) backup folder current on quit. Best-effort:
         // a failure here must never block termination.
         guard SettingsBackup.automaticBackupEnabled() else {

@@ -104,8 +104,6 @@ final class AppState: ObservableObject {
     /// So the reopen goes to a detached `/bin/sh` that outlives this process: it waits
     /// for us to exit, then opens the bundle.
     func relaunch() {
-        LifecycleDiagnostics.logRelaunch()
-
         let process = Process()
         process.executableURL = URL(filePath: "/bin/sh")
         process.arguments = Self.relaunchHelperArguments(
