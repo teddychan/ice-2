@@ -287,23 +287,23 @@ final class MenuBarSection {
                         withTimeInterval: appState.settings.general.rehideInterval,
                         repeats: false
                     ) { [weak self] _ in
-                        guard
-                            let self,
-                            let screen = NSScreen.screenWithMouse ?? NSScreen.main
-                        else {
-                            return
-                        }
-                        if shouldRehide(
-                            on: screen,
-                            useIceBar: useIceBar,
-                            iceBarPanel: menuBarManager?.iceBarPanel
-                        ) {
-                            Task {
-                                await self.hide()
+                        // The timer's closure is nonisolated, so hop to the main
+                        // actor before touching any of the section's state.
+                        Task { @MainActor in
+                            guard
+                                let self,
+                                let screen = NSScreen.screenWithMouse ?? NSScreen.main
+                            else {
+                                return
                             }
-                        } else {
-                            Task {
-                                await self.startRehideChecks()
+                            if shouldRehide(
+                                on: screen,
+                                useIceBar: self.useIceBar,
+                                iceBarPanel: self.menuBarManager?.iceBarPanel
+                            ) {
+                                self.hide()
+                            } else {
+                                self.startRehideChecks()
                             }
                         }
                     }
