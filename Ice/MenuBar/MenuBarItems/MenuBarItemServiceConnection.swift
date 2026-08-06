@@ -80,6 +80,12 @@ extension MenuBarItemService {
     /// A wrapper around an XPC session.
     private final class Session: Sendable {
         /// A session's underlying storage.
+        ///
+        /// Unchecked: the non-Sendable `XPCSession` is reached only through
+        /// ``Session/storage``, an `OSAllocatedUnfairLock` that serializes
+        /// `send(request:)` and `cancel(reason:)`. The one access that does not
+        /// hold that lock is the cancel handler installed in
+        /// `getOrCreateSession()`, which clears `session` from the target queue.
         private final class Storage: @unchecked Sendable {
             private let name = MenuBarItemService.name
             private var session: XPCSession?

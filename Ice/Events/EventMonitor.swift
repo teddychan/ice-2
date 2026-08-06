@@ -8,6 +8,10 @@ import Combine
 import os.lock
 
 struct EventMonitor: Sendable {
+    // Unchecked: the mutable `monitor` token and the non-Sendable `handler` are
+    // only reachable through ``EventMonitor/state``, whose lock serializes every
+    // `start()`/`stop()`. `deinit` calls `stop()` unlocked, but runs only once the
+    // last reference is gone, so nothing can race with it.
     private final class LocalMonitorState: @unchecked Sendable {
         private let mask: NSEvent.EventTypeMask
         private let handler: (NSEvent) -> NSEvent?
@@ -45,6 +49,9 @@ struct EventMonitor: Sendable {
         }
     }
 
+    // Unchecked: same invariant as ``LocalMonitorState`` — `monitor` and `handler`
+    // are reached only under ``EventMonitor/state``'s lock, and the unlocked
+    // `deinit` runs after the last reference is dropped.
     private final class GlobalMonitorState: @unchecked Sendable {
         private let mask: NSEvent.EventTypeMask
         private let handler: (NSEvent) -> Void
@@ -82,6 +89,9 @@ struct EventMonitor: Sendable {
         }
     }
 
+    // Unchecked: same invariant as ``LocalMonitorState`` — the `monitors` pair and
+    // both handlers are reached only under ``EventMonitor/state``'s lock, so the
+    // paired install/remove in `start()`/`stop()` is atomic with respect to callers.
     private final class UniversalMonitorState: @unchecked Sendable {
         private let mask: NSEvent.EventTypeMask
         private let localHandler: (NSEvent) -> NSEvent?
@@ -151,6 +161,9 @@ struct EventMonitor: Sendable {
         }
     }
 
+    // Unchecked: immutable, and every payload is itself a Sendable monitor state
+    // whose mutable storage is confined to ``EventMonitor/state``'s lock. This is
+    // the type that lock protects, so all of `start()`/`stop()` runs serialized.
     private enum State: @unchecked Sendable {
         case local(LocalMonitorState)
         case global(GlobalMonitorState)

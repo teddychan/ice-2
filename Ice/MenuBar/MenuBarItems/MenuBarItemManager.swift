@@ -629,7 +629,7 @@ extension MenuBarItemManager {
     }
 
     /// Returns an event source for a menu bar item event operation.
-    private nonisolated func getEventSource(
+    private func getEventSource(
         with stateID: CGEventSourceStateID = .hidSystemState
     ) throws -> CGEventSource {
         enum Context {
@@ -646,7 +646,7 @@ extension MenuBarItemManager {
     }
 
     /// Prevents local events from being suppressed.
-    private nonisolated func permitLocalEvents() throws {
+    private func permitLocalEvents() throws {
         let source = try getEventSource(with: .combinedSessionState)
         let states: [CGEventSuppressionState] = [
             .eventSuppressionStateRemoteMouseDrag,
