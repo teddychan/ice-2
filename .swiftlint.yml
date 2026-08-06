@@ -1,5 +1,7 @@
 included:
   - Ice
+  - Shared
+  - MenuBarItemService
 
 disabled_rules:
   - cyclomatic_complexity
@@ -56,7 +58,7 @@ file_header:
   required_pattern: |-
     //
     //  SWIFTLINT_CURRENT_FILENAME
-    //  Ice
+    //  (Ice|Shared|MenuBarItemService)
     //
 
 modifier_order:
