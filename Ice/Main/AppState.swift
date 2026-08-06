@@ -95,20 +95,50 @@ final class AppState: ObservableObject {
     }
 
     /// Relaunches the app from its current bundle location.
+    ///
+    /// The reopen cannot be handed to `NSWorkspace` before quitting. This process is
+    /// still alive at that point, so LaunchServices activates *this* instance instead
+    /// of starting a new one, reports success, and the terminate that follows then
+    /// leaves nothing running at all — the app quits and never comes back.
+    ///
+    /// So the reopen goes to a detached `/bin/sh` that outlives this process: it waits
+    /// for us to exit, then opens the bundle.
     func relaunch() {
-        let bundleURL = Bundle.main.bundleURL
-        let configuration = NSWorkspace.OpenConfiguration()
-        configuration.activates = true
+        let process = Process()
+        process.executableURL = URL(filePath: "/bin/sh")
+        process.arguments = Self.relaunchHelperArguments(
+            bundlePath: Bundle.main.bundleURL.path,
+            pid: ProcessInfo.processInfo.processIdentifier
+        )
 
-        NSWorkspace.shared.openApplication(at: bundleURL, configuration: configuration) { _, error in
-            if let error {
-                self.logger.error("Failed to relaunch app - \(error.localizedDescription)")
-                return
-            }
-            DispatchQueue.main.async {
-                NSApp.terminate(nil)
-            }
+        do {
+            try process.run()
+        } catch {
+            // Nothing has been torn down yet, so staying up is the safe failure.
+            logger.error("Failed to start relaunch helper - \(error.localizedDescription)")
+            return
         }
+
+        NSApp.terminate(nil)
+    }
+
+    /// Arguments for the detached `/bin/sh` that reopens the bundle at `bundlePath`
+    /// once the process with `pid` has exited.
+    ///
+    /// `bundlePath` is passed as a positional argument rather than interpolated into
+    /// the script, so a path containing spaces or quotes can't break out of it — and
+    /// the debug build's path always contains one.
+    ///
+    /// `open -n` rather than plain `open`: more than one bundle can claim the same id
+    /// (stale builds in other DerivedData folders do), and `-n` launches the bundle at
+    /// this exact path instead of whichever one LaunchServices resolves the id to.
+    static func relaunchHelperArguments(bundlePath: String, pid: Int32) -> [String] {
+        [
+            "-c",
+            "while kill -0 \(pid) 2>/dev/null; do sleep 0.1; done; exec /usr/bin/open -n \"$1\"",
+            "sh", // $0
+            bundlePath, // $1
+        ]
     }
 
     /// Configures the internal observers for the app state.

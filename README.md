@@ -206,10 +206,15 @@ xcodebuild -scheme Ice -destination 'platform=macOS' test
 
 The **Ice** scheme's test action runs the `IceTests` unit-test target.
 
+The Debug configuration builds the app as `com.dragonapp.ice.debug`, displayed as
+**Ice 2 Debug**, never the release id — so neither a local build nor the test host
+(which runs *inside* the app) can read or write the settings of an installed Ice 2.
+The product itself is the isolated app; nothing re-ids it afterwards, so only one
+bundle ever claims that id.
+
 To try a local build alongside an installed copy of Ice 2, use the debug runner. It
-builds the **Ice** scheme, re-ids the product as `Ice 2 Debug.app`
-(`com.dragonapp.ice.debug`), ad-hoc signs it, and launches it, so it gets its own
-permissions and settings instead of colliding with the release app:
+builds the **Ice** scheme and launches the product, which already has its own name,
+permissions, and settings, alongside the release app:
 
 ```sh
 bash scripts/run-debug.sh
