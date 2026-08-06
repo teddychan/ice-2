@@ -92,7 +92,7 @@ final class MenuBarLayoutProfilesSettings: ObservableObject {
             // update the item cache on its own, so without this the capture
             // would read the pre-rearrangement layout (the "Update doesn't
             // save my changes" bug).
-            await appState.itemManager.refreshCacheForLayoutCapture()
+            await appState.itemManager.refreshCacheAfterItemMoves()
             var tagsBySection = [MenuBarSection.Name: [MenuBarItemTag]]()
             for section in MenuBarSection.Name.allCases {
                 tagsBySection[section] = appState.itemManager.itemCache[section]

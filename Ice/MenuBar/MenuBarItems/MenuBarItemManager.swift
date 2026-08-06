@@ -410,32 +410,35 @@ extension MenuBarItemManager {
     /// Refreshes the item cache so it reflects the user's current menu bar
     /// layout, then returns.
     ///
-    /// Rearranging items in the layout bar posts move events but does not
-    /// itself update the cache; the cache is otherwise only refreshed by
-    /// debounced system events, and `cacheItemsRegardless` intentionally
-    /// skips for one second after a move. This method waits out that window
-    /// (so the forced cache below is not skipped and reads settled item
-    /// positions) and then forces a cache. Callers use it before capturing a
-    /// layout profile so the snapshot reflects the latest arrangement rather
-    /// than a stale cache.
-    func refreshCacheForLayoutCapture() async {
+    /// Moving items posts move events but does not itself update the cache;
+    /// the cache is otherwise only refreshed by debounced system events, and
+    /// `cacheItemsRegardless` intentionally skips for one second after a move.
+    /// This method waits out that window (so the forced cache below is not
+    /// skipped and reads settled item positions) and then forces a cache.
+    ///
+    /// Any caller that has just finished moving items must use this rather
+    /// than `cacheItemsRegardless` directly, or its cache is guaranteed to be
+    /// skipped: capturing a profile (so the snapshot reflects the latest
+    /// arrangement) and applying one (so the layout bar reflects the moves it
+    /// just performed).
+    func refreshCacheAfterItemMoves() async {
         let sinceLastMove = lastMoveOperationTimestamp?.duration(to: .now)
-        let delay = Self.layoutCaptureRefreshDelay(sinceLastMove: sinceLastMove)
+        let delay = Self.cacheRefreshDelayAfterMoves(sinceLastMove: sinceLastMove)
         if delay > .zero {
             try? await Task.sleep(for: delay)
         }
         await cacheItemsRegardless()
     }
 
-    /// Returns how long to wait before force-caching for a layout capture,
-    /// given how long ago the most recent move operation occurred (`nil` if
-    /// there has been no move).
+    /// Returns how long to wait before force-caching after item moves, given
+    /// how long ago the most recent move operation occurred (`nil` if there
+    /// has been no move).
     ///
     /// The wait ensures that, once elapsed, more than one second has passed
     /// since the last move, so the subsequent cache is not skipped by the
     /// post-move guard in `cacheItemsRegardless`. Returns zero when the last
     /// move is already old enough or never happened.
-    nonisolated static func layoutCaptureRefreshDelay(sinceLastMove: Duration?) -> Duration {
+    nonisolated static func cacheRefreshDelayAfterMoves(sinceLastMove: Duration?) -> Duration {
         guard let sinceLastMove else {
             return .zero
         }
@@ -1405,7 +1408,11 @@ extension MenuBarItemManager {
             try await applyHiddenLayout(alwaysHiddenItems, controlItem: alwaysHiddenControlItem)
         }
 
-        await cacheItemsRegardless()
+        // Not `cacheItemsRegardless`: the moves above finished microseconds ago,
+        // so its post-move guard skips every time and the layout bar keeps
+        // showing the pre-apply arrangement until an unrelated event happens to
+        // trigger a cache — up to the 30s fallback poll.
+        await refreshCacheAfterItemMoves()
     }
 
     private func applyVisibleLayout(

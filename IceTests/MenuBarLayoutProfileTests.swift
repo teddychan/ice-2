@@ -305,30 +305,30 @@ struct MenuBarLayoutProfileCaptureTests {
     }
 }
 
-// MARK: - Layout-capture cache refresh delay
+// MARK: - Post-move cache refresh delay
 
-struct MenuBarLayoutCaptureRefreshDelayTests {
+struct MenuBarCacheRefreshDelayTests {
     @Test func noMoveMeansNoDelay() {
-        #expect(MenuBarItemManager.layoutCaptureRefreshDelay(sinceLastMove: nil) == .zero)
+        #expect(MenuBarItemManager.cacheRefreshDelayAfterMoves(sinceLastMove: nil) == .zero)
     }
 
     @Test func recentMoveWaitsOutTheSkipWindow() {
         // Window is 1s + 50ms; a move 200ms ago must wait the remaining 850ms.
-        let delay = MenuBarItemManager.layoutCaptureRefreshDelay(sinceLastMove: .milliseconds(200))
+        let delay = MenuBarItemManager.cacheRefreshDelayAfterMoves(sinceLastMove: .milliseconds(200))
         #expect(delay == .milliseconds(850))
     }
 
     @Test func oldMoveMeansNoDelay() {
-        let delay = MenuBarItemManager.layoutCaptureRefreshDelay(sinceLastMove: .seconds(2))
+        let delay = MenuBarItemManager.cacheRefreshDelayAfterMoves(sinceLastMove: .seconds(2))
         #expect(delay == .zero)
     }
 
     @Test func moveAtExactWindowMeansNoDelay() {
         // The skip window is exactly 1s + 50ms; a move at the boundary needs no wait.
-        #expect(MenuBarItemManager.layoutCaptureRefreshDelay(sinceLastMove: .milliseconds(1050)) == .zero)
+        #expect(MenuBarItemManager.cacheRefreshDelayAfterMoves(sinceLastMove: .milliseconds(1050)) == .zero)
     }
 
     @Test func moveJustInsideWindowWaitsRemainder() {
-        #expect(MenuBarItemManager.layoutCaptureRefreshDelay(sinceLastMove: .milliseconds(1000)) == .milliseconds(50))
+        #expect(MenuBarItemManager.cacheRefreshDelayAfterMoves(sinceLastMove: .milliseconds(1000)) == .milliseconds(50))
     }
 }
