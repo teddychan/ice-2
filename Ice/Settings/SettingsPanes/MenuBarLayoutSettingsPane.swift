@@ -31,7 +31,7 @@ struct MenuBarLayoutSettingsPane: View {
         } else if appState.menuBarManager.isMenuBarHiddenBySystemUserDefaults {
             cannotArrange
         } else {
-            DragonForm(spacing: 20) {
+            DragonForm {
                 header
                 profiles
                 spacers

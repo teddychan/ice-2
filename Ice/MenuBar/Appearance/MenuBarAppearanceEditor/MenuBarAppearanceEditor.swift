@@ -343,7 +343,7 @@ private struct LabeledPartialEditor: View {
     let appearance: SystemAppearance
 
     var body: some View {
-        DragonSection(options: .plain) {
+        DragonSection {
             labelStack
         } content: {
             partialEditor
