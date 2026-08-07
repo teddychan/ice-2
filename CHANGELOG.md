@@ -4,6 +4,12 @@
 
 ### Fixed
 
+- **A future update can no longer wipe your settings.** Ice 2 saves your preferences as a single encoded record. Because of a flaw in the shared Dragon framework, the next version that *added* a setting would have failed to read the record you already had, quietly fallen back to defaults, and then written those defaults over your real preferences the moment anything changed — every setting reset, with no warning and no way back. Nothing has been lost: the flaw needed a future version to trigger it, and this update closes it first.
+
+- **Restoring a damaged backup now refuses the file instead of erasing everything.** Handing Settings ▸ Backup a corrupted backup cleared your entire settings store rather than declining to read it, so one bad file could take your working preferences with it.
+
+- **A failed uninstall says so.** If uninstalling Ice 2 hit a problem partway through, it quit reporting success anyway — after it had already torn your settings down.
+
 - **VoiceOver can tell the menu bar shape buttons apart.** In Settings ▸ Appearance, the buttons that choose how each end of the menu bar shape is drawn — squared off or rounded — were pictures with no name attached. VoiceOver described the picture rather than what the button does, so picking a shape without looking at the screen meant guessing. They now read as "Square cap" and "Round cap". The tooltips you see on hover are unchanged.
 
 - **Hardened the connection to Ice 2's bundled helper.** Ice 2 asks a small helper process which app each menu bar item belongs to. When that connection was interrupted, the code that cleared it skipped the lock that guards every other use of it, so a cleanup and an in-flight request could overlap. Nobody reported this and the timing needed to hit it is narrow, but the result would have been undefined — a dropped request at best, a crash at worst. Every access now goes through the same lock.
