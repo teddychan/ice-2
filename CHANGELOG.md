@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.13.0 - 2026-08-07
+
+### Internal
+
+- Ice 2 now builds against version 2.4.0 of the shared Dragon app framework. That release adds one thing — an option letting a system-managed input method keep Quit out of its settings menu bar — which Ice 2 is not and does not use. Nothing about the app behaves differently; this keeps Ice 2 current with the shared framework rather than drifting behind it.
+
 ## 2.12.1 - 2026-08-07
 
 ### Fixed
