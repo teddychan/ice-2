@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.12.1 - 2026-08-07
+
+### Fixed
+
+- **VoiceOver can tell the menu bar shape buttons apart.** In Settings ▸ Appearance, the buttons that choose how each end of the menu bar shape is drawn — squared off or rounded — were pictures with no name attached. VoiceOver described the picture rather than what the button does, so picking a shape without looking at the screen meant guessing. They now read as "Square cap" and "Round cap". The tooltips you see on hover are unchanged.
+
+- **Hardened the connection to Ice 2's bundled helper.** Ice 2 asks a small helper process which app each menu bar item belongs to. When that connection was interrupted, the code that cleared it skipped the lock that guards every other use of it, so a cleanup and an in-flight request could overlap. Nobody reported this and the timing needed to hit it is narrow, but the result would have been undefined — a dropped request at best, a crash at worst. Every access now goes through the same lock.
+
+### Internal
+
+- Ice 2 now builds with no compiler warnings, and the shared and helper sources are covered by the linter alongside the main app. Groundwork for moving to Swift's stricter data-race checking; no change to how the app behaves.
+
 ## 2.12.0 - 2026-08-06
 
 ### Fixed
