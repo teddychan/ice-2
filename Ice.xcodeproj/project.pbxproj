@@ -890,7 +890,7 @@
 			repositoryURL = "https://github.com/teddychan/dragon-kit";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.1.0;
+				minimumVersion = 2.3.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
