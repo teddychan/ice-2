@@ -7,13 +7,13 @@ import DragonKit
 
 /// App-owned "What's New" content for Ice 2, rendered by DragonKit's ``WhatsNewPane``.
 ///
-/// Only the app's own content lives here — the layout is owned by DragonKit. The version is
-/// single-sourced from the bundle (``Constants/versionString``, i.e. `CFBundleShortVersionString`)
-/// so it always matches About and the update checker; update the `date` and `sections` per release.
+/// Only the app's own content lives here — the layout is owned by DragonKit. The version is not
+/// passed at all: ``WhatsNewContent`` reads `CFBundleShortVersionString` itself and renders it
+/// through ``DragonVersion/display(_:)``, so it always matches About and the update checker and
+/// carries the same single `v` prefix. Update the `date` and `sections` per release.
 enum WhatsNewConfig {
     static var content: WhatsNewContent {
         WhatsNewContent(
-            version: Constants.versionString,
             date: "2026-08-04",
             summary: "Update checks are quiet and considerate again.",
             sections: [

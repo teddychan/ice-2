@@ -2,6 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- The commit this build came from, which DragonKit renders after the build number:
+	     "v2.13.0 (1346) · 2026-Aug-09 12:00:00 UTC". The release workflow passes
+	     `git log -1 --format=%cI` as the DRAGON_COMMIT_DATE build setting; mapping it here is
+	     what makes it reach the app, because xcodebuild hands back a SIGNED bundle and editing
+	     Info.plist afterwards would break the signature. Expands to empty in a plain local
+	     build, and DragonKit then shows no timestamp at all rather than a misleading one. -->
+	<key>DragonCommitDate</key>
+	<string>$(DRAGON_COMMIT_DATE)</string>
 	<key>LSUIElement</key>
 	<true/>
 	<key>SUFeedURL</key>

@@ -79,6 +79,16 @@ sleep 1
 build_number="$(git rev-list --count HEAD 2>/dev/null || echo 1)"
 "$pb" -c "Set :CFBundleVersion $build_number" "$plist"
 
+# The commit's own timestamp, which DragonKit renders after the build number. The
+# release workflow passes it as the DRAGON_COMMIT_DATE build setting; a plain local
+# build defines no such setting, so stamp it here or a debug About pane shows the
+# build number with no date beside it.
+commit_date="$(git log -1 --format=%cI 2>/dev/null || true)"
+if [[ -n "$commit_date" ]]; then
+  "$pb" -c "Set :DragonCommitDate $commit_date" "$plist" 2>/dev/null \
+    || "$pb" -c "Add :DragonCommitDate string $commit_date" "$plist"
+fi
+
 # Mark the version itself, not just the name: the About pane and any log line that
 # reports a version should say "(Debug)" outright, so a screenshot or a log excerpt
 # can never be mistaken for the release build. Derived from whatever the project's
