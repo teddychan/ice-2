@@ -9,15 +9,6 @@ import SwiftUI
 // MARK: - Bundle
 
 extension Bundle {
-    /// The bundle's copyright string.
-    ///
-    /// This accessor checks the bundle's `Info.plist` for a string value associated
-    /// with the "NSHumanReadableCopyright" key. If a valid value cannot be found for
-    /// the key, this accessor returns `nil`.
-    var copyrightString: String? {
-        object(forInfoDictionaryKey: "NSHumanReadableCopyright") as? String
-    }
-
     /// The bundle's display name.
     ///
     /// This accessor checks the bundle's `Info.plist` for a string value associated
@@ -27,24 +18,6 @@ extension Bundle {
     var displayName: String? {
         object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ??
         object(forInfoDictionaryKey: "CFBundleName") as? String
-    }
-
-    /// The bundle's version string.
-    ///
-    /// This accessor checks the bundle's `Info.plist` for a string value associated
-    /// with the "CFBundleShortVersionString" key. If a valid value cannot be found
-    /// for the key, this accessor returns `nil`.
-    var versionString: String? {
-        object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
-    }
-
-    /// The bundle's build string.
-    ///
-    /// This accessor checks the bundle's `Info.plist` for a string value associated
-    /// with the "CFBundleVersion" key. If a valid value cannot be found for the key,
-    /// this accessor returns `nil`.
-    var buildString: String? {
-        object(forInfoDictionaryKey: "CFBundleVersion") as? String
     }
 }
 
