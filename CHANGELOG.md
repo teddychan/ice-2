@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.14.1 - 2026-08-10
+
+### Internal
+
+- Nothing about the app behaves differently. All four Dragon apps were audited together to confirm they depend on the shared Dragon app framework the same way — version 3.2.0, or any later 3.x — and are being released in step. Ice 2 needed no change to make that true: its Xcode project already expressed exactly that rule, in the only form Xcode has for writing it, and the dependency lock committed alongside the project already resolves to 3.2.0. This release is a version bump and nothing else, so that Ice 2's number lines up with its siblings.
+
 ## 2.14.0 - 2026-08-10
 
 ### Added
