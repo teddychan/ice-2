@@ -38,20 +38,29 @@ enum AboutConfig {
             websiteURL: websiteURL,
             supportURL: issuesURL,
             license: "GPL-3.0",
-            // Third-party notices: the verbatim MIT text for the five packages below, plus
-            // DragonKit. Trailing slash: it is the path Pages serves, so the row does not point
-            // at a redirect. This replaces the row that opened `Resources/Acknowledgements.pdf`
-            // before DragonKit 3.0.0 removed `acknowledgementsURL` — the slot stayed empty rather
-            // than take a `file://` URL, because the kit derives a row's link text from its URL
-            // and would have rendered the PDF's absolute filesystem path.
+            // Third-party notices: the verbatim MIT text for the six packages below. Trailing
+            // slash: it is the path Pages serves, so the row does not point at a redirect. This
+            // replaces the row that opened `Resources/Acknowledgements.pdf` before DragonKit
+            // 3.0.0 removed `acknowledgementsURL` — the slot stayed empty rather than take a
+            // `file://` URL, because the kit derives a row's link text from its URL and would
+            // have rendered the PDF's absolute filesystem path.
+            //
+            // The bundle still carries the same notices as a document, generated alongside this
+            // list by `scripts/generate-acknowledgements.swift`. The kit's own doc comment calls
+            // hosting them on the site *instead* a weaker reading of MIT's "included in all
+            // copies"; shipping both settles that, and this row stays because a web page is the
+            // more readable copy.
             licensesURL: URL(string: "https://www.dragonapp.com/ice-2/licenses/")!,
             originalWork: OriginalWork(name: "Ice", author: "Jordan Baird"),
             attributions: [
-                // Every third-party package Ice 2 links, as `name → licence`. Verified against
-                // each project's own LICENSE, not the bundled Acknowledgements document, which
-                // still lists LaunchAtLogin — dropped as a dependency since it was written.
+                // Every third-party package Ice 2 links, as `name → licence`, and the one list
+                // a reader sees without leaving the app. `AcknowledgementsTests` pins it to
+                // `Package.resolved` and to the bundled notices: hand-maintained copies of this
+                // list drift, which is how the notices came to name LaunchAtLogin years after
+                // it was dropped, and to omit DragonKit entirely.
                 Attribution(name: "AXSwift", license: "MIT"),
                 Attribution(name: "CompactSlider", license: "MIT"),
+                Attribution(name: "DragonKit", license: "MIT"),
                 Attribution(name: "Ifrit", license: "MIT"),
                 Attribution(name: "Semaphore", license: "MIT"),
                 Attribution(name: "Sparkle", license: "MIT"),
