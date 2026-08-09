@@ -61,7 +61,7 @@ final class MenuBarSpacerManager: ObservableObject {
     func createSpacer() {
         let spacer = MenuBarSpacer(
             id: UUID(),
-            name: "Spacer \(spacers.count + 1)",
+            name: String(localized: "Spacer \(spacers.count + 1)"),
             width: 24
         )
         spacers.append(spacer)

@@ -49,9 +49,9 @@ struct GeneralSettingsPane: View {
     private var rehideIntervalKey: LocalizedStringKey {
         let formatted = settings.rehideInterval.formatted()
         if settings.rehideInterval == 1 {
-            return LocalizedStringKey(formatted + " second")
+            return LocalizedStringKey("\(formatted) second")
         } else {
-            return LocalizedStringKey(formatted + " seconds")
+            return LocalizedStringKey("\(formatted) seconds")
         }
     }
 
@@ -92,6 +92,36 @@ struct GeneralSettingsPane: View {
             }
         ))
         .onAppear { launchesAtLogin = LoginItem.isEnabled }
+
+        languagePicker
+    }
+
+    // MARK: Language Options
+
+    /// Lets the user choose the interface language. "Automatic" follows the system language
+    /// (English unless the system is set to a language the app ships strings for). Changing the
+    /// selection persists it through DragonKit's ``LocalizationManager`` and restarts the app so
+    /// both the app's own SwiftUI strings and DragonKit's panes switch together.
+    @ViewBuilder
+    private var languagePicker: some View {
+        Picker("Language", selection: Binding(
+            get: { LocalizationManager.shared.language },
+            set: { newValue in
+                LocalizationManager.shared.setLanguage(newValue)
+                // The app's SwiftUI strings resolve through the bundle's preferred
+                // localizations, so mirror the choice into AppleLanguages and relaunch.
+                if let code = newValue.localeCode {
+                    UserDefaults.standard.set([code], forKey: "AppleLanguages")
+                } else {
+                    UserDefaults.standard.removeObject(forKey: "AppleLanguages")
+                }
+                appState.relaunch()
+            }
+        )) {
+            Text("Automatic").tag(DragonLanguage.system)
+            Text("English").tag(DragonLanguage.en)
+            Text("简体中文").tag(DragonLanguage.zhHans)
+        }
     }
 
     // MARK: Ice Icon Options

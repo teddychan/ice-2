@@ -51,7 +51,7 @@ final class UpdatesManager {
         #if DEBUG
         // Checking for updates hangs in debug mode.
         let alert = NSAlert()
-        alert.messageText = "Checking for updates is not supported in debug mode."
+        alert.messageText = String(localized: "Checking for updates is not supported in debug mode.")
         alert.runModal()
         #else
         guard let appState else {
@@ -92,8 +92,8 @@ final class UpdatesManager {
     /// Sparkle's delegate that ``DragonUpdaterConfig`` does not expose.
     private static func notifyUpdateAvailable() {
         let content = UNMutableNotificationContent()
-        content.title = "A new update is available"
-        content.body = "\(Constants.displayName) found a newer version."
+        content.title = String(localized: "A new update is available")
+        content.body = String(localized: "\(Constants.displayName) found a newer version.")
         UNUserNotificationCenter.current().add(
             UNNotificationRequest(identifier: "UpdateCheck", content: content, trigger: nil)
         )

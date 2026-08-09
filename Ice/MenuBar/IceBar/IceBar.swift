@@ -33,7 +33,7 @@ final class IceBarPanel: NSPanel {
             backing: .buffered,
             defer: false
         )
-        self.title = "Ice 2 Bar"
+        self.title = String(localized: "Ice 2 Bar")
         self.titlebarAppearsTransparent = true
         self.isMovableByWindowBackground = true
         self.allowsToolTipsWhenApplicationIsInactive = true

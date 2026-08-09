@@ -134,7 +134,7 @@ enum IceWindowIdentifier: String, Sendable, CustomStringConvertible {
     var titleString: String {
         switch self {
         case .settings: Constants.displayName
-        case .permissions: "Permissions"
+        case .permissions: String(localized: "Permissions")
         }
     }
 

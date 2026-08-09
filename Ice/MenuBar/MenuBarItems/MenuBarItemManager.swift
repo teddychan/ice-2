@@ -524,21 +524,21 @@ extension MenuBarItemManager {
         var errorDescription: String? {
             switch self {
             case .cannotComplete:
-                "Operation could not be completed"
+                String(localized: "Operation could not be completed")
             case .invalidEventSource:
-                "Invalid event source"
+                String(localized: "Invalid event source")
             case .missingMouseLocation:
-                "Missing mouse location"
+                String(localized: "Missing mouse location")
             case .eventCreationFailure(let item):
-                "Could not create event for \"\(item.displayName)\""
+                String(localized: "Could not create event for \"\(item.displayName)\"")
             case .eventOperationTimeout(let item):
-                "Event operation timed out for \"\(item.displayName)\""
+                String(localized: "Event operation timed out for \"\(item.displayName)\"")
             case .itemNotMovable(let item):
-                "\"\(item.displayName)\" is not movable"
+                String(localized: "\"\(item.displayName)\" is not movable")
             case .itemResponseTimeout(let item):
-                "\"\(item.displayName)\" took too long to respond"
+                String(localized: "\"\(item.displayName)\" took too long to respond")
             case .missingItemBounds(let item):
-                "Missing bounds rectangle for \"\(item.displayName)\""
+                String(localized: "Missing bounds rectangle for \"\(item.displayName)\"")
             }
         }
 
@@ -1581,7 +1581,7 @@ extension MenuBarItemManager {
         guard let targetItem = items.first else {
             logger.warning("Not enough room to show \(item.logString, privacy: .public)")
             let alert = NSAlert()
-            alert.messageText = "Not enough room to show \"\(item.displayName)\""
+            alert.messageText = String(localized: "Not enough room to show \"\(item.displayName)\"")
             alert.runModal()
             return
         }

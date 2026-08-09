@@ -457,9 +457,9 @@ private struct ShowItemButton: View {
     private var actionTitle: String {
         switch mode {
         case .clickOrShow:
-            "\(Bridging.isWindowOnScreen(item.windowID) ? "Click" : "Show") Item"
+            String(localized: "\(Bridging.isWindowOnScreen(item.windowID) ? "Click" : "Show") Item")
         case .temporarilyShow:
-            "Show Item"
+            String(localized: "Show Item")
         }
     }
 }

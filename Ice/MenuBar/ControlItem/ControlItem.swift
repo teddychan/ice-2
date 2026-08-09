@@ -516,7 +516,7 @@ final class ControlItem {
         // Quick-actions zone: the Ice-specific items only. Settings and
         // Check-for-updates live in the App menu below (de-dup per spec).
         let searchItem = menuItem(
-            title: "Search Menu Bar Items",
+            title: String(localized: "Search Menu Bar Items"),
             symbolName: "magnifyingglass",
             action: #selector(showSearchPanel)
         )
@@ -539,7 +539,7 @@ final class ControlItem {
                 continue
             }
             let item = menuItem(
-                title: "\(section.isHidden ? "Show" : "Hide") \(name.displayString) Section",
+                title: String(localized: "\(section.isHidden ? "Show" : "Hide") \(name.displayString) Section"),
                 symbolName: section.isHidden ? "eye" : "eye.slash",
                 action: #selector(toggleMenuBarSection)
             )

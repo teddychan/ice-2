@@ -60,10 +60,10 @@ enum IceUninstallConfig {
             appName: Constants.displayName,
             bundleID: bundleID,
             checklistItems: [
-                "The app and its login item",
-                "Settings, layout profiles, and hotkeys",
-                "Saved application state",
-                "Caches and support files",
+                String(localized: "The app and its login item"),
+                String(localized: "Settings, layout profiles, and hotkeys"),
+                String(localized: "Saved application state"),
+                String(localized: "Caches and support files"),
             ],
             extraCleanupPaths: [
                 library.appending(path: "Application Support/\(bundleID)"),

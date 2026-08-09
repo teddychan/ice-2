@@ -166,7 +166,7 @@ struct MenuBarLayoutSettingsPane: View {
         let visibleCount = profile.itemCount(for: .visible)
         let hiddenCount = profile.itemCount(for: .hidden)
         let alwaysHiddenCount = profile.itemCount(for: .alwaysHidden)
-        return "\(visibleCount) visible, \(hiddenCount) hidden, \(alwaysHiddenCount) always-hidden"
+        return LocalizedStringKey("\(visibleCount) visible, \(hiddenCount) hidden, \(alwaysHiddenCount) always-hidden")
     }
 
     private func applyProfile(_ profile: MenuBarLayoutProfile) {
@@ -218,7 +218,7 @@ struct MenuBarLayoutSettingsPane: View {
                 step: 1
             )
 
-            Text("\(Int(spacer.width)) pt")
+            Text(verbatim: String(localized: "\(Int(spacer.width)) pt"))
                 .monospacedDigit()
                 .foregroundStyle(.secondary)
                 .frame(width: 42, alignment: .trailing)

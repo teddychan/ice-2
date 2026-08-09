@@ -160,7 +160,7 @@ struct IceBackupSettingsPane: View {
     private func backUpNow() {
         do {
             _ = try SettingsBackup.performBackup(date: Date())
-            status = "Backed up just now."
+            status = LocalizedStringKey("Backed up just now.")
             refresh()
         } catch {
             errorMessage = error.localizedDescription
@@ -187,7 +187,7 @@ struct IceBackupSettingsPane: View {
         panel.canChooseFiles = false
         panel.canCreateDirectories = true
         panel.allowsMultipleSelection = false
-        panel.prompt = "Choose"
+        panel.prompt = String(localized: "Choose")
         panel.directoryURL = folderURL
         guard panel.runModal() == .OK, let url = panel.url else {
             return

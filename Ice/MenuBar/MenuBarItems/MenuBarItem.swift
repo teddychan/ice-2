@@ -106,10 +106,10 @@ struct MenuBarItem: CustomStringConvertible {
         }
 
         if tag.isSpacerItem {
-            return "Spacer"
+            return String(localized: "Spacer")
         }
 
-        lazy var fallbackName = "Menu Bar Item"
+        lazy var fallbackName = String(localized: "Menu Bar Item")
 
         guard let sourceApplication = sourcePID.flatMap({ NSRunningApplication(processIdentifier: $0) }) else {
             return fallbackName
