@@ -231,7 +231,16 @@ to do and which the feature must not undo.
 
 1. **Read the menu bar once, and order it explicitly.**
    `MenuBarItem.getMenuBarItems(option: .activeSpace)`, the same read
-   `applyLayoutProfile` uses, then **sorted ascending by `bounds.minX`**. Return,
+   `applyLayoutProfile` uses, then **sorted ascending by live `minX`**, read via
+   `Bridging.getWindowBounds(for:)` with the item's stored `bounds` as a fallback.
+   `MenuBarItem.bounds` is a snapshot taken when the window list was read and can
+   be stale for off-screen windows — which is every item in the landing zone, the
+   always-hidden section being off-screen by construction. A stale rectangle
+   reorders the sort, and since the landing zone is the prefix before the leftmost
+   control item, a bad order can put the divider in the wrong place and make items
+   the user deliberately parked look like candidates.
+   `CacheContext.bestBounds(for:)` makes the same correction on the caching path.
+   Resolve it once per item, not inside the comparator. Return,
    recording nothing, if it contains no hidden control item — that is the "the
    read failed" signal `applyLayoutProfile` already treats as fatal, and it is
    the check that makes a degraded read inert instead of destructive.
