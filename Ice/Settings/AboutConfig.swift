@@ -38,9 +38,13 @@ enum AboutConfig {
             websiteURL: websiteURL,
             supportURL: issuesURL,
             license: "GPL-3.0",
-            // `licensesURL` is omitted: dragonapp.com/ice-2/licenses does not exist yet. Until it
-            // does, `Resources/Acknowledgements.pdf` stays in the bundle carrying the verbatim
-            // notices, and the libraries are named below.
+            // Third-party notices: the verbatim MIT text for the five packages below, plus
+            // DragonKit. Trailing slash: it is the path Pages serves, so the row does not point
+            // at a redirect. This replaces the row that opened `Resources/Acknowledgements.pdf`
+            // before DragonKit 3.0.0 removed `acknowledgementsURL` — the slot stayed empty rather
+            // than take a `file://` URL, because the kit derives a row's link text from its URL
+            // and would have rendered the PDF's absolute filesystem path.
+            licensesURL: URL(string: "https://www.dragonapp.com/ice-2/licenses/")!,
             originalWork: OriginalWork(name: "Ice", author: "Jordan Baird"),
             attributions: [
                 // Every third-party package Ice 2 links, as `name → licence`. Verified against
