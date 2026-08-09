@@ -53,14 +53,26 @@ enum AboutConfig {
             licensesURL: URL(string: "https://www.dragonapp.com/ice-2/licenses/")!,
             originalWork: OriginalWork(name: "Ice", author: "Jordan Baird"),
             attributions: [
-                // Every third-party package Ice 2 links, as `name → licence`, and the one list
-                // a reader sees without leaving the app. `AcknowledgementsTests` pins it to
+                // Every THIRD-PARTY package Ice 2 links, as `name → licence`, and the one list a
+                // reader sees without leaving the app. `AcknowledgementsTests` pins it to
                 // `Package.resolved` and to the bundled notices: hand-maintained copies of this
-                // list drift, which is how the notices came to name LaunchAtLogin years after
-                // it was dropped, and to omit DragonKit entirely.
+                // list drift, which is how the notices came to name LaunchAtLogin years after it
+                // was dropped.
+                //
+                // DragonKit is deliberately NOT here, though it is a resolved package and does
+                // appear in both notice documents. The kit's `Attribution` is documented as "a
+                // third-party thing an app bundles", and DragonKit is not third party — it is
+                // Dragon App's own shared library, which is why `AboutContent.creditRows` emits
+                // an unconditional `Built with → DragonKit vX.Y.Z` row for every app. Listing it
+                // here as well printed it twice in Credits and made Ice 2 the only one of the
+                // five apps that did: the sample app links DragonKit and DragonKitUpdates and
+                // still attributes Sparkle alone, and clipmenu-2, spectacle-2 and
+                // yahoo-keykey-2 all match it.
+                //
+                // The notice documents keep DragonKit, and must: MIT requires the notice to
+                // travel with copies, and the Built-with row carries a version, not a licence.
                 Attribution(name: "AXSwift", license: "MIT"),
                 Attribution(name: "CompactSlider", license: "MIT"),
-                Attribution(name: "DragonKit", license: "MIT"),
                 Attribution(name: "Ifrit", license: "MIT"),
                 Attribution(name: "Semaphore", license: "MIT"),
                 Attribution(name: "Sparkle", license: "MIT"),

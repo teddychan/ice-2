@@ -107,14 +107,28 @@ struct AcknowledgementsTests {
             """)
     }
 
+    /// The About pane attributes every resolved package EXCEPT DragonKit.
+    ///
+    /// The carve-out is not a wart, it is the kit's rule: `Attribution` is documented as "a
+    /// third-party thing an app bundles", and DragonKit is Dragon App's own shared library, so
+    /// `AboutContent.creditRows` already emits an unconditional `Built with → DragonKit vX.Y.Z`
+    /// row for it. Attributing it as well printed DragonKit twice in Credits and made Ice 2 the
+    /// only one of the five apps that did — the kit's own sample app links DragonKit and
+    /// DragonKitUpdates and still attributes Sparkle alone.
+    ///
+    /// Subtracted HERE and not in `resolvedPackageNames()`, deliberately: the notice tests share
+    /// that helper and DragonKit must stay in their expectation, because the bundled document and
+    /// the hosted page are what satisfy MIT's "included in all copies" and the Built-with row
+    /// carries a version rather than a licence.
     @Test func aboutPaneAttributionsCoverExactlyTheResolvedPackages() throws {
-        let resolved = try resolvedPackageNames()
+        let expected = try resolvedPackageNames().subtracting(["DragonKit"])
         let attributed = Set(AboutConfig.content.attributions.map(\.name))
 
-        #expect(attributed == resolved, """
-            AboutConfig.attributions no longer match Package.resolved.
-            Missing from the About pane: \(resolved.subtracting(attributed).sorted())
-            No longer linked: \(attributed.subtracting(resolved).sorted())
+        #expect(attributed == expected, """
+            AboutConfig.attributions no longer match Package.resolved (minus DragonKit, which the
+            kit credits in its own Built-with row).
+            Missing from the About pane: \(expected.subtracting(attributed).sorted())
+            No longer linked, or first-party: \(attributed.subtracting(expected).sorted())
             """)
     }
 
