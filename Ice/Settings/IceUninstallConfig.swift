@@ -23,9 +23,33 @@ import Foundation
 /// in `README.md`, and the Homebrew cask's `zap trash:` all remove the same five paths —
 /// keeping those three from drifting is the point, and removing an absent folder is a no-op.
 enum IceUninstallConfig {
-    /// The release build's bundle id: the fallback for the running bundle's id below, and the
-    /// gate on `homebrewCask`.
+    /// The bundle id Homebrew installed: the fallback for the running bundle's id below, and the
+    /// gate the cask token is issued against — deliberately not both at once, see
+    /// ``homebrewCask(forBundleID:)``.
     private static let releaseBundleID = "com.dragonapp.ice"
+
+    /// The Homebrew cask token for `actual`, or `nil` when that isn't the bundle brew installed.
+    ///
+    /// Ice 2 ships as the cask `ice-2` — the token declared by `Casks/ice-2.rb` in
+    /// teddychan/homebrew-tap, not inferred from the repo name. Homebrew never watches the
+    /// filesystem, so an app that deletes itself leaves brew's receipt still claiming the cask is
+    /// installed and `Caskroom/ice-2/<version>/Ice 2.app` a dangling symlink; `brew install --cask
+    /// ice-2` then refuses outright — "already installed" — for an app that isn't there, pointing
+    /// at nothing that would fix it. Naming the token lets the kit's post-exit shell run
+    /// `brew uninstall --cask --force ice-2` and clear that record.
+    ///
+    /// The comparison is the kit's (``UninstallConfig/caskToken(_:ifBundleIs:actual:)``, DragonKit
+    /// 3.2.0) rather than a local `==`, because it has to fail closed and Ice 2's own version
+    /// didn't. `brew uninstall --cask` is not bundle-scoped: it deletes whatever the receipt points
+    /// at — the *release* app in /Applications — and the cask carries `uninstall quit:`, so it
+    /// quits that app first. A debug build (com.dragonapp.ice.debug), which brew never installed,
+    /// must issue nothing; so must a build that can't state its id at all. Ice 2 used to compare
+    /// `Bundle.main.bundleIdentifier ?? releaseBundleID`, so a missing id fell back to the release
+    /// id and handed the delete to the one build least entitled to it. Hence the raw identifier
+    /// here, never `config`'s fallen-back `bundleID`.
+    static func homebrewCask(forBundleID actual: String?) -> String? {
+        UninstallConfig.caskToken("ice-2", ifBundleIs: releaseBundleID, actual: actual)
+    }
 
     static var config: UninstallConfig {
         // The running bundle's id, so a debug build (com.dragonapp.ice.debug) cleans its OWN
@@ -46,21 +70,10 @@ enum IceUninstallConfig {
                 library.appending(path: "Caches/\(bundleID)"),
                 library.appending(path: "HTTPStorages/\(bundleID)"),
             ],
-            // Ice 2 ships as the Homebrew cask `ice-2` — the token declared by `Casks/ice-2.rb`
-            // in teddychan/homebrew-tap, not inferred from the repo name. Homebrew never watches
-            // the filesystem, so an app that deletes itself leaves brew's receipt still claiming
-            // the cask is installed and `Caskroom/ice-2/<version>/Ice 2.app` a dangling symlink;
-            // `brew install --cask ice-2` then refuses outright — "already installed" — for an app
-            // that isn't there, pointing at nothing that would fix it. The kit's detached
-            // post-exit shell runs `brew uninstall --cask --force ice-2` to clear that record,
-            // *after* the bundle is already in the Trash: `brew uninstall --cask` deletes the app
-            // bundle itself, so running it first would make `NSWorkspace.recycle` fail on a bundle
-            // that was already gone and raise "Uninstall Incomplete" on an uninstall that worked.
-            //
-            // Release build only, for the same reason `bundleID` above is the *running* bundle's:
-            // a debug build (com.dragonapp.ice.debug) was never installed by brew, and clearing
-            // the `ice-2` receipt from one would delete the installed release app, not itself.
-            homebrewCask: bundleID == releaseBundleID ? "ice-2" : nil
+            // The *raw* identifier, never `bundleID` above: that one falls back to the release id
+            // so a build which can't state its own still cleans a sensible domain, which is
+            // harmless there and authorises a delete of the installed release here.
+            homebrewCask: homebrewCask(forBundleID: Bundle.main.bundleIdentifier)
         )
     }
 }

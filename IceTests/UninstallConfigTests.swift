@@ -96,12 +96,24 @@ struct UninstallConfigTests {
         // Gated on the running bundle id for the same reason every path above is: `brew uninstall
         // --cask` deletes the app *brew* recorded, so a debug build (com.dragonapp.ice.debug),
         // which brew never installed, would delete the installed release instead of itself.
-        if Bundle.main.bundleIdentifier == "com.dragonapp.ice" {
-            #expect(config.homebrewCask == "ice-2")
-        } else {
-            #expect(config.homebrewCask == nil)
+        //
+        // The identity is passed in rather than read from the test host, because the host is
+        // always the Debug build: the previous version of this test asked
+        // `Bundle.main.bundleIdentifier` and could therefore only ever exercise the `nil` branch,
+        // asserting as a fact about Ice 2 something that was only a fact about CI.
+        func token(for bundleID: String?) -> String? {
+            IceUninstallConfig.homebrewCask(forBundleID: bundleID)
         }
-        #expect(config.homebrewCask == nil) // the test host is the Debug build
+
+        #expect(token(for: "com.dragonapp.ice") == "ice-2")
+        #expect(token(for: "com.dragonapp.ice.debug") == nil, "the debug re-id is why this gate exists")
+        #expect(token(for: "com.dragonapp.clipmenu-2") == nil)
+        #expect(token(for: nil) == nil, "a build that can't state its id must authorise nothing")
+
+        // And that `config` actually asks: without this, hardcoding the token back into the
+        // initializer would leave every case above still passing. Holds in either build — it
+        // pins the wiring, not a configuration-specific answer.
+        #expect(config.homebrewCask == token(for: Bundle.main.bundleIdentifier))
     }
 
     @Test func deletesNothingBeyondTheBundlesOwnFolders() {
