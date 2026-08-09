@@ -88,6 +88,22 @@ struct UninstallConfigTests {
         #expect(!defaultFolder.path.hasPrefix(library.path + "/"))
     }
 
+    @Test func clearsHomebrewsReceiptOnlyForTheReleaseBuild() {
+        // Ice 2 ships as the cask `ice-2` (`Casks/ice-2.rb` in teddychan/homebrew-tap), so the
+        // teardown clears brew's receipt too — left behind, it claims the cask is still installed
+        // and `brew install --cask ice-2` refuses for an app that isn't there.
+        //
+        // Gated on the running bundle id for the same reason every path above is: `brew uninstall
+        // --cask` deletes the app *brew* recorded, so a debug build (com.dragonapp.ice.debug),
+        // which brew never installed, would delete the installed release instead of itself.
+        if Bundle.main.bundleIdentifier == "com.dragonapp.ice" {
+            #expect(config.homebrewCask == "ice-2")
+        } else {
+            #expect(config.homebrewCask == nil)
+        }
+        #expect(config.homebrewCask == nil) // the test host is the Debug build
+    }
+
     @Test func deletesNothingBeyondTheBundlesOwnFolders() {
         // Ice 2's settings live in `UserDefaults.standard` (`Defaults.store`), i.e. the
         // bundle-id domain the uninstaller already wipes — so no extra suites.
