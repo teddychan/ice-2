@@ -57,6 +57,7 @@ struct SettingsBackupTests {
         defer { ScratchDefaults.destroy(sSuite) }
         source.set("/tmp/x", forKey: Defaults.Key.backupFolderPath.rawValue)
         source.set(true, forKey: Defaults.Key.automaticBackupEnabled.rawValue)
+        source.set(Data("known".utf8), forKey: Defaults.Key.knownMenuBarItems.rawValue)
 
         let payload = SettingsBackup.makePayload(
             from: source, appVersion: "1", createdDate: Date(timeIntervalSince1970: 0)
@@ -65,6 +66,27 @@ struct SettingsBackupTests {
         let stored = payload["defaults"] as? [String: Any] ?? [:]
         #expect(stored[Defaults.Key.backupFolderPath.rawValue] == nil)
         #expect(stored[Defaults.Key.automaticBackupEnabled.rawValue] == nil)
+        #expect(stored[Defaults.Key.knownMenuBarItems.rawValue] == nil)
+    }
+
+    // Restoring on another Mac must not mark that Mac's items as already seen,
+    // which would suppress new item placement there.
+    @Test func restoreLeavesKnownMenuBarItemsAlone() {
+        let (source, sSuite) = makeScratch()
+        defer { ScratchDefaults.destroy(sSuite) }
+        let (target, tSuite) = makeScratch()
+        defer { ScratchDefaults.destroy(tSuite) }
+
+        source.set(Data("from the other mac".utf8), forKey: Defaults.Key.knownMenuBarItems.rawValue)
+        let existing = Data("from this mac".utf8)
+        target.set(existing, forKey: Defaults.Key.knownMenuBarItems.rawValue)
+
+        let payload = SettingsBackup.makePayload(
+            from: source, appVersion: "1", createdDate: Date(timeIntervalSince1970: 0)
+        )
+        SettingsBackup.apply(payload, to: target)
+
+        #expect(target.data(forKey: Defaults.Key.knownMenuBarItems.rawValue) == existing)
     }
 
     @Test func serializeDeserializeRoundTrip() throws {

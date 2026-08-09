@@ -37,12 +37,17 @@ enum SettingsBackup {
     static let fileExtension = "icebackup"
 
     /// Keys NOT included in a backup: deprecated keys (so a restore can't
-    /// resurrect state the app has migrated away from) and the backup feature's
-    /// own meta-settings (which are machine-specific and shouldn't travel).
+    /// resurrect state the app has migrated away from), the backup feature's
+    /// own meta-settings (which are machine-specific and shouldn't travel), and
+    /// local state that records what has happened on this Mac rather than what
+    /// the user has chosen.
     static let excludedKeys: Set<Defaults.Key> = [
         .showSectionDividers, .canToggleAlwaysHiddenSection, .sections,
         .menuBarItemGroups,
         .backupFolderPath, .automaticBackupEnabled,
+        // Carrying this to another Mac would mark that Mac's items as already
+        // seen, suppressing placement there.
+        .knownMenuBarItems,
     ]
 
     /// The settings keys carried in a backup.

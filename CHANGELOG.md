@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.14.0 - 2026-08-10
+
+### Added
+
+- **A newly installed app's menu bar icon now appears where you can see it.** macOS hands every brand-new menu bar item the leftmost slot, which in Ice 2's layout sits inside the always-hidden section. So the first time you installed an app with a menu bar icon, that icon was invisible from the moment it was created, and the app looked like it had never added one at all. Ice 2 now recognises an item it has never seen before and moves it into the visible section.
+
+  Items you have already arranged are left alone. Updating to this version does not move anything: Ice 2 takes a note of everything currently in your menu bar first, so only icons that turn up afterwards count as new. If you then drag one of those into Hidden or Always-Hidden, it stays where you put it.
+
+  This needs screen recording permission, which is what lets Ice 2 tell one menu bar item from another. Without it, nothing is moved.
+
 ## 2.13.0 - 2026-08-07
 
 ### Internal

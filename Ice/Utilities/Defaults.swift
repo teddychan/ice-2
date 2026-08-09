@@ -182,6 +182,11 @@ extension Defaults {
         case backupFolderPath = "BackupFolderPath"
         case automaticBackupEnabled = "AutomaticBackupEnabled"
 
+        // MARK: Local State (not settings; excluded from the backup payload)
+        // A record of which menu bar items have appeared on this Mac, used to
+        // tell a newly created item from one the user has already arranged.
+        case knownMenuBarItems = "KnownMenuBarItems"
+
         // MARK: Deprecated (Advanced Settings)
         case showSectionDividers = "ShowSectionDividers"
         case canToggleAlwaysHiddenSection = "CanToggleAlwaysHiddenSection"

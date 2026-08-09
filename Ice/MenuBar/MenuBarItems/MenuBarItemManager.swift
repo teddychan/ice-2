@@ -38,6 +38,13 @@ final class MenuBarItemManager: ObservableObject {
     /// Cached timeouts for move operations.
     private var moveOperationTimeouts = [MenuBarItemTag: Duration]()
 
+    /// A Boolean value that indicates whether a new item placement pass is
+    /// currently running.
+    ///
+    /// The pass re-caches when it finishes, and caching runs the pass, so this
+    /// is what stops the two from recurring into each other.
+    private var isPlacingNewItems = false
+
     /// Storage for internal observers.
     private var cancellables = Set<AnyCancellable>()
 
@@ -100,6 +107,26 @@ final class MenuBarItemManager: ObservableObject {
         appState.navigationState.$settingsNavigationIdentifier
             .sink { [weak self] identifier in
                 guard let self, identifier == .rendersMenuBarItemImages else {
+                    return
+                }
+                Task {
+                    await self.cacheItemsRegardless()
+                }
+            }
+            .store(in: &c)
+
+        // New item placement is inert without screen recording permission, and
+        // being granted it changes nothing the cache watches. Without this, a
+        // user who grants the permission without relaunching gets no placement
+        // until something else happens to change the menu bar item set — and if
+        // the known-items registry is still absent, the next app to launch would
+        // become the seed, recording that genuinely new icon as pre-existing.
+        appState.permissions.screenRecording.$hasPermission
+            .removeDuplicates()
+            .dropFirst() // Only transitions; the initial value is handled by setup.
+            .filter { $0 }
+            .sink { [weak self] _ in
+                guard let self else {
                     return
                 }
                 Task {
@@ -392,6 +419,11 @@ extension MenuBarItemManager {
             await uncheckedCacheItems(items: items, controlItems: controlItems, displayID: displayID)
             hasCompletedInitialCache = true
         }
+
+        // Outside the cache task on purpose: the pass re-caches when it has moved
+        // something, and `runCacheTask` cancels the previous task before starting
+        // a new one, so a nested call would cancel the task it was called from.
+        await placeNewItemsIfNeeded()
     }
 
     /// Caches the current menu bar items, if the items have changed
@@ -1755,6 +1787,211 @@ extension MenuBarItemManager {
         } catch {
             logger.error("Error enforcing control item order: \(error, privacy: .public)")
         }
+    }
+}
+
+// MARK: - New Item Placement
+
+extension MenuBarItemManager {
+    /// The result of a single placement pass.
+    private struct PlacementOutcome {
+        /// Whether at least one item was moved and verified in its destination.
+        var placedAny = false
+
+        /// Whether the pass left work undone, and so needs another pass.
+        var needsRetry = false
+    }
+
+    /// Moves menu bar items that Ice has never seen before into the visible
+    /// section.
+    ///
+    /// macOS puts every new status item in the leftmost slot, which lands in the
+    /// always-hidden section, so without this a newly installed app's icon is
+    /// invisible and looks like it was never installed.
+    func placeNewItemsIfNeeded() async {
+        guard !isPlacingNewItems else {
+            return // The outer pass is running; it will handle the retry.
+        }
+
+        // Tags are a namespace plus a window title, and titles read as empty
+        // without this permission. Seeding from that state would record
+        // identities that change the moment it is granted, and the user's
+        // existing items would then look new and be moved. Deliberately does not
+        // request a retry: nothing will change until the permission is granted,
+        // and the sink in `configureCancellables` covers that.
+        guard ScreenCapture.cachedCheckPermissions() else {
+            return
+        }
+
+        // A menu bar that was being rearranged a moment ago, or that has items
+        // parked in their temporarily shown positions, is not one to read item
+        // positions from. Every workflow that moves items stamps the move
+        // timestamp, so this one check covers all of them without any of them
+        // needing to know placement exists.
+        guard
+            !lastMoveOperationOccurred(within: .seconds(1)),
+            temporarilyShownItemContexts.isEmpty
+        else {
+            logger.debug("Deferring new item placement")
+            await cacheActor.clearCachedItemWindowIDs()
+            return
+        }
+
+        isPlacingNewItems = true
+        let outcome = await runPlacementPass()
+        if outcome.placedAny {
+            // The flag is still set, so the pass this triggers returns immediately.
+            await refreshCacheAfterItemMoves()
+        }
+        isPlacingNewItems = false
+
+        // Must be the last awaited operation. The refresh above re-caches, which
+        // rewrites the cached window IDs, so clearing any earlier would be undone
+        // and the unplaced items would be stranded by the very mechanism meant to
+        // rescue them.
+        if outcome.needsRetry {
+            await cacheActor.clearCachedItemWindowIDs()
+        }
+    }
+
+    /// Runs a single placement pass and reports what it managed to do.
+    private func runPlacementPass() async -> PlacementOutcome {
+        var outcome = PlacementOutcome()
+
+        // Sorted rather than taken as-is: `getMenuBarItems` reverses a window
+        // list that is never positionally sorted, so left-to-right order is an
+        // assumption. Every other positional decision in this file is made from
+        // bounds, and this follows suit.
+        let items = await MenuBarItem.getMenuBarItems(option: .activeSpace)
+            .sorted { $0.bounds.minX < $1.bounds.minX }
+
+        guard let hiddenControlItem = items.first(matching: .hiddenControlItem) else {
+            // The same signal `applyLayoutProfile` treats as fatal. Acting on a
+            // read this degraded is how a working menu bar gets damaged.
+            logger.warning("Skipping new item placement, as the read found no hidden control item")
+            outcome.needsRetry = true
+            return outcome
+        }
+
+        let orderedTags = items.map(\.tag)
+
+        guard let knownTags = loadKnownItemTags() else {
+            outcome.needsRetry = !(await seedKnownItemTags())
+            return outcome
+        }
+
+        let candidateTags = NewMenuBarItemPlacement.candidateTags(in: orderedTags, known: knownTags)
+
+        var placedTags = Set<MenuBarItemTag>()
+        if !candidateTags.isEmpty {
+            var itemsByTag = [MenuBarItemTag: MenuBarItem]()
+            for item in items where itemsByTag[item.tag] == nil {
+                itemsByTag[item.tag] = item
+            }
+
+            // Chained off the divider, in order, so the first candidate ends up
+            // immediately right of it and they keep their relative order.
+            var previousItem = hiddenControlItem
+            for tag in candidateTags {
+                guard let item = itemsByTag[tag] else {
+                    continue
+                }
+                let destination = MoveDestination.rightOfItem(previousItem)
+                do {
+                    try await move(item: item, to: destination)
+                    // `move` returns as soon as the item's origin changes; it
+                    // never re-checks the destination. A drag beginning after
+                    // its input-pause wait can satisfy that while leaving the
+                    // item somewhere else entirely.
+                    guard try await itemHasCorrectPosition(item: item, for: destination) else {
+                        logger.warning("Placed \(item.logString, privacy: .public) did not land at its destination")
+                        outcome.needsRetry = true
+                        continue
+                    }
+                    placedTags.insert(tag)
+                    previousItem = item
+                } catch {
+                    logger.error(
+                        """
+                        Error placing new menu bar item \(item.logString, privacy: .public): \
+                        \(error, privacy: .public)
+                        """
+                    )
+                    outcome.needsRetry = true
+                }
+            }
+        }
+
+        let tagsToRecord = NewMenuBarItemPlacement.tagsToRecord(
+            seen: orderedTags,
+            candidates: candidateTags,
+            placed: placedTags
+        )
+        // Only grows, never replaces: one pass sees a single Space, so dropping
+        // the tags it didn't see would re-classify items parked elsewhere as new
+        // the next time they come back. Written only when it actually changed —
+        // the steady state is a pass that learns nothing, and this runs on every
+        // cache.
+        let updatedTags = knownTags.union(tagsToRecord)
+        if updatedTags != knownTags {
+            storeKnownItemTags(updatedTags)
+        }
+
+        outcome.placedAny = !placedTags.isEmpty
+        return outcome
+    }
+
+    /// Records every placeable item currently in the menu bar, without moving
+    /// anything, so that only items appearing afterwards count as new.
+    ///
+    /// - Returns: Whether the seed was written.
+    private func seedKnownItemTags() async -> Bool {
+        // No `.activeSpace`: unlike a normal pass, this one read decides forever
+        // which items count as pre-existing, so it must also see items parked on
+        // other Spaces.
+        let items = await MenuBarItem.getMenuBarItems(option: [])
+
+        guard items.contains(where: { $0.tag == .hiddenControlItem }) else {
+            // Storing an unvalidated seed is the one way this can damage a
+            // working menu bar: a partial set makes the next pass, no longer a
+            // first run, treat the user's own always-hidden items as new.
+            logger.warning("Skipping known menu bar item seed, as the read found no hidden control item")
+            return false
+        }
+
+        let tags = Set(items.map(\.tag).filter(NewMenuBarItemPlacement.isPlaceable))
+        storeKnownItemTags(tags)
+        logger.info("Seeded \(tags.count, privacy: .public) known menu bar items")
+        return true
+    }
+
+    /// Loads the tags of the menu bar items Ice has already seen, or `nil` if
+    /// this is a first run.
+    private func loadKnownItemTags() -> Set<MenuBarItemTag>? {
+        // Not `Defaults.data(forKey:)`, which returns nil for an absent key and
+        // for a present value of the wrong type alike. A corrupted registry is
+        // worth logging; a fresh install is not.
+        guard let object = Defaults.object(forKey: .knownMenuBarItems) else {
+            return nil
+        }
+        guard let data = object as? Data else {
+            logger.error("Known menu bar items are not data; treating as a first run")
+            return nil
+        }
+        guard let tags = NewMenuBarItemPlacement.decodeKnownTags(from: data) else {
+            logger.error("Couldn't decode known menu bar items; treating as a first run")
+            return nil
+        }
+        return tags
+    }
+
+    /// Stores the tags of the menu bar items Ice has seen.
+    private func storeKnownItemTags(_ tags: Set<MenuBarItemTag>) {
+        guard let data = NewMenuBarItemPlacement.encode(tags) else {
+            logger.error("Couldn't encode known menu bar items")
+            return
+        }
+        Defaults.set(data, forKey: .knownMenuBarItems)
     }
 }
 
