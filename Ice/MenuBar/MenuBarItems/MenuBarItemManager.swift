@@ -1862,8 +1862,19 @@ extension MenuBarItemManager {
         // list that is never positionally sorted, so left-to-right order is an
         // assumption. Every other positional decision in this file is made from
         // bounds, and this follows suit.
+        //
+        // Live bounds, not `MenuBarItem.bounds`, which is a snapshot taken when
+        // the window list was read and can be stale for off-screen windows —
+        // which is every item in the landing zone. `CacheContext.bestBounds(for:)`
+        // makes the same correction for the same reason. Resolved once per item
+        // rather than inside the comparator, which would re-read on every
+        // comparison.
         let items = await MenuBarItem.getMenuBarItems(option: .activeSpace)
-            .sorted { $0.bounds.minX < $1.bounds.minX }
+            .map { item in
+                (item: item, minX: (Bridging.getWindowBounds(for: item.windowID) ?? item.bounds).minX)
+            }
+            .sorted { $0.minX < $1.minX }
+            .map(\.item)
 
         guard let hiddenControlItem = items.first(matching: .hiddenControlItem) else {
             // The same signal `applyLayoutProfile` treats as fatal. Acting on a
