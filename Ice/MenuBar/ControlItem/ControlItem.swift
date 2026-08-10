@@ -563,11 +563,18 @@ final class ControlItem {
         // drifting. `items(_:)` supplies the divider before Quit itself, so the
         // separator above is the only one added here. Uninstall is deliberately
         // absent — it lives in Settings ▸ Uninstall (see `IceUninstallConfig`).
+        //
+        // A debug build passes `nil` and DragonKit omits "Check for Updates…"
+        // outright. The lifecycle spec bars a debug build from the production
+        // appcast, and an item that is present but does nothing reads as a bug —
+        // absent is the state the kit already models for a build without Sparkle.
         for item in DragonAppMenu.items(DragonAppMenu.Config(
             appName: Constants.displayName,
             onAbout: { [weak self] in self?.openAbout() },
             onSettings: { [weak self] in self?.openSettings() },
-            onCheckForUpdates: { [weak self] in self?.checkForUpdates() }
+            onCheckForUpdates: UpdatesManager.updatingIsDisabled
+                ? nil
+                : { [weak self] in self?.checkForUpdates() }
         )) {
             menu.addItem(item)
         }

@@ -242,7 +242,20 @@ struct SettingsBackupTests {
 
     @Test func defaultFolderIsDocumentsIceBackups() {
         let home = URL(fileURLWithPath: "/Users/test", isDirectory: true)
-        #expect(SettingsBackup.defaultFolder(home: home).path == "/Users/test/Documents/Ice Backups")
+        let folder = SettingsBackup.defaultFolder(home: home, bundleID: "com.dragonapp.ice")
+        #expect(folder.path == "/Users/test/Documents/Ice Backups")
+    }
+
+    /// Only the installed release gets the plain folder. Both builds used to share it, and
+    /// `prune(in:keeping:)` counts files rather than builds — so a debug build's automatic
+    /// on-quit backups eventually deleted the release's. An id it can't state falls to the
+    /// Debug folder too, away from the release user's documents.
+    @Test func defaultFolderIsNamespacedForAnythingButTheRelease() {
+        let home = URL(fileURLWithPath: "/Users/test", isDirectory: true)
+        for id in ["com.dragonapp.ice.debug", nil] {
+            let folder = SettingsBackup.defaultFolder(home: home, bundleID: id)
+            #expect(folder.path == "/Users/test/Documents/Ice Backups (Debug)")
+        }
     }
 
     @Test func configuredFolderUsesStoredPathWhenSet() {

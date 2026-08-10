@@ -136,9 +136,25 @@ enum SettingsBackup {
 
     // MARK: - Files & retention
 
-    /// Default backup folder when the user hasn't chosen one: ~/Documents/Ice Backups.
-    static func defaultFolder(home: URL = FileManager.default.homeDirectoryForCurrentUser) -> URL {
-        home.appending(path: "Documents/Ice Backups", directoryHint: .isDirectory)
+    /// Default backup folder when the user hasn't chosen one: `~/Documents/Ice Backups`, or
+    /// `~/Documents/Ice Backups (Debug)` for anything that isn't the installed release.
+    ///
+    /// The `.debug` bundle id separates `UserDefaults.standard` and the per-bundle-id Library
+    /// folders on its own; it does nothing for a path spelled out in source like this one. Both
+    /// builds shared the folder, and ``prune(in:keeping:)`` keeps the newest *files* rather than
+    /// the newest per build — so with automatic backups on by default, ten quits of a debug
+    /// build deleted every backup the installed Ice 2 had written, and "restore the newest
+    /// backup" in the release app could restore debug settings.
+    ///
+    /// An unknown id falls to the Debug folder rather than the release one, the same direction
+    /// ``IceUninstallConfig/homebrewCask(forBundleID:)`` fails in: a build that can't state its
+    /// identity is the last one that should be writing into, and pruning, the release's backups.
+    static func defaultFolder(
+        home: URL = FileManager.default.homeDirectoryForCurrentUser,
+        bundleID: String? = Bundle.main.bundleIdentifier
+    ) -> URL {
+        let name = bundleID == IceUninstallConfig.releaseBundleID ? "Ice Backups" : "Ice Backups (Debug)"
+        return home.appending(path: "Documents/\(name)", directoryHint: .isDirectory)
     }
 
     /// A lexically-sortable timestamp, e.g. "2026-06-29-013045".

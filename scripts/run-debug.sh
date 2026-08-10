@@ -21,9 +21,20 @@
 # PRODUCT_MODULE_NAME is pinned to Ice_2 so the Swift module keeps the name
 # IceTests imports; TEST_HOST points at the Debug product by its own name.
 #
-# What the script stamps afterwards (both need the built bundle to exist):
+# What the script stamps afterwards (all of them need the built bundle to exist):
 #   CFBundleVersion             the git commit count, never a hardcoded number
-#   CFBundleShortVersionString  suffixed "(Debug)"
+#   DragonCommitDate            the commit's own timestamp
+#   DragonBuildChannel          "Debug", which DragonKit renders as "vX.Y.Z Debug (<build>)"
+#   SUEnableAutomaticChecks     false, so a debug build never schedules a production check
+# and what it deletes:
+#   SUFeedURL                   so the production appcast is unreachable from this bundle
+#
+# CFBundleShortVersionString is asserted to be numeric X.Y.Z and is never modified. It used to
+# be suffixed " (Debug)" here; MAC-APP-RELEASE-LIFECYCLE.md forbids that outright, because that
+# field is the sole source of truth for the version the public `vX.Y.Z` tag is checked against,
+# and a debug build is the *same* numeric candidate as the next release — "Debug" is a channel
+# label, never part of a version number. DragonKit 3.3.0's DragonAbout.buildChannel(_:) reads
+# DragonBuildChannel and renders the label beside the version instead.
 #
 # Usage: bash scripts/run-debug.sh
 #
@@ -89,20 +100,42 @@ if [[ -n "$commit_date" ]]; then
     || "$pb" -c "Add :DragonCommitDate string $commit_date" "$plist"
 fi
 
-# Mark the version itself, not just the name: the About pane and any log line that
-# reports a version should say "(Debug)" outright, so a screenshot or a log excerpt
-# can never be mistaken for the release build. Derived from whatever the project's
-# MARKETING_VERSION currently is, so it cannot drift out of sync on a version bump.
+# The version field is read, never written. It carries the numeric candidate this debug build
+# is testing towards — the very number a later `vX.Y.Z` tag is asserted against — so anything
+# appended to it (this script used to append " (Debug)") makes the release gate compare a tag
+# against a non-numeric string. Fail loudly instead: a candidate that isn't X.Y.Z means the
+# project's MARKETING_VERSION is wrong, and every downstream stamp would inherit that.
 short_version="$("$pb" -c "Print :CFBundleShortVersionString" "$plist")"
-if [[ "$short_version" != *"(Debug)" ]]; then
-  short_version="$short_version (Debug)"
-  "$pb" -c "Set :CFBundleShortVersionString $short_version" "$plist"
+if [[ ! "$short_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  echo "error: non-numeric candidate version: '$short_version'." >&2
+  echo "       CFBundleShortVersionString must stay X.Y.Z — 'Debug' is a build channel," >&2
+  echo "       stamped below as DragonBuildChannel, never part of a version number." >&2
+  exit 1
 fi
+
+# The channel label the version field must not carry. DragonKit 3.3.0's
+# DragonAbout.versionString() reads this key and renders "v2.14.1 Debug (1346) · …", so About,
+# logs and screenshots still say Debug outright while the number stays the release candidate.
+"$pb" -c "Set :DragonBuildChannel Debug" "$plist" 2>/dev/null \
+  || "$pb" -c "Add :DragonBuildChannel string Debug" "$plist"
+
+# Production updating off, two ways. The plist default only sets what Sparkle does when the
+# user has expressed no preference — and user defaults win, so someone who once enabled
+# scheduled checks in this debug build's own domain would still get them. Deleting SUFeedURL
+# is what actually makes the production appcast unreachable: DragonUpdater's lazy SPUUpdater
+# fails to start without a feed, so DragonKit's Updates pane (kit-owned UI this app cannot
+# make channel-aware) renders inert instead of checking the real feed. The runtime guards in
+# UpdatesManager remain the primary defence; this is belt and braces, per the
+# `macos-debug-build` skill.
+if "$pb" -c "Print :SUEnableAutomaticChecks" "$plist" >/dev/null 2>&1; then
+  "$pb" -c "Set :SUEnableAutomaticChecks false" "$plist"
+fi
+"$pb" -c "Delete :SUFeedURL" "$plist" 2>/dev/null || true
 
 # Editing Info.plist invalidates the code signature, so re-sign. Ad-hoc and deep:
 # the bundle carries Sparkle.framework and the MenuBarItemService XPC, and a broken
 # signature on either makes the app fail to launch rather than fail visibly.
-echo "==> Re-signing after stamping $short_version ($build_number)…"
+echo "==> Re-signing after stamping Debug channel, v$short_version ($build_number)…"
 codesign --force --deep --sign - "$app" >/dev/null 2>&1
 
 # Launched by exec rather than `open` on purpose. Older builds of this repo left
@@ -115,10 +148,14 @@ sleep 1
 
 cat <<EOF
 
-Launched "$DEBUG_NAME" $short_version (build $build_number), id $DEBUG_ID, from:
+Launched "$DEBUG_NAME" v$short_version Debug (build $build_number), id $DEBUG_ID, from:
   $app
 
+- v$short_version is the numeric candidate for the next public release; "Debug" is the
+  build channel, not part of the version.
 - Grant Accessibility / Screen Recording to "$DEBUG_NAME" in its Permissions
   window if you want full functionality (separate from your installed Ice 2).
 - Ad-hoc signature changes each rebuild, so macOS may ask you to re-grant.
+- Updating is disabled in this build: no scheduled checks, no Check for Updates…
+  item in the menu, and no production feed in the bundle.
 EOF

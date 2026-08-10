@@ -26,7 +26,11 @@ enum IceUninstallConfig {
     /// The bundle id Homebrew installed: the fallback for the running bundle's id below, and the
     /// gate the cask token is issued against — deliberately not both at once, see
     /// ``homebrewCask(forBundleID:)``.
-    private static let releaseBundleID = "com.dragonapp.ice"
+    ///
+    /// Not `private`: ``SettingsBackup/defaultFolder(home:bundleID:)`` asks the same question
+    /// this type does — "is this the installed release, or the isolated debug build?" — and a
+    /// second copy of the release id is exactly the kind of literal that drifts.
+    static let releaseBundleID = "com.dragonapp.ice"
 
     /// The Homebrew cask token for `actual`, or `nil` when that isn't the bundle brew installed.
     ///

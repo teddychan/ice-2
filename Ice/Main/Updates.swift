@@ -3,6 +3,7 @@
 //  Ice
 //
 
+import DragonKit
 import DragonKitUpdates
 import OSLog
 import SwiftUI
@@ -31,9 +32,39 @@ final class UpdatesManager {
         onUpdateFoundInBackground: { UpdatesManager.notifyUpdateAvailable() }
     ))
 
+    /// Whether this build must leave the production updater alone entirely.
+    ///
+    /// Primarily the build channel `scripts/run-debug.sh` stamps into `Info.plist`, read through
+    /// DragonKit 3.3.0's ``DragonAbout/isDebugBuild(bundle:)``: `MAC-APP-RELEASE-LIFECYCLE.md`
+    /// scopes the rule to the *bundle* someone is running hands-on beside their installed Ice 2,
+    /// and the channel is the only thing that describes that bundle.
+    ///
+    /// `#if DEBUG` is kept alongside it rather than replaced by it. A build launched straight
+    /// from Xcode is never stamped, so the channel alone would let ⌘R reach the production
+    /// appcast — which the `#if DEBUG` guard this replaced did block. Two conditions, because
+    /// they answer different questions: how the binary was compiled, and what the bundle says
+    /// it is.
+    ///
+    /// "Disabled" means never initializing Sparkle either, not just never checking:
+    /// ``DragonUpdater`` creates its `SPUUpdater` lazily on first property access, so merely
+    /// reading ``DragonUpdater/automaticallyChecksForUpdates`` would start it and its
+    /// scheduled-check timer.
+    static var updatingIsDisabled: Bool {
+        #if DEBUG
+        return true
+        #else
+        return DragonAbout.isDebugBuild()
+        #endif
+    }
+
     /// Performs the initial setup of the manager.
     func performSetup(with appState: AppState) {
         self.appState = appState
+        guard !Self.updatingIsDisabled else {
+            // Not even `updater.start()`: a debug build must never read the production appcast.
+            Logger.default.notice("Debug build - skipping updater setup")
+            return
+        }
         // Starting the updater at launch is what lets Sparkle schedule its background update
         // checks, exactly as `SPUStandardUpdaterController(startingUpdater: true)` did.
         updater.start()
@@ -47,13 +78,17 @@ final class UpdatesManager {
     }
 
     /// Checks for app updates.
+    ///
+    /// Unreachable from the menu in a debug build — ``ControlItem`` passes
+    /// `onCheckForUpdates: nil`, so DragonKit omits the item rather than showing an inert one.
+    /// The guard stays because the menu is not the only caller a future change could add, and
+    /// this used to be an `#if DEBUG` alert saying the check "is not supported in debug mode",
+    /// which described a hang rather than the policy.
     func checkForUpdates() {
-        #if DEBUG
-        // Checking for updates hangs in debug mode.
-        let alert = NSAlert()
-        alert.messageText = "Checking for updates is not supported in debug mode."
-        alert.runModal()
-        #else
+        guard !Self.updatingIsDisabled else {
+            Logger.default.notice("Debug build - ignoring check for updates")
+            return
+        }
         guard let appState else {
             return
         }
@@ -61,7 +96,6 @@ final class UpdatesManager {
         appState.activate(withPolicy: .regular)
         appState.openWindow(.settings)
         updater.checkForUpdates()
-        #endif
     }
 
     /// Asks for permission to post ``notifyUpdateAvailable()``.

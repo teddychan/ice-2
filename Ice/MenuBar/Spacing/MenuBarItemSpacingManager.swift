@@ -197,6 +197,17 @@ final class MenuBarItemSpacingManager {
                     logger.debug("applyOffset: skipping pid \(pid, privacy: .public) (self)")
                     continue
                 }
+                // The *other* build of Ice 2, which `.current` doesn't cover: an installed
+                // release (com.dragonapp.ice) and a local debug build (com.dragonapp.ice.debug)
+                // are two processes with two status items. A relaunch is a terminate, and
+                // MAC-APP-RELEASE-LIFECYCLE.md requires that changing a setting in the debug
+                // build never terminates the installed release — the two must survive being
+                // run at once. Only ever matches while both are running, so a Mac with one
+                // build installed is unaffected.
+                guard !Self.isAnIceBundleID(app.bundleIdentifier) else {
+                    logger.debug("applyOffset: skipping pid \(pid, privacy: .public) (another Ice 2 build)")
+                    continue
+                }
                 logger.debug("applyOffset: relaunching pid \(pid, privacy: .public) bundle=\(app.bundleIdentifier ?? "<nil>", privacy: .public)")
                 group.addTask { @MainActor in
                     do {
@@ -237,6 +248,19 @@ final class MenuBarItemSpacingManager {
         if !failedApps.isEmpty {
             throw GroupedRelaunchError(failedApps: failedApps)
         }
+    }
+
+    /// Whether `bundleID` belongs to any build of Ice 2 — the installed release or a
+    /// `.debug` build beside it.
+    ///
+    /// Matched on a dot boundary rather than a bare prefix, so an unrelated app whose id merely
+    /// starts with the same letters is still relaunched like any other menu bar app.
+    static func isAnIceBundleID(_ bundleID: String?) -> Bool {
+        guard let bundleID else {
+            return false
+        }
+        let release = IceUninstallConfig.releaseBundleID
+        return bundleID == release || bundleID.hasPrefix("\(release).")
     }
 }
 
