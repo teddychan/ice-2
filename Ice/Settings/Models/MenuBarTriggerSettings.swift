@@ -149,10 +149,13 @@ final class MenuBarTriggerSettings: ObservableObject {
             .store(in: &cancellables)
     }
 
+    /// Offering the frontmost app as a trigger candidate skips *any* Ice 2 build, not just this
+    /// process: with a debug build running beside the installed release, each would otherwise
+    /// offer the other as "the app to trigger on", which is never something a user means.
     private func updateCandidate(with app: NSRunningApplication?) {
         guard
             let app,
-            app.bundleIdentifier != Constants.bundleIdentifier,
+            !Constants.isIceBundleID(app.bundleIdentifier),
             let bundleIdentifier = app.bundleIdentifier
         else {
             return
@@ -170,7 +173,7 @@ final class MenuBarTriggerSettings: ObservableObject {
         guard
             let appState,
             let bundleIdentifier = app?.bundleIdentifier,
-            bundleIdentifier != Constants.bundleIdentifier
+            !Constants.isIceBundleID(bundleIdentifier)
         else {
             return
         }

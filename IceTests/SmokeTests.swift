@@ -50,15 +50,18 @@ struct SmokeTests {
         #expect(service.bundleIdentifier == MenuBarItemService.name)
     }
 
-    /// `applyOffset()` relaunches every app with a menu bar item, and a relaunch is a terminate.
-    /// The other build of Ice 2 has to be exempt: the lifecycle spec requires that changing a
-    /// setting in the debug build never terminates the installed release.
-    @Test @MainActor func everyIceBuildIsRecognizedAsOurOwn() {
-        #expect(MenuBarItemSpacingManager.isAnIceBundleID("com.dragonapp.ice"))
-        #expect(MenuBarItemSpacingManager.isAnIceBundleID("com.dragonapp.ice.debug"))
+    /// Every site that acts on another running application asks this one predicate whether the
+    /// app is one of ours: `applyOffset()` quits and relaunches every app with a menu bar item,
+    /// and a relaunch is a terminate, which the lifecycle spec forbids the debug build from
+    /// doing to the installed release. `MenuBarTriggerSettings` asks it too.
+    @Test func everyIceBuildIsRecognizedAsOurOwn() {
+        #expect(Constants.isIceBundleID("com.dragonapp.ice"))
+        #expect(Constants.isIceBundleID("com.dragonapp.ice.debug"))
+        // The running build is always one of ours, whichever build the suite is hosted in.
+        #expect(Constants.isIceBundleID(Constants.bundleIdentifier))
         // Neither an unrelated app that merely starts with the same letters, nor a missing id.
-        #expect(!MenuBarItemSpacingManager.isAnIceBundleID("com.dragonapp.iceberg"))
-        #expect(!MenuBarItemSpacingManager.isAnIceBundleID("com.apple.controlcenter"))
-        #expect(!MenuBarItemSpacingManager.isAnIceBundleID(nil))
+        #expect(!Constants.isIceBundleID("com.dragonapp.iceberg"))
+        #expect(!Constants.isIceBundleID("com.apple.controlcenter"))
+        #expect(!Constants.isIceBundleID(nil))
     }
 }

@@ -153,7 +153,7 @@ enum SettingsBackup {
         home: URL = FileManager.default.homeDirectoryForCurrentUser,
         bundleID: String? = Bundle.main.bundleIdentifier
     ) -> URL {
-        let name = bundleID == IceUninstallConfig.releaseBundleID ? "Ice Backups" : "Ice Backups (Debug)"
+        let name = bundleID == Constants.releaseBundleIdentifier ? "Ice Backups" : "Ice Backups (Debug)"
         return home.appending(path: "Documents/\(name)", directoryHint: .isDirectory)
     }
 
