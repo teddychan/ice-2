@@ -23,9 +23,20 @@ permissions:
 
 jobs:
   release:
-    uses: teddychan/dragon-release-ci/.github/workflows/release-macos.yml@v5
+    uses: teddychan/dragon-release-ci/.github/workflows/release-macos.yml@v6
     secrets: inherit
     with:
+      # v6's tag gate replaces v5's `VERSION=${TAG##*v}`, which left a value containing no "v"
+      # untouched — so a workflow_dispatch arrived with a BRANCH ref and produced VERSION=main.
+      # It also accepts only exact `vX.Y.Z`, and requires whats_new_path: the two move together,
+      # because passing whats_new_path to v5 fails at startup (v5 does not define the input) and
+      # omitting it on v6 fails the gate.
+      #
+      # Ice 2's notes are raw Swift string literals — English-only, no Localizable.strings in the
+      # repo at all — so the text a user reads is in this one file and watching it is a real
+      # check. spectacle-2 and yahoo-keykey-2 keep theirs behind abstract `L()` keys and have to
+      # list their translations as well.
+      whats_new_path: Ice/Settings/WhatsNewConfig.swift
       build_kind: xcodebuild
       # Ice 2 targets the macOS 26 SDK, so build on a macos-26 runner (the
       # default macos-15 image lacks the SDK). This input drives the job's
