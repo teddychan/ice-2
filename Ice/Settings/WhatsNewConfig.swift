@@ -23,20 +23,21 @@ enum WhatsNewConfig {
         WhatsNewContent(
             date: "2026-08-11",
             summary: """
-                Two fixes to Settings ▸ About, both found by putting all five Dragon apps' \
-                About panes side by side: the pane credited Ice as the project Ice 2 is based \
-                on without linking to it anywhere, and it claimed two copyright holders where \
-                the other apps name one. Nothing outside that pane changed.
+                One fix, finishing what 2.14.6 started: the copyright notice macOS shows for \
+                Ice 2 in Finder's Get Info panel now matches the one in Settings ▸ About. \
+                Nothing about Ice 2's licensing or its origins changed.
                 """,
             sections: [
+                // 2.14.6's notes told users "the app's own copyright notice still names both
+                // authors". That was true when written and is not any more, so this entry says so
+                // outright rather than leaving the earlier claim to rot.
+                //
+                // Deliberately does not reproduce the old two-holder line verbatim: the kit's
+                // conformance rule R14 counts the copyright symbol per line of Swift source, and
+                // it does not read string literals differently from the About slot itself.
                 ChangeSection(kind: .fixed, entries: [
-                    "Settings ▸ About now links the original project. The Credits section said \"Based on Ice by Jordan Baird\", but nothing in the pane pointed at Ice — you were told Ice 2 has an upstream and given no way to reach it. There is now an Original project row alongside Website and Support, opening github.com/jordanbaird/Ice. The credit line is unchanged; the same entry drives both, so the name and the link can no longer disagree.",
-                ]),
-                ChangeSection(kind: .changed, entries: [
-                    // Deliberately does not reproduce the old two-holder line verbatim: the kit's
-                    // conformance rule R14 counts the copyright symbol per line of Swift source,
-                    // and it does not read string literals differently from the About slot itself.
-                    "Settings ▸ About names one copyright holder. The line under the version used to carry two, Jordan Baird's for 2025 alongside Teddy Chan's for 2026; it now reads © 2026 Teddy Chan, matching every other Dragon app. Nothing about Ice 2's licensing or its origins changed: it is still GPL-3.0 inherited from Ice, the app's own copyright notice still names both authors, Jordan Baird is still credited in the pane — now twice, by the Original project link and the Based on line — and the full licence texts are still both bundled with the app and published at dragonapp.com/ice-2/licenses/.",
+                    "Finder's Get Info panel now shows the same copyright line as Settings ▸ About. It named two holders, Jordan Baird's for 2025 alongside Teddy Chan's for 2026, while About named one — so the app made two different claims about itself depending on where you looked. Both now read © 2026 Teddy Chan. 2.14.6's release notes said this notice still carried both authors, and that is what has changed here.",
+                    "Nothing about Ice 2's licensing or its origins changed. It is still GPL-3.0, inherited from Ice. Jordan Baird's copyright notice is still in the LICENSE file that ships with the app and still in its bundled Acknowledgements, which is where the licence requires it. He is still credited twice in Settings ▸ About, by the Original project link and the Based on line, and the full licence texts are still published at dragonapp.com/ice-2/licenses/.",
                 ]),
             ]
         )

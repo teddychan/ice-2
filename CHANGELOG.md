@@ -1,5 +1,36 @@
 # Changelog
 
+## 2.14.7 - 2026-08-11
+
+### Fixed
+
+- **The bundle's copyright notice now matches About.** `INFOPLIST_KEY_NSHumanReadableCopyright`
+  read `Copyright © 2025 Jordan Baird · © 2026 Teddy Chan` while Settings ▸ About rendered
+  `© 2026 Teddy Chan`, so the app made two different claims about itself depending on where you
+  looked. Both now name one holder. Finder's Get Info panel is where a user sees this key.
+
+  The old value was deliberate and documented in `AboutConfig.swift`: Ice 2 is a git fork carrying
+  Jordan Baird's source under GPL-3.0, whose §4 requires his notice to travel with the work, and
+  the argument was that this plist key is the binary's notice. The first half stands; the second
+  was wrong. The key is an **optional** Apple one that no licence names — three of the five Dragon
+  apps shipped without it entirely — so it displays a line in Get Info rather than discharging an
+  obligation. §4 is carried by `LICENSE`, which fills in the GPL's own notice template with his
+  name and year, and by `Resources/Acknowledgements.rtf`, which states that Ice 2 inherits GPL-3.0
+  from the original Ice. Neither is touched here.
+
+  This corrects 2.14.6's release notes, which told users "the app's own copyright notice still
+  names both authors". True when written; this release is what changed it, and the new notes say
+  so rather than leaving the claim to rot.
+
+- **Nothing about licensing or lineage changed.** Ice 2 is still GPL-3.0 inherited from Ice.
+  Jordan Baird is still credited twice in About — the `Original project` link and the `Based on`
+  row, both driven by `OriginalWork` — and the full licence texts are still bundled and published
+  at dragonapp.com/ice-2/licenses/.
+
+  Part of unifying the field across all five Dragon apps, which held it in four different states:
+  a tagline in ClipMenu 2, two holders here, and nothing at all in Spectacle 2, Yahoo! KeyKey 2
+  and Dragon Sample App.
+
 ## 2.14.6 - 2026-08-11
 
 ### Fixed

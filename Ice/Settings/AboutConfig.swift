@@ -37,15 +37,24 @@ enum AboutConfig {
             // not dropped by saying so — it is carried by the `Original project` link and the
             // `Based on` credit below, both driven by `OriginalWork`.
             //
-            // This deliberately does NOT match `NSHumanReadableCopyright`, which keeps both
-            // holders. Ice 2 is a git fork that carries Jordan Baird's original source and its
-            // history, not a clean reimplementation, and it inherits his GPL-3.0 — as the
-            // bundled acknowledgements say in as many words. GPL-3.0 §4 requires his copyright
-            // notice to travel with the binary, and that plist key is the binary's notice, so it
-            // stays whole. The kit's §R14 reads Swift sources only, and its stated rationale
-            // ("uses none of the upstream source") is true of yahoo-keykey-2, which drove the
-            // rule, but not of a fork; the About row follows the shared format, the legal notice
-            // follows the licence.
+            // `NSHumanReadableCopyright` now matches this string exactly. It carried both holders
+            // until 2.14.7, on the reasoning that Ice 2 is a git fork of Jordan Baird's Ice rather
+            // than a clean reimplementation, that GPL-3.0 §4 requires his notice to travel with the
+            // binary, and that the plist key IS the binary's notice.
+            //
+            // The first two clauses are true and unchanged. The third was the mistake: that key is
+            // an OPTIONAL Apple key, named by no licence, and three of the five Dragon apps shipped
+            // without it at all. §4's "conspicuously and appropriately publish an appropriate
+            // copyright notice" is carried by `LICENSE`, which fills in the GPL's own template with
+            // his name and year, and by `Resources/Acknowledgements.rtf`, which states in as many
+            // words that Ice 2 inherits GPL-3.0 from the original Ice. Neither moves here. What the
+            // plist key does is display a line in Finder's Get Info panel, which makes it
+            // presentation — the same thing this row is — so the two disagreeing was drift, not
+            // compliance.
+            //
+            // Both are now the app's own holder, and the lineage sits where the pane puts it:
+            // ``OriginalWork`` drives the `Original project` link and the `Based on` credit, and
+            // the licence texts are bundled and published at dragonapp.com/ice-2/licenses/.
             copyright: DragonAbout.copyright(years: "2026", holder: "Teddy Chan"),
             websiteURL: websiteURL,
             supportURL: issuesURL,
