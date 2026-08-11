@@ -62,10 +62,22 @@ jobs:
       #                    existence and was current. Both copies verified byte-identical after.
       #   step 2  v2.14.4  SUFeedURL moved to
       #                    https://raw.githubusercontent.com/teddychan/ice-2/main/docs/ice-2/appcast.xml
-      #   later            drop appcast_mirror_repo when no supported version still reads the site.
+      #   step 3  v2.15.0  drop appcast_mirror_repo. The NEXT MINOR RELEASE retires the mirror.
       #
-      # Do not drop the mirror early. Every copy still at 2.14.3 or older reads the site and only
-      # the site; the mirror is the whole reason flipping SUFeedURL did not strand them.
+      # That trigger was chosen on 2026-08-11, replacing "when no supported version still reads
+      # the site" — which read like a rule but named no measurable condition, so it would have
+      # stayed "later" indefinitely. The site is GitHub Pages and exposes no per-path traffic, so
+      # there is no way to observe when the last reader stops reading. A minor release is instead a
+      # real, deliberate event that already opens a PR here, so the removal rides one rather than
+      # needing its own; and Sparkle checks daily by default, so anyone who launches Ice 2 even
+      # once between 2.14.4 and that release has already moved to the app-owned feed.
+      #
+      # Do not drop the mirror before then. Every copy still at 2.14.3 or older reads the site and
+      # only the site; the mirror is the whole reason flipping SUFeedURL did not strand them.
+      # The accepted cost is the other direction: shipping no minor for a long time keeps the
+      # mirror that long. That is the safe way to be wrong — an unnecessary mirror costs one extra
+      # publish per release, while a premature drop silently strands installs that cannot tell the
+      # difference between "no update" and "feed gone".
       #
       # Needs dragon-release-ci >= v6.3.0. The appcast is generated once and copied to both, so
       # the two locations cannot disagree. Publishing to this repo uses the built-in GITHUB_TOKEN
