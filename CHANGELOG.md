@@ -1,5 +1,22 @@
 # Changelog
 
+## 2.14.4 - 2026-08-11
+
+### Internal
+
+- **`SUFeedURL` now points at this repository** —
+  `raw.githubusercontent.com/teddychan/ice-2/main/docs/ice-2/appcast.xml` — instead of
+  `www.dragonapp.com/ice-2/appcast.xml`. Step 2 of 2, completing what 2.14.3 began.
+
+  2.14.3 was step 1: it made this repository the appcast's home while keeping the marketing
+  site as a mirror, which is what first created `docs/ice-2/appcast.xml` here. Only after that
+  had actually run could the app be pointed at it — flipping both at once would have sent every
+  installed copy to a feed that did not exist. Verified before this change: both copies exist
+  and are byte-identical (sha256 `a3498f5…`), and the new URL serves 200.
+
+  The mirror deliberately stays. Every copy at 2.14.3 or earlier still reads the site, and only
+  a release after which no supported version does may drop it.
+
 ## 2.14.3 - 2026-08-11
 
 ### Internal

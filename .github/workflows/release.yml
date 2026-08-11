@@ -43,27 +43,29 @@ jobs:
       # runs-on for all build kinds, not just swiftpm.
       swiftpm_runner: macos-26
       app_slug: ice-2
-      # Step 1 of 2 in moving the appcast off the marketing site.
+      # Moving the appcast off the marketing site. Steps 1 and 2 are done; the mirror stays.
       #
       # MAC-APP-RELEASE-LIFECYCLE.md: "Sparkle appcasts are update infrastructure, not marketing
       # content. Each app should host its production appcast in its own repository so an outage,
       # permission problem, or rejected change in the marketing-site repository cannot interfere
-      # with update delivery." Until now this caller passed no appcast_repo at all and took the
-      # default, teddychan/www.dragonapp.com. spectacle-2, dragon-sample-app and clipmenu-2 have
-      # migrated; yahoo-keykey-2 has not.
+      # with update delivery." This caller used to pass no appcast_repo at all and so took the
+      # default, teddychan/www.dragonapp.com. spectacle-2, dragon-sample-app and clipmenu-2 had
+      # already migrated; yahoo-keykey-2 has not.
       #
       # The same spec says to migrate "by mirroring the old and new locations until installed
-      # versions have moved to the app-owned URL", which is why this is two releases and not one.
-      # Every ALREADY-INSTALLED Ice 2 reads SUFeedURL from the site, so flipping the destination
-      # alone would leave all of them silently unable to see updates.
+      # versions have moved to the app-owned URL", which is why this was two releases and not one.
+      # Every Ice 2 installed at the time read SUFeedURL from the site, so flipping the destination
+      # alone would have left all of them silently unable to see updates.
       #
-      #   step 1 (here)  publish to BOTH. Ice/Resources/Info.plist keeps pointing at the site,
-      #                  which is still being written, so nothing changes for anyone — but the
-      #                  app-owned feed now exists and is current.
-      #   step 2 (next)  move SUFeedURL to
-      #                  https://raw.githubusercontent.com/teddychan/ice-2/main/docs/ice-2/appcast.xml
-      #                  once step 1 has actually populated it.
-      #   later          drop appcast_mirror_repo when no supported version still reads the site.
+      #   step 1  v2.14.3  published to BOTH, with Ice/Resources/Info.plist still pointing at the
+      #                    site, so nothing changed for anyone — but the app-owned feed came into
+      #                    existence and was current. Both copies verified byte-identical after.
+      #   step 2  v2.14.4  SUFeedURL moved to
+      #                    https://raw.githubusercontent.com/teddychan/ice-2/main/docs/ice-2/appcast.xml
+      #   later            drop appcast_mirror_repo when no supported version still reads the site.
+      #
+      # Do not drop the mirror early. Every copy still at 2.14.3 or older reads the site and only
+      # the site; the mirror is the whole reason flipping SUFeedURL did not strand them.
       #
       # Needs dragon-release-ci >= v6.3.0. The appcast is generated once and copied to both, so
       # the two locations cannot disagree. Publishing to this repo uses the built-in GITHUB_TOKEN

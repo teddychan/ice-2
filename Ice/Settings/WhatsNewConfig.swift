@@ -23,11 +23,9 @@ enum WhatsNewConfig {
             date: "2026-08-11",
             summary: """
                 A maintenance release: nothing you can see behaves differently. Ice 2 now \
-                publishes the file it checks for updates to its own home as well as the \
-                website, so a problem with the website cannot hold up an update — the copy \
-                you have installed keeps reading the website until a later version moves it \
-                over. These notes also catch up on 2.12.0 through 2.14.0, which shipped \
-                without being announced here.
+                checks for updates at its own home rather than the website, so a problem \
+                with the website can no longer hold up an update. These notes also catch up \
+                on 2.12.0 through 2.14.0, which shipped without being announced here.
                 """,
             sections: [
                 ChangeSection(kind: .added, entries: [
