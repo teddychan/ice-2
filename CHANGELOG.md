@@ -1,5 +1,29 @@
 # Changelog
 
+## 2.14.3 - 2026-08-11
+
+### Internal
+
+- **Ice 2's Sparkle appcast is now published to this repository as well as the marketing site.**
+  Step 1 of 2 in giving the app its own update feed, per dragon-kit's
+  `docs/MAC-APP-RELEASE-LIFECYCLE.md`: "Sparkle appcasts are update infrastructure, not marketing
+  content. Each app should host its production appcast in its own repository so an outage,
+  permission problem, or rejected change in the marketing-site repository cannot interfere with
+  update delivery."
+
+  Nothing changes for anyone who has Ice 2 installed. `SUFeedURL` still points at
+  `www.dragonapp.com/ice-2/appcast.xml`, which is still being written; this release is what first
+  creates `docs/ice-2/appcast.xml` here. Step 2 moves `SUFeedURL` to the app-owned URL, and only a
+  release after which no supported version reads the site may drop the mirror. Flipping the two at
+  once would have pointed every installed copy at a feed that did not exist yet.
+
+  Ice 2 is the first xcodebuild-built app to use this configuration; the `generate_appcast` lookup
+  is unchanged and only the publish destinations move.
+
+- The release also moved to `dragon-release-ci@v6` with `whats_new_path`, which had landed on
+  `main` without a release of its own. v6's tag gate accepts only an exact `vX.Y.Z` and requires
+  the What's New source to have changed since the preceding tag.
+
 ## 2.14.1 - 2026-08-10
 
 ### Internal

@@ -20,12 +20,14 @@ import DragonKit
 enum WhatsNewConfig {
     static var content: WhatsNewContent {
         WhatsNewContent(
-            date: "2026-08-10",
+            date: "2026-08-11",
             summary: """
-                A maintenance release: nothing you can see behaves differently. Its fixes \
-                all concern keeping a development build of Ice 2 separate from the copy you \
-                have installed. These notes also catch up on 2.12.0 through 2.14.0, which \
-                shipped without being announced here.
+                A maintenance release: nothing you can see behaves differently. Ice 2 now \
+                publishes the file it checks for updates to its own home as well as the \
+                website, so a problem with the website cannot hold up an update — the copy \
+                you have installed keeps reading the website until a later version moves it \
+                over. These notes also catch up on 2.12.0 through 2.14.0, which shipped \
+                without being announced here.
                 """,
             sections: [
                 ChangeSection(kind: .added, entries: [
