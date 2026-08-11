@@ -1,5 +1,49 @@
 # Changelog
 
+## 2.14.6 - 2026-08-11
+
+### Fixed
+
+- **Settings ▸ About links the original project again — or rather, for the first time.** Credits
+  read `Based on · Ice by Jordan Baird`, and nothing anywhere in the pane linked to Ice: the pane
+  told you Ice 2 has an upstream and gave you no way to reach it. There is now an **Original
+  project** row in the links list, beside Website and Support, opening
+  `github.com/jordanbaird/Ice`.
+
+  This was possible because the upstream project's name and its URL were two unrelated optional
+  values in the shared framework, so all four combinations of "credited" and "linked" shipped
+  across the five Dragon apps — Ice 2 and ClipMenu credited a project neither of them linked. The
+  framework's 4.0.0 release folds the URL into the same value that carries the name, so one entry
+  now drives both the link row and the credit line and they cannot disagree again. It was found by
+  putting all five apps' About panes side by side, which is how every case of this drift has been
+  found.
+
+### Changed
+
+- **Settings ▸ About names one copyright holder.** The line under the version read
+  `© 2025 Jordan Baird · © 2026 Teddy Chan`; it now reads `© 2026 Teddy Chan`, which is the form
+  the other Dragon apps already used — only Ice 2 and ClipMenu carried a second holder, and the
+  shared framework now enforces the single-holder form (conformance rule R14).
+
+  **Nothing about Ice 2's licensing or its lineage changed.** Ice 2 is still GPL-3.0, inherited
+  from Ice; Jordan Baird is still named as a copyright holder in `LICENSE`, in the bundled
+  acknowledgements, and in the app bundle's own copyright notice (`NSHumanReadableCopyright`,
+  which keeps both holders deliberately — Ice 2 is a fork that carries his source, and GPL-3.0
+  requires his notice to travel with the binary). In the About pane he is now credited twice
+  rather than once, by the new Original project link and the existing Based on line, and the full
+  licence texts remain both bundled with the app and published at
+  `dragonapp.com/ice-2/licenses/`. What changed is one display line, which now describes who
+  maintains and distributes this app.
+
+### Internal
+
+- **The shared Dragon app framework moves to 4.0.0**, up from 3.4.0. This is the framework's first
+  breaking release: the About pane's rows are now closed by the framework's own function signature
+  rather than by a written rule, so the two defects above became compile errors instead of things
+  a reviewer had to notice. The notices page is a required argument, the upstream project's URL
+  lives inside the value that names it, and the dual-holder copyright helper is gone. **Settings ▸
+  About** reports `DragonKit v4.0.0` under Built with.
+
 ## 2.14.5 - 2026-08-11
 
 ### Internal

@@ -28,16 +28,27 @@ enum AboutConfig {
             appName: Constants.displayName,
             versionString: DragonAbout.versionString(),
             // Assembled by the kit so the format matches every other Dragon app. Ice 2 was the
-            // app that spelled out "Copyright ©" where the others used the symbol alone; the
-            // years and holders are unchanged from `NSHumanReadableCopyright`.
-            copyright: DragonAbout.copyright(
-                original: (years: "2025", holder: "Jordan Baird"),
-                years: "2026",
-                holder: "Teddy Chan"
-            ),
+            // app that spelled out "Copyright ©" where the others used the symbol alone.
+            //
+            // One holder, not two. This row used to read `© 2025 Jordan Baird · © 2026 Teddy
+            // Chan`; only Ice 2 and clipmenu-2 did that, and DragonKit 4.0.0 made the
+            // single-holder form canon (CONFORMANCE §R14) after five About panes were put side by
+            // side. The row names who maintains and distributes *this* app. Ice 2's lineage is
+            // not dropped by saying so — it is carried by the `Original project` link and the
+            // `Based on` credit below, both driven by `OriginalWork`.
+            //
+            // This deliberately does NOT match `NSHumanReadableCopyright`, which keeps both
+            // holders. Ice 2 is a git fork that carries Jordan Baird's original source and its
+            // history, not a clean reimplementation, and it inherits his GPL-3.0 — as the
+            // bundled acknowledgements say in as many words. GPL-3.0 §4 requires his copyright
+            // notice to travel with the binary, and that plist key is the binary's notice, so it
+            // stays whole. The kit's §R14 reads Swift sources only, and its stated rationale
+            // ("uses none of the upstream source") is true of yahoo-keykey-2, which drove the
+            // rule, but not of a fork; the About row follows the shared format, the legal notice
+            // follows the licence.
+            copyright: DragonAbout.copyright(years: "2026", holder: "Teddy Chan"),
             websiteURL: websiteURL,
             supportURL: issuesURL,
-            license: "GPL-3.0",
             // Third-party notices: the verbatim MIT text for the six packages below. Trailing
             // slash: it is the path Pages serves, so the row does not point at a redirect. This
             // replaces the row that opened `Resources/Acknowledgements.pdf` before DragonKit
@@ -51,7 +62,21 @@ enum AboutConfig {
             // copies"; shipping both settles that, and this row stays because a web page is the
             // more readable copy.
             licensesURL: URL(string: "https://www.dragonapp.com/ice-2/licenses/")!,
-            originalWork: OriginalWork(name: "Ice", author: "Jordan Baird"),
+            // Ice 2's own licence, which is not the row above: `licensesURL` is the third-party
+            // notices page, this is the `License` credit. Adjacent since DragonKit 4.0.0 made
+            // `licensesURL` required and put it here; the kit's own comment says not to merge them.
+            license: "GPL-3.0",
+            // Drives two rows from one value: the `Original project` link and the `Based on`
+            // credit. The link row was missing entirely before DragonKit 4.0.0 — Credits said
+            // "Based on Ice by Jordan Baird" while nothing in the pane linked to Ice, so a reader
+            // was told there was an upstream and given no way to reach it. That was possible
+            // because the upstream name and its URL were two unrelated optionals; 4.0.0 folded
+            // the URL into `OriginalWork`, which is why they can no longer disagree.
+            originalWork: OriginalWork(
+                name: "Ice",
+                author: "Jordan Baird",
+                url: URL(string: "https://github.com/jordanbaird/Ice")!
+            ),
             attributions: [
                 // Every THIRD-PARTY package Ice 2 links, as `name → licence`, and the one list a
                 // reader sees without leaving the app. `AcknowledgementsTests` pins it to

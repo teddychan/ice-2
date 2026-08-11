@@ -156,9 +156,12 @@ struct AcknowledgementsTests {
     }
 
     @Test func aboutPaneLinksTheHostedNotices() {
-        // The bundle carries the notices and the About pane links the hosted copy; the kit
-        // treats `licensesURL` as optional, so its absence would be silent.
-        #expect(AboutConfig.content.licensesURL?.absoluteString == "https://www.dragonapp.com/ice-2/licenses/")
+        // The bundle carries the notices and the About pane links the hosted copy. DragonKit
+        // 4.0.0 made `licensesURL` a required, non-optional parameter, so an app that ships no
+        // notices page no longer compiles — spectacle-2 and the sample app had listed
+        // `Sparkle → MIT` in Credits with no page anywhere. This still pins the URL, because a
+        // required parameter says nothing about which page it points at.
+        #expect(AboutConfig.content.licensesURL.absoluteString == "https://www.dragonapp.com/ice-2/licenses/")
     }
 
     @Test func onlyThePdfIsBundled() {
