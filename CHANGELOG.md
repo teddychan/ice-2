@@ -1,5 +1,34 @@
 # Changelog
 
+## 2.14.5 - 2026-08-11
+
+### Internal
+
+- **Nothing about the app behaves differently.** Ice 2 now builds against version 3.4.0 of the
+  shared Dragon app framework, up from 3.3.0. That release adds one thing — a way for an app to
+  narrow the framework's language picker to the languages it has actually translated itself into
+  — which Ice 2 has no use for: it ships no translations at all, so it shows no language picker.
+  Both of the new arguments have defaults, so no code here had to change to take the bump.
+
+  The bump is for pin currency rather than to adopt anything. The shared conformance rules
+  require each app's declared framework version to be at least the newest one published, because
+  every app once sat a release behind and so none of them had the shared menu at all; a stale pin
+  silently misses shared fixes. Publishing 3.4.0 put this app in breach of that rule the moment
+  it landed, which would have failed the next pull request here on a rule it did not break.
+
+  The one place you can see any of it is **Settings ▸ About**, which reports the framework it was
+  built with and now reads `DragonKit v3.4.0`.
+
+- **The appcast mirror now retires on a date that can actually arrive.** 2.14.4 moved Ice 2's
+  update feed to this repository and kept the copy on the marketing site as a mirror, so that
+  installed copies still reading the site were not stranded. The condition for dropping that
+  mirror was "when no supported version still reads the site" — which reads like a rule but names
+  no observable event: the site is GitHub Pages and exposes no per-path traffic, so there is no
+  way to see the last reader stop. The next minor release retires it instead, which is a real,
+  deliberate event, and Sparkle checks daily by default, so anyone who has launched Ice 2 even
+  once since 2.14.4 has already moved to the feed in this repository. This is a comment in the
+  release workflow; nothing about how this release is built or published changed.
+
 ## 2.14.4 - 2026-08-11
 
 ### Internal

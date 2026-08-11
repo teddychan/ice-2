@@ -23,9 +23,11 @@ enum WhatsNewConfig {
             date: "2026-08-11",
             summary: """
                 A maintenance release: nothing you can see behaves differently. Ice 2 now \
-                checks for updates at its own home rather than the website, so a problem \
-                with the website can no longer hold up an update. These notes also catch up \
-                on 2.12.0 through 2.14.0, which shipped without being announced here.
+                builds against version 3.4.0 of the shared Dragon app framework, keeping it \
+                in step with its sibling apps rather than drifting behind — the only trace of \
+                it anywhere in the app is the framework version About lists under Built with. \
+                These notes also catch up on 2.12.0 through 2.14.0, which shipped without \
+                being announced here.
                 """,
             sections: [
                 ChangeSection(kind: .added, entries: [
