@@ -222,6 +222,6 @@
 "app.uninstall.item.state" = "저장된 응용 프로그램 상태";
 "app.updates.notification.body" = "%@에서 새 버전을 찾았습니다.";
 "app.updates.notification.title" = "새로운 업데이트가 있습니다";
-"app.whatsNew.2_14_7.fixed.copyright" = "Finder의 '정보 가져오기' 패널에 이제 설정 ▸ 정보와 동일한 저작권 문구가 표시됩니다. 이전에는 2025년 Jordan Baird와 2026년 Teddy Chan 두 권리자를 표기한 반면 '정보'에서는 한 명만 표기해, 보는 위치에 따라 앱이 자신에 대해 서로 다른 주장을 했습니다. 이제 두 곳 모두 © 2026 Teddy Chan으로 표시됩니다. 2.14.6 릴리스 노트에서는 이 고지에 여전히 두 저자가 포함되어 있다고 했는데, 바로 그 점이 이번에 바뀌었습니다.";
-"app.whatsNew.2_14_7.fixed.licensing" = "Ice 2의 라이선스나 기원에 관해서는 아무것도 바뀌지 않았습니다. Ice에서 이어받은 GPL-3.0 그대로입니다. Jordan Baird의 저작권 고지는 앱과 함께 배포되는 LICENSE 파일과 번들된 '감사의 말'에 그대로 남아 있으며, 이는 라이선스가 요구하는 위치입니다. 설정 ▸ 정보에서도 '원본 프로젝트' 링크와 '기반' 줄로 두 번 표기되며, 전체 라이선스 전문은 계속 dragonapp.com/ice-2/licenses/ 에 공개되어 있습니다.";
-"app.whatsNew.2_14_7.summary" = "2.14.6에서 시작한 작업을 마무리하는 수정 하나: Finder의 '정보 가져오기' 패널에서 macOS가 Ice 2에 대해 표시하는 저작권 고지가 이제 설정 ▸ 정보의 고지와 일치합니다. Ice 2의 라이선스나 기원에 관해서는 아무것도 바뀌지 않았습니다.";
+"app.whatsNew.2_15_0.added.languages" = "English, Español, Français, 日本語, 한국어, 简体中文, 繁體中文. 설정 ▸ 일반에서 선택하거나 '자동'으로 두면 macOS를 따릅니다. 설정, 메뉴 막대 메뉴, 알림, 권한 윈도우까지 다시 실행 없이 한 번에 전환됩니다.";
+"app.whatsNew.2_15_0.changed.settingsItem" = "메뉴 막대의 오른쪽 클릭 메뉴에 있는 설정 항목이, 아이콘 없는 'Ice 2 설정…' 대신 모든 Dragon 앱이 사용하는 톱니바퀴 아이콘과 함께 '설정…'으로 표시됩니다.";
+"app.whatsNew.2_15_0.summary" = "Ice 2가 이제 7개 언어를 지원합니다. 설정 ▸ 일반에서 선택하면 다시 실행하지 않아도 바로 적용됩니다.";

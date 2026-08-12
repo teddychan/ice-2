@@ -32,18 +32,37 @@ jobs:
       # because passing whats_new_path to v5 fails at startup (v5 does not define the input) and
       # omitting it on v6 fails the gate.
       #
-      # Ice 2's notes are raw Swift string literals — English-only, no Localizable.strings in the
-      # repo at all — so the text a user reads is in this one file and watching it is a real
-      # check. spectacle-2 and yahoo-keykey-2 keep theirs behind abstract `L()` keys and have to
-      # list their translations as well.
-      whats_new_path: Ice/Settings/WhatsNewConfig.swift
+      # The config file FIRST — the version and section checks read that one — then every
+      # translation. Ice 2's entries used to be raw Swift string literals, and this input named
+      # that one file; as of v2.15.0 they are abstract `L()` keys
+      # ("app.whatsNew.2_15_0.summary"), so the text a user actually reads lives in these
+      # .strings and the .swift can sit still through a complete rewrite of the notes. Watching
+      # only the .swift would reject that real rewrite and wave through a release whose notes
+      # never changed. Needs dragon-release-ci >= v6.2.0, which is what made the input accept a
+      # list. Matches how spectacle-2 and yahoo-keykey-2 already declare theirs.
+      #
+      # ALL SEVEN locales, not just en. A list naming only English would let a release rewrite the
+      # notes there and ship the previous version's text to Spanish, French, Japanese, Korean and
+      # both Chinese readers — the exact staleness this gate exists to catch, narrowed to the
+      # languages nobody cutting the release would be reading. Add a line here with every new
+      # .lproj.
+      whats_new_path: >-
+        Ice/Settings/WhatsNewConfig.swift
+        Ice/Resources/en.lproj/Localizable.strings
+        Ice/Resources/es.lproj/Localizable.strings
+        Ice/Resources/fr.lproj/Localizable.strings
+        Ice/Resources/ja.lproj/Localizable.strings
+        Ice/Resources/ko.lproj/Localizable.strings
+        Ice/Resources/zh-Hans.lproj/Localizable.strings
+        Ice/Resources/zh-Hant.lproj/Localizable.strings
       build_kind: xcodebuild
       # Ice 2 targets the macOS 26 SDK, so build on a macos-26 runner (the
       # default macos-15 image lacks the SDK). This input drives the job's
       # runs-on for all build kinds, not just swiftpm.
       swiftpm_runner: macos-26
       app_slug: ice-2
-      # Moving the appcast off the marketing site. Steps 1 and 2 are done; the mirror stays.
+      # Moving the appcast off the marketing site. DONE as of v2.15.0 — the mirror is retired and
+      # this app's update feed now lives only in this repository.
       #
       # MAC-APP-RELEASE-LIFECYCLE.md: "Sparkle appcasts are update infrastructure, not marketing
       # content. Each app should host its production appcast in its own repository so an outage,
@@ -62,7 +81,8 @@ jobs:
       #                    existence and was current. Both copies verified byte-identical after.
       #   step 2  v2.14.4  SUFeedURL moved to
       #                    https://raw.githubusercontent.com/teddychan/ice-2/main/docs/ice-2/appcast.xml
-      #   step 3  v2.15.0  drop appcast_mirror_repo. The NEXT MINOR RELEASE retires the mirror.
+      #   step 3  v2.15.0  appcast_mirror_repo dropped — this release. Ice 2's production feed is
+      #                    now published to this repository only.
       #
       # That trigger was chosen on 2026-08-11, replacing "when no supported version still reads
       # the site" — which read like a rule but named no measurable condition, so it would have
@@ -72,25 +92,27 @@ jobs:
       # needing its own; and Sparkle checks daily by default, so anyone who launches Ice 2 even
       # once between 2.14.4 and that release has already moved to the app-owned feed.
       #
-      # Do not drop the mirror before then. Every copy still at 2.14.3 or older reads the site and
-      # only the site; the mirror is the whole reason flipping SUFeedURL did not strand them.
-      # The accepted cost is the other direction: shipping no minor for a long time keeps the
-      # mirror that long. That is the safe way to be wrong — an unnecessary mirror costs one extra
-      # publish per release, while a premature drop silently strands installs that cannot tell the
-      # difference between "no update" and "feed gone".
+      # The mirror was not dropped before this point. Every copy still at 2.14.3 or older reads the
+      # site and only the site; the mirror is the whole reason flipping SUFeedURL did not strand
+      # them. The accepted cost was the other direction: shipping no minor for a long time would
+      # have kept the mirror that long. That is the safe way to be wrong — an unnecessary mirror
+      # costs one extra publish per release, while a premature drop silently strands installs that
+      # cannot tell the difference between "no update" and "feed gone".
       #
-      # Needs dragon-release-ci >= v6.3.0. The appcast is generated once and copied to both, so
-      # the two locations cannot disagree. Publishing to this repo uses the built-in GITHUB_TOKEN
-      # (contents: write is granted above); the mirror is a different repo and so needs
-      # PUBLIC_RELEASE_TOKEN, which `secrets: inherit` already supplies — the same token that
-      # publishes to the site today. A missing mirror token is a hard error, not a warning.
+      # What this means from now on: www.dragonapp.com/ice-2/appcast.xml stops being updated and
+      # goes stale at v2.14.7. It is deliberately left in place rather than deleted — a stale feed
+      # offers an old version to anything still reading it, which is recoverable; a 404 is not.
+      #
+      # Needs dragon-release-ci >= v6.3.0. Publishing to this repo uses the built-in GITHUB_TOKEN
+      # (contents: write is granted above), so the release no longer depends on
+      # PUBLIC_RELEASE_TOKEN reaching the marketing-site repo at all — that token is still
+      # inherited, but now only the Homebrew cask bump uses it.
       #
       # Ice 2 is the first xcodebuild-built app to use this: generate_appcast is located under the
       # derived-data SourcePackages artifacts (generate_appcast_glob: xcodebuild, below) rather
       # than a SwiftPM .build directory. That lookup is unchanged and already runs on every
       # release — only the publish destinations move.
       appcast_repo: teddychan/ice-2
-      appcast_mirror_repo: teddychan/www.dragonapp.com
       release_title_prefix: Ice 2
       bot_name: Ice 2 Release Bot
       xcode_project: Ice.xcodeproj

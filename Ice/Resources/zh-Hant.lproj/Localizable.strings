@@ -222,6 +222,6 @@
 "app.uninstall.item.state" = "已儲存的應用程式狀態";
 "app.updates.notification.body" = "%@ 找到了更新的版本。";
 "app.updates.notification.title" = "有新的更新可用";
-"app.whatsNew.2_14_7.fixed.copyright" = "「Finder」的「取得資訊」面板現在顯示與「設定 ▸ 關於」相同的版權行。此前它列出兩位權利人——2025 年的 Jordan Baird 與 2026 年的 Teddy Chan，而「關於」只列出一位，因此這個 App 會因查看位置不同而對自身作出兩種不同的聲明。現在兩處都顯示 © 2026 Teddy Chan。2.14.6 的發行說明稱此聲明仍包含兩位作者，而這正是此次更改之處。";
-"app.whatsNew.2_14_7.fixed.licensing" = "Ice 2 的授權及其來源均未改變。它仍是繼承自 Ice 的 GPL-3.0。Jordan Baird 的版權聲明仍在隨 App 一同散布的 LICENSE 檔案中，也仍在其內建的「致謝」中，而這正是該授權所要求的位置。在「設定 ▸ 關於」中他仍被致謝兩次，分別透過「原始專案」連結和「基於」一行，完整的授權文字仍發佈於 dragonapp.com/ice-2/licenses/。";
-"app.whatsNew.2_14_7.summary" = "一項修正，完成 2.14.6 未竟之事：macOS 在「Finder」的「取得資訊」面板中為 Ice 2 顯示的版權聲明，現在與「設定 ▸ 關於」中的一致。Ice 2 的授權及其來源均未改變。";
+"app.whatsNew.2_15_0.added.languages" = "English、Español、Français、日本語、한국어、简体中文、繁體中文。在「設定 ▸ 一般」中選擇，或保持「自動」以跟隨 macOS。設定、選單列選單、提醒和權限視窗會同時切換，無需重新啟動。";
+"app.whatsNew.2_15_0.changed.settingsItem" = "選單列右鍵選單中的「設定」項目現在顯示為帶齒輪圖像的「設定…」，與所有 Dragon App 一致，不再是沒有圖像的「Ice 2 設定…」。";
+"app.whatsNew.2_15_0.summary" = "Ice 2 現已支援七種語言，可在「設定 ▸ 一般」中選擇，無需重新啟動即可生效。";

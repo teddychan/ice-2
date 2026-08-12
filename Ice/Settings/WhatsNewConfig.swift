@@ -22,19 +22,18 @@ enum WhatsNewConfig {
     @MainActor
     static var content: WhatsNewContent {
         WhatsNewContent(
-            date: "2026-08-11",
-            summary: L("app.whatsNew.2_14_7.summary"),
+            date: "2026-08-13",
+            summary: L("app.whatsNew.2_15_0.summary"),
             sections: [
-                // 2.14.6's notes told users "the app's own copyright notice still names both
-                // authors". That was true when written and is not any more, so this entry says so
-                // outright rather than leaving the earlier claim to rot.
-                //
-                // Deliberately does not reproduce the old two-holder line verbatim: the kit's
-                // conformance rule R14 counts the copyright symbol per line of Swift source, and
-                // it does not read string literals differently from the About slot itself.
-                ChangeSection(kind: .fixed, entries: [
-                    L("app.whatsNew.2_14_7.fixed.copyright"),
-                    L("app.whatsNew.2_14_7.fixed.licensing"),
+                // The keys carry the version, so each release replaces them rather than editing
+                // the previous release's text in place. That is what lets `whats_new_path` in
+                // release.yml gate on a real diff in all seven .strings files: reusing a key would
+                // leave those files untouched while the notes changed completely.
+                ChangeSection(kind: .added, entries: [
+                    L("app.whatsNew.2_15_0.added.languages"),
+                ]),
+                ChangeSection(kind: .changed, entries: [
+                    L("app.whatsNew.2_15_0.changed.settingsItem"),
                 ]),
             ]
         )

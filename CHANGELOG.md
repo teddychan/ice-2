@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.15.0 - 2026-08-13
 
 ### Added
 
@@ -45,6 +45,18 @@
 - `.dragon-conformance.json`'s `strings` glob now points at the shipped locale files. It matched
   nothing before, so conformance §R8 (no app-defined kit keys) and §R13 (the picker offers exactly
   what the app ships) were both passing by having nothing to check.
+
+- **The Sparkle appcast mirror on www.dragonapp.com is retired.** Ice 2's update feed is now
+  published to this repository only. This was step 3 of a migration planned across three releases:
+  2.14.3 started publishing to both, 2.14.4 pointed `SUFeedURL` at the app-owned copy, and the
+  mirror was held until a minor release so that anything still reading the site had time to move.
+  The site copy is left in place, frozen at 2.14.7, rather than deleted — a stale feed offers an
+  old version, which is recoverable; a 404 is not.
+
+- The release gate now watches all seven `Localizable.strings` files alongside
+  `WhatsNewConfig.swift`. The notes moved behind `L()` keys, so the Swift file can now sit still
+  through a complete rewrite of the text; watching it alone would have waved through a release
+  whose notes never actually changed in any language.
 
 ## 2.14.7 - 2026-08-11
 
