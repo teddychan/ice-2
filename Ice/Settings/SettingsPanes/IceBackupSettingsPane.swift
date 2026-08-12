@@ -20,7 +20,7 @@ struct IceBackupSettingsPane: View {
     @AppStorage(Defaults.Key.automaticBackupEnabled.rawValue) private var automaticBackup = true
 
     @State private var backups: [BackupItem] = []
-    @State private var status: LocalizedStringKey?
+    @State private var status: String?
     @State private var errorMessage: String?
     @State private var restoreCandidate: BackupItem?
 
@@ -39,39 +39,46 @@ struct IceBackupSettingsPane: View {
 
     var body: some View {
         DragonForm {
-            DragonSection("Backup Folder") {
+            DragonSection {
+                Text(L("DragonKit.backup.folderSection"))
+            } content: {
                 folderRow
                 automaticBackupToggle
             }
-            DragonSection("Backups") {
+            DragonSection {
+                Text(L("DragonKit.backup.backupsSection"))
+            } content: {
                 backupActions
                 backupList
             }
         }
         .onAppear(perform: refresh)
         .alert(
-            "Restore settings?",
+            L("app.backup.restoreConfirmTitle"),
             isPresented: Binding(
                 get: { restoreCandidate != nil },
                 set: { if !$0 { restoreCandidate = nil } }
             ),
             presenting: restoreCandidate
         ) { item in
-            Button("Restore and Relaunch", role: .destructive) {
+            Button(L("app.backup.restoreAndRelaunch"), role: .destructive) {
                 restore(item)
             }
-            Button("Cancel", role: .cancel) {}
+            Button(L("DragonKit.cancel"), role: .cancel) {}
         } message: { item in
-            Text("This replaces all current Ice 2 settings with the backup from \(Self.dateFormatter.string(from: item.date)), then relaunches Ice 2.")
+            Text(String(
+                format: L("app.backup.restoreConfirmMessage"),
+                Self.dateFormatter.string(from: item.date)
+            ))
         }
         .alert(
-            "Backup Error",
+            L("DragonKit.backup.errorTitle"),
             isPresented: Binding(
                 get: { errorMessage != nil },
                 set: { if !$0 { errorMessage = nil } }
             )
         ) {
-            Button("OK", role: .cancel) {}
+            Button(L("DragonKit.ok"), role: .cancel) {}
         } message: {
             Text(errorMessage ?? "")
         }
@@ -82,10 +89,10 @@ struct IceBackupSettingsPane: View {
     @ViewBuilder
     private var folderRow: some View {
         LabeledContent {
-            Button("Change…", action: chooseFolder)
+            Button(L("DragonKit.backup.choose"), action: chooseFolder)
         } label: {
             VStack(alignment: .leading, spacing: 2) {
-                Text("Location")
+                Text(L("app.backup.location"))
                 Text(folderURL.path(percentEncoded: false))
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -93,13 +100,13 @@ struct IceBackupSettingsPane: View {
                     .truncationMode(.middle)
             }
         }
-        .dragonAnnotation("Choose a folder inside Dropbox, iCloud Drive, or Google Drive to sync your settings across your Macs. Backups are also kept for restoring after a reinstall or on a new Mac.")
+        .dragonAnnotation { Text(L("app.backup.location.note")) }
     }
 
     @ViewBuilder
     private var automaticBackupToggle: some View {
-        Toggle("Automatically back up when quitting", isOn: $automaticBackup)
-            .dragonAnnotation("Keeps the backup folder current so a synced copy is always up to date.")
+        Toggle(L("app.backup.automatic"), isOn: $automaticBackup)
+            .dragonAnnotation { Text(L("app.backup.automatic.note")) }
     }
 
     // MARK: Backups
@@ -108,12 +115,12 @@ struct IceBackupSettingsPane: View {
     private var backupActions: some View {
         LabeledContent {
             HStack {
-                Button("Reveal in Finder", action: revealFolder)
-                Button("Back Up Now", action: backUpNow)
+                Button(L("DragonKit.backup.reveal"), action: revealFolder)
+                Button(L("DragonKit.backup.now"), action: backUpNow)
             }
         } label: {
             VStack(alignment: .leading, spacing: 2) {
-                Text("Manual backup")
+                Text(L("app.backup.manual"))
                 if let status {
                     Text(status)
                         .font(.caption)
@@ -121,20 +128,25 @@ struct IceBackupSettingsPane: View {
                 }
             }
         }
-        .dragonAnnotation("The newest \(SettingsBackup.defaultRetentionLimit) backups are kept; older ones are removed automatically.")
+        .dragonAnnotation {
+            Text(String(
+                format: L("app.backup.retention.note"),
+                SettingsBackup.defaultRetentionLimit
+            ))
+        }
     }
 
     @ViewBuilder
     private var backupList: some View {
         if backups.isEmpty {
-            Text("No backups yet.")
+            Text(L("DragonKit.backup.none"))
                 .foregroundStyle(.secondary)
         } else {
             ForEach(backups) { item in
                 LabeledContent {
                     HStack {
-                        Button("Restore") { restoreCandidate = item }
-                        Button("Delete", role: .destructive) { delete(item) }
+                        Button(L("DragonKit.backup.restore")) { restoreCandidate = item }
+                        Button(L("app.common.delete"), role: .destructive) { delete(item) }
                     }
                 } label: {
                     Text(Self.dateFormatter.string(from: item.date))
@@ -160,7 +172,7 @@ struct IceBackupSettingsPane: View {
     private func backUpNow() {
         do {
             _ = try SettingsBackup.performBackup(date: Date())
-            status = "Backed up just now."
+            status = L("app.backup.status.justNow")
             refresh()
         } catch {
             errorMessage = error.localizedDescription
@@ -187,7 +199,7 @@ struct IceBackupSettingsPane: View {
         panel.canChooseFiles = false
         panel.canCreateDirectories = true
         panel.allowsMultipleSelection = false
-        panel.prompt = "Choose"
+        panel.prompt = L("app.backup.choosePanelPrompt")
         panel.directoryURL = folderURL
         guard panel.runModal() == .OK, let url = panel.url else {
             return

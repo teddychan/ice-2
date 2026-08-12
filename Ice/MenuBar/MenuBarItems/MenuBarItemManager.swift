@@ -5,6 +5,7 @@
 
 import Cocoa
 import Combine
+import DragonKit
 import OSLog
 import Semaphore
 
@@ -1613,7 +1614,10 @@ extension MenuBarItemManager {
         guard let targetItem = items.first else {
             logger.warning("Not enough room to show \(item.logString, privacy: .public)")
             let alert = NSAlert()
-            alert.messageText = "Not enough room to show \"\(item.displayName)\""
+            alert.messageText = String(
+                format: L("app.layout.alert.notEnoughRoom.title"),
+                item.displayName
+            )
             alert.runModal()
             return
         }

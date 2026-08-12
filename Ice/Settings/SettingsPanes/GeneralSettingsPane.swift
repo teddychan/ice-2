@@ -37,21 +37,12 @@ struct GeneralSettingsPane: View {
         )
     }
 
-    private var itemSpacingOffsetKey: LocalizedStringKey {
+    private var itemSpacingOffsetLabel: String {
         switch tempItemSpacingOffset {
-        case -16: "none"
-        case 0: "default"
-        case 16: "max"
-        default: LocalizedStringKey(tempItemSpacingOffset.formatted())
-        }
-    }
-
-    private var rehideIntervalKey: LocalizedStringKey {
-        let formatted = settings.rehideInterval.formatted()
-        if settings.rehideInterval == 1 {
-            return LocalizedStringKey(formatted + " second")
-        } else {
-            return LocalizedStringKey(formatted + " seconds")
+        case -16: L("app.general.spacing.none")
+        case 0: L("app.general.spacing.default")
+        case 16: L("app.general.spacing.max")
+        default: tempItemSpacingOffset.formatted()
         }
     }
 
@@ -61,13 +52,19 @@ struct GeneralSettingsPane: View {
                 appOptions
                 iceIconOptions
             }
-            DragonSection("Show Hidden Items") {
+            DragonSection {
+                Text(L("app.general.section.showHiddenItems"))
+            } content: {
                 showOptions
             }
-            DragonSection("Rehide") {
+            DragonSection {
+                Text(L("app.general.section.rehide"))
+            } content: {
                 rehideOptions
             }
-            DragonSection("Ice 2 Bar") {
+            DragonSection {
+                Text(L("app.general.section.iceBar"))
+            } content: {
                 iceBarOptions
             }
             DragonSection {
@@ -80,9 +77,16 @@ struct GeneralSettingsPane: View {
 
     /// Launch at login, via DragonKit's `LoginItem` — the single code path every Dragon app
     /// (and the shared uninstall flow) uses to drive `SMAppService.mainApp`.
+    ///
+    /// The language picker is DragonKit's `LanguagePicker`, called bare: Ice 2 ships every
+    /// locale the kit does, and CONFORMANCE.md §R13 requires the offered set to equal the
+    /// shipped set exactly, so the kit's default of `DragonLanguage.selectable` is the correct
+    /// list. `onChange` is left `nil` — Ice 2 resolves its own strings through `L(_:)` and the
+    /// settings window is wrapped in `.dragonLocalized()`, so the switch happens in place with
+    /// no relaunch.
     @ViewBuilder
     private var appOptions: some View {
-        Toggle("Launch at login", isOn: Binding(
+        Toggle(L("app.general.launchAtLogin"), isOn: Binding(
             get: { launchesAtLogin },
             set: { newValue in
                 LoginItem.setEnabled(newValue)
@@ -92,14 +96,16 @@ struct GeneralSettingsPane: View {
             }
         ))
         .onAppear { launchesAtLogin = LoginItem.isEnabled }
+
+        LanguagePicker()
     }
 
     // MARK: Ice Icon Options
 
     @ViewBuilder
     private var iceIconOptions: some View {
-        Toggle("Show Ice 2 icon", isOn: $settings.showIceIcon)
-            .dragonAnnotation("Click to show hidden menu bar items. Right-click to access Ice 2's settings. Customize the icon in the Appearance settings.")
+        Toggle(L("app.general.showIceIcon"), isOn: $settings.showIceIcon)
+            .dragonAnnotation { Text(L("app.general.showIceIcon.note")) }
     }
 
     // MARK: Ice Bar Options
@@ -119,7 +125,7 @@ struct GeneralSettingsPane: View {
                 }
             }
         } label: {
-            Text("Automatic Ice 2 Bar")
+            Text(L("app.general.autoIceBar"))
         }
     }
 
@@ -130,14 +136,14 @@ struct GeneralSettingsPane: View {
         DisclosureGroup {
             spacingOptions
         } label: {
-            Text("Advanced")
+            Text(L("app.general.advanced"))
         }
     }
 
     @ViewBuilder
     private var useIceBar: some View {
-        Toggle("Use Ice 2 Bar", isOn: $settings.useIceBar)
-            .dragonAnnotation("Show hidden menu bar items in a separate bar below the menu bar.")
+        Toggle(L("app.general.useIceBar"), isOn: $settings.useIceBar)
+            .dragonAnnotation { Text(L("app.general.useIceBar.note")) }
             .disabled(settings.autoEnableIceBar)
     }
 
@@ -145,16 +151,16 @@ struct GeneralSettingsPane: View {
     private var autoEnableIceBar: some View {
         Toggle(isOn: $settings.autoEnableIceBar) {
             HStack {
-                Text("Auto-enable Ice 2 Bar")
+                Text(L("app.general.autoEnableIceBar"))
                 BetaBadge()
             }
         }
-        .dragonAnnotation("Automatically enable or disable Ice 2 Bar based on the current display.")
+        .dragonAnnotation { Text(L("app.general.autoEnableIceBar.note")) }
     }
 
     @ViewBuilder
     private var iceBarAutoEnableModePicker: some View {
-        IcePicker("Auto-enable when", selection: $settings.iceBarAutoEnableMode) {
+        IcePicker(L("app.general.autoEnableWhen"), selection: $settings.iceBarAutoEnableMode) {
             ForEach(IceBarAutoEnableMode.allCases) { mode in
                 Text(mode.localized).tag(mode)
             }
@@ -162,9 +168,9 @@ struct GeneralSettingsPane: View {
         .dragonAnnotation {
             switch settings.iceBarAutoEnableMode {
             case .screenWidth:
-                Text("Enable Ice 2 Bar when the active menu bar screen is narrower than the threshold.")
+                Text(L("app.general.autoEnable.screenWidth.note"))
             case .screensWithNotch:
-                Text("Enable Ice 2 Bar when the active menu bar screen has a notch.")
+                Text(L("app.general.autoEnable.notch.note"))
             }
         }
     }
@@ -173,21 +179,21 @@ struct GeneralSettingsPane: View {
     private var iceBarDisplayWidthThreshold: some View {
         LabeledContent {
             TextField(
-                "Width",
+                L("app.general.width"),
                 value: $settings.iceBarDisplayWidthThreshold,
                 format: .number.grouping(.never)
             )
             .textFieldStyle(.roundedBorder)
             .frame(width: 80)
         } label: {
-            Text("Width threshold")
+            Text(L("app.general.widthThreshold"))
         }
-        .dragonAnnotation("Ice 2 Bar will be enabled when the active menu bar screen is narrower than this width in points.")
+        .dragonAnnotation { Text(L("app.general.widthThreshold.note")) }
     }
 
     @ViewBuilder
     private var iceBarLocationPicker: some View {
-        IcePicker("Location", selection: $settings.iceBarLocation) {
+        IcePicker(L("app.general.location"), selection: $settings.iceBarLocation) {
             ForEach(IceBarLocation.allCases) { location in
                 Text(location.localized).tag(location)
             }
@@ -195,45 +201,36 @@ struct GeneralSettingsPane: View {
         .dragonAnnotation {
             switch settings.iceBarLocation {
             case .dynamic:
-                Text("The Ice 2 Bar's location changes based on context.")
+                Text(L("app.general.location.dynamic.note"))
             case .mousePointer:
-                Text("The Ice 2 Bar is centered below the mouse pointer.")
+                Text(L("app.general.location.mousePointer.note"))
             case .iceIcon:
-                Text("The Ice 2 Bar is centered below the Ice 2 icon.")
+                Text(L("app.general.location.iceIcon.note"))
             }
         }
     }
 
     // MARK: Show Options
 
-    private func formattedToSeconds(_ interval: TimeInterval) -> LocalizedStringKey {
-        let formatted = interval.formatted()
-        return if interval == 1 {
-            LocalizedStringKey(formatted + " second")
-        } else {
-            LocalizedStringKey(formatted + " seconds")
-        }
-    }
-
     @ViewBuilder
     private var showOptions: some View {
-        Toggle("Show on click", isOn: $settings.showOnClick)
-            .dragonAnnotation("Click inside an empty area of the menu bar to show hidden menu bar items.")
+        Toggle(L("app.general.showOnClick"), isOn: $settings.showOnClick)
+            .dragonAnnotation { Text(L("app.general.showOnClick.note")) }
 
-        Toggle("Show on hover", isOn: showOnHover)
-            .dragonAnnotation("Hover over an empty area of the menu bar or the Ice 2 icon to show hidden menu bar items.")
+        Toggle(L("app.general.showOnHover"), isOn: showOnHover)
+            .dragonAnnotation { Text(L("app.general.showOnHover.note")) }
         if showOnHover.wrappedValue {
             IceSlider(
-                formattedToSeconds(hoverDelay.wrappedValue),
+                formattedSeconds(hoverDelay.wrappedValue),
                 value: hoverDelay,
                 in: 0...1,
                 step: 0.1
             )
-            .dragonAnnotation("The amount of time to wait before showing hidden items.")
+            .dragonAnnotation { Text(L("app.general.hoverDelay.note")) }
         }
 
-        Toggle("Show on scroll", isOn: $settings.showOnScroll)
-            .dragonAnnotation("Scroll or swipe in the menu bar to show hidden menu bar items.")
+        Toggle(L("app.general.showOnScroll"), isOn: $settings.showOnScroll)
+            .dragonAnnotation { Text(L("app.general.showOnScroll.note")) }
     }
 
     // MARK: Rehide Options
@@ -248,13 +245,13 @@ struct GeneralSettingsPane: View {
 
     @ViewBuilder
     private var autoRehide: some View {
-        Toggle("Automatically rehide", isOn: $settings.autoRehide)
+        Toggle(L("app.general.autoRehide"), isOn: $settings.autoRehide)
     }
 
     @ViewBuilder
     private var rehideStrategyPicker: some View {
         VStack {
-            IcePicker("Strategy", selection: $settings.rehideStrategy) {
+            IcePicker(L("app.general.strategy"), selection: $settings.rehideStrategy) {
                 ForEach(RehideStrategy.allCases) { strategy in
                     Text(strategy.localized).tag(strategy)
                 }
@@ -262,17 +259,17 @@ struct GeneralSettingsPane: View {
             .dragonAnnotation {
                 switch settings.rehideStrategy {
                 case .smart:
-                    Text("Menu bar items are rehidden using a smart algorithm.")
+                    Text(L("app.general.strategy.smart.note"))
                 case .timed:
-                    Text("Menu bar items are rehidden after a fixed amount of time.")
+                    Text(L("app.general.strategy.timed.note"))
                 case .focusedApp:
-                    Text("Menu bar items are rehidden when the focused app changes.")
+                    Text(L("app.general.strategy.focusedApp.note"))
                 }
             }
 
             if case .timed = settings.rehideStrategy {
                 IceSlider(
-                    rehideIntervalKey,
+                    formattedSeconds(settings.rehideInterval),
                     value: $settings.rehideInterval,
                     in: 0...30,
                     step: 1
@@ -287,7 +284,7 @@ struct GeneralSettingsPane: View {
     private var spacingOptions: some View {
         LabeledContent {
             IceSlider(
-                itemSpacingOffsetKey,
+                itemSpacingOffsetLabel,
                 value: $tempItemSpacingOffset,
                 in: -16...16,
                 step: 2
@@ -295,10 +292,10 @@ struct GeneralSettingsPane: View {
             .disabled(isApplyingItemSpacingOffset)
         } label: {
             LabeledContent {
-                Button("Apply") {
+                Button(L("app.general.apply")) {
                     applyTempItemSpacingOffset()
                 }
-                .help("Apply the current spacing")
+                .help(L("app.general.apply.help"))
                 .disabled(isApplyingItemSpacingOffset || tempItemSpacingOffset == settings.itemSpacingOffset)
 
                 if isApplyingItemSpacingOffset {
@@ -314,23 +311,22 @@ struct GeneralSettingsPane: View {
                         Image(systemName: "arrow.counterclockwise.circle.fill")
                     }
                     .buttonStyle(.borderless)
-                    .help("Reset to the default spacing")
+                    .help(L("app.general.resetSpacing.help"))
                     .disabled(isApplyingItemSpacingOffset || settings.itemSpacingOffset == 0)
                 }
             } label: {
                 HStack {
-                    Text("Menu bar item spacing")
+                    Text(L("app.general.itemSpacing"))
                     BetaBadge()
                 }
             }
         }
-        .dragonAnnotation(
-            "Applying this setting will relaunch all apps with menu bar items. Some apps may need to be manually relaunched.",
-            spacing: 2
-        )
+        .dragonAnnotation(spacing: 2) {
+            Text(L("app.general.itemSpacing.note"))
+        }
         .dragonAnnotation(spacing: 10) {
             CalloutBox(
-                "Note: You may need to log out and back in for this setting to apply properly.",
+                L("app.general.itemSpacing.callout"),
                 systemImage: "exclamationmark.circle"
             )
         }

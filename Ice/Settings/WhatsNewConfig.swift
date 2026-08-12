@@ -19,14 +19,11 @@ import DragonKit
 /// `MAC-APP-RELEASE-LIFECYCLE.md` now makes updating this file part of every public release,
 /// gated on the tag.
 enum WhatsNewConfig {
+    @MainActor
     static var content: WhatsNewContent {
         WhatsNewContent(
             date: "2026-08-11",
-            summary: """
-                One fix, finishing what 2.14.6 started: the copyright notice macOS shows for \
-                Ice 2 in Finder's Get Info panel now matches the one in Settings ▸ About. \
-                Nothing about Ice 2's licensing or its origins changed.
-                """,
+            summary: L("app.whatsNew.2_14_7.summary"),
             sections: [
                 // 2.14.6's notes told users "the app's own copyright notice still names both
                 // authors". That was true when written and is not any more, so this entry says so
@@ -36,8 +33,8 @@ enum WhatsNewConfig {
                 // conformance rule R14 counts the copyright symbol per line of Swift source, and
                 // it does not read string literals differently from the About slot itself.
                 ChangeSection(kind: .fixed, entries: [
-                    "Finder's Get Info panel now shows the same copyright line as Settings ▸ About. It named two holders, Jordan Baird's for 2025 alongside Teddy Chan's for 2026, while About named one — so the app made two different claims about itself depending on where you looked. Both now read © 2026 Teddy Chan. 2.14.6's release notes said this notice still carried both authors, and that is what has changed here.",
-                    "Nothing about Ice 2's licensing or its origins changed. It is still GPL-3.0, inherited from Ice. Jordan Baird's copyright notice is still in the LICENSE file that ships with the app and still in its bundled Acknowledgements, which is where the licence requires it. He is still credited twice in Settings ▸ About, by the Original project link and the Based on line, and the full licence texts are still published at dragonapp.com/ice-2/licenses/.",
+                    L("app.whatsNew.2_14_7.fixed.copyright"),
+                    L("app.whatsNew.2_14_7.fixed.licensing"),
                 ]),
             ]
         )

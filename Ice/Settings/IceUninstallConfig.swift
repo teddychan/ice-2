@@ -55,6 +55,7 @@ enum IceUninstallConfig {
         UninstallConfig.caskToken("ice-2", ifBundleIs: releaseBundleID, actual: actual)
     }
 
+    @MainActor
     static var config: UninstallConfig {
         // The running bundle's id, so a debug build (com.dragonapp.ice.debug) cleans its OWN
         // domain/state/caches and never the installed release's.
@@ -63,11 +64,14 @@ enum IceUninstallConfig {
         return UninstallConfig(
             appName: Constants.displayName,
             bundleID: bundleID,
+            // Resolved here, not keyed: `UninstallConfig` is built fresh each time the pane
+            // renders and the kit shows these strings as-is (its own doc comment says to
+            // localize them in the app), so `L(_:)` reads the language selected right now.
             checklistItems: [
-                "The app and its login item",
-                "Settings, layout profiles, and hotkeys",
-                "Saved application state",
-                "Caches and support files",
+                L("app.uninstall.item.app"),
+                L("app.uninstall.item.settings"),
+                L("app.uninstall.item.state"),
+                L("app.uninstall.item.caches"),
             ],
             extraCleanupPaths: [
                 library.appending(path: "Application Support/\(bundleID)"),

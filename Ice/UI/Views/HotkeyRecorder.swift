@@ -4,6 +4,7 @@
 //
 
 import Combine
+import DragonKit
 import SwiftUI
 
 // MARK: - HotkeyRecorder
@@ -25,10 +26,10 @@ struct HotkeyRecorder<Label: View>: View {
             label
         }
         .alert(
-            "Hotkey is reserved by macOS",
+            L("app.hotkeys.reserved"),
             isPresented: $model.isPresentingSystemReservedError
         ) {
-            Button("OK") {
+            Button(L("DragonKit.ok")) {
                 model.isPresentingSystemReservedError = false
             }
         }
@@ -87,26 +88,26 @@ struct HotkeyRecorder<Label: View>: View {
     @ViewBuilder
     private var leadingSegmentLabel: some View {
         if model.isRecording {
-            Text("Type Hotkey")
+            Text(L("app.hotkeys.typeHotkey"))
         } else if model.hotkey.isEnabled {
             if let keyCombination = model.hotkey.keyCombination {
                 Text(keyCombination.displayValue)
             } else {
-                Text("ERROR")
+                Text(L("app.hotkeys.error"))
             }
         } else {
-            Text("Record Hotkey")
+            Text(L("app.hotkeys.recordHotkey"))
         }
     }
 
     @ViewBuilder
     private var trailingSegmentLabel: some View {
         let (name, label, padding) = if model.isRecording {
-            ("escape", "Cancel", 6.0)
+            ("escape", L("DragonKit.cancel"), 6.0)
         } else if model.hotkey.isEnabled {
-            ("xmark", "Clear", 7.5)
+            ("xmark", L("app.hotkeys.clear"), 7.5)
         } else {
-            ("record.circle", "Record", 5.5)
+            ("record.circle", L("app.hotkeys.record"), 5.5)
         }
         Image(systemName: name)
             .resizable()

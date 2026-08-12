@@ -38,7 +38,7 @@ struct MenuBarAppearanceEditor: View {
 
     @ViewBuilder
     private var cannotEdit: some View {
-        Text("Ice 2 cannot edit the appearance of automatically hidden menu bars.")
+        Text(L("app.appearance.cannotEdit"))
             .font(.title3)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
     }
@@ -51,7 +51,7 @@ struct MenuBarAppearanceEditor: View {
                 appState.settings.advanced.enableSecondaryContextMenu
             {
                 CalloutBox(
-                    "Tip: You can also edit these settings by right-clicking in an empty area of the menu bar.",
+                    L("app.appearance.tip.callout"),
                     systemImage: "lightbulb"
                 )
             }
@@ -69,7 +69,9 @@ struct MenuBarAppearanceEditor: View {
             } else {
                 StaticPartialEditor(configuration: $appearanceManager.configuration)
             }
-            DragonSection("Menu Bar Shape") {
+            DragonSection {
+                Text(L("app.appearance.section.menuBarShape"))
+            } content: {
                 shapePicker
                 isInset
             }
@@ -80,7 +82,7 @@ struct MenuBarAppearanceEditor: View {
     private var bottomBar: some View {
         HStack {
             if case .panel = location {
-                Button("Done") {
+                Button(L("app.common.done")) {
                     dismissWindow()
                 }
             }
@@ -91,19 +93,19 @@ struct MenuBarAppearanceEditor: View {
                 !appState.menuBarManager.isMenuBarHiddenBySystemUserDefaults,
                 appearanceManager.configuration != .defaultConfiguration
             {
-                Button("Reset") {
+                Button(L("app.common.reset")) {
                     isResetPromptPresented = true
                 }
-                .alert("Reset Menu Bar Appearance", isPresented: $isResetPromptPresented) {
-                    Button("Cancel", role: .cancel) {
+                .alert(L("app.appearance.reset.title"), isPresented: $isResetPromptPresented) {
+                    Button(L("DragonKit.cancel"), role: .cancel) {
                         isResetPromptPresented = false
                     }
-                    Button("Reset", role: .destructive) {
+                    Button(L("app.common.reset"), role: .destructive) {
                         appearanceManager.configuration = .defaultConfiguration
                         isResetPromptPresented = false
                     }
                 } message: {
-                    Text("This action cannot be undone.")
+                    Text(L("app.appearance.reset.message"))
                 }
             }
         }
@@ -113,18 +115,18 @@ struct MenuBarAppearanceEditor: View {
 
     @ViewBuilder
     private var isDynamicToggle: some View {
-        Toggle("Use dynamic appearance", isOn: $appearanceManager.configuration.isDynamic)
-            .dragonAnnotation("Apply different settings based on the current system appearance.")
+        Toggle(L("app.appearance.useDynamic"), isOn: $appearanceManager.configuration.isDynamic)
+            .dragonAnnotation { Text(L("app.appearance.useDynamic.note")) }
     }
 
     @ViewBuilder
     private var removesMenuBarBackgroundToggle: some View {
-        Toggle("Remove menu bar background", isOn: $appearanceManager.configuration.removesMenuBarBackground)
+        Toggle(L("app.appearance.removeBackground"), isOn: $appearanceManager.configuration.removesMenuBarBackground)
     }
 
     @ViewBuilder
     private var roundsScreenCornersToggle: some View {
-        Toggle("Round screen corners", isOn: $appearanceManager.configuration.roundsScreenCorners)
+        Toggle(L("app.appearance.roundCorners"), isOn: $appearanceManager.configuration.roundsScreenCorners)
     }
 
     @ViewBuilder
@@ -137,7 +139,7 @@ struct MenuBarAppearanceEditor: View {
     private var isInset: some View {
         if appearanceManager.configuration.shapeKind != .noShape {
             Toggle(
-                "Use inset shape on screens with notch",
+                L("app.appearance.insetShape"),
                 isOn: $appearanceManager.configuration.isInset
             )
         }
@@ -153,17 +155,19 @@ private struct MenuBarIconSettings: View {
     @State private var presentedError: LocalizedErrorWrapper?
 
     var body: some View {
-        DragonSection("Menu Bar Icon") {
+        DragonSection {
+            Text(L("app.appearance.section.menuBarIcon"))
+        } content: {
             iceIconPicker
         }
     }
 
     @ViewBuilder
     private var iceIconPicker: some View {
-        let labelKey = LocalizedStringKey("Ice 2 icon")
+        let label = L("app.appearance.iceIcon")
 
-        IceMenu(labelKey) {
-            Picker(labelKey, selection: $settings.iceIcon) {
+        IceMenu(label) {
+            Picker(label, selection: $settings.iceIcon) {
                 ForEach(ControlItemImageSet.userSelectableIceIcons) { imageSet in
                     Button {
                         settings.iceIcon = imageSet
@@ -186,13 +190,13 @@ private struct MenuBarIconSettings: View {
 
             Divider()
 
-            Button("Choose image…") {
+            Button(L("app.appearance.chooseImage")) {
                 isImportingCustomIceIcon = true
             }
         } title: {
             iceIconMenuItem(for: settings.iceIcon)
         }
-        .dragonAnnotation("Choose a custom icon to show in the menu bar.")
+        .dragonAnnotation { Text(L("app.appearance.iceIcon.note")) }
         .fileImporter(
             isPresented: $isImportingCustomIceIcon,
             allowedContentTypes: [.image]
@@ -210,23 +214,17 @@ private struct MenuBarIconSettings: View {
             }
         }
         .alert(isPresented: $isPresentingError, error: presentedError) {
-            Button("OK") {
+            Button(L("DragonKit.ok")) {
                 presentedError = nil
                 isPresentingError = false
             }
         }
 
         if case .custom = settings.iceIcon.name {
-            Toggle("Custom icon uses dynamic appearance", isOn: $settings.customIceIconIsTemplate)
+            Toggle(L("app.appearance.customIconDynamic"), isOn: $settings.customIceIconIsTemplate)
                 .dragonAnnotation {
-                    Text(
-                        """
-                        Display the icon as a monochrome image that dynamically adjusts to match \
-                        the menu bar's appearance. This setting removes all color from the icon, \
-                        but ensures consistent rendering with both light and dark backgrounds.
-                        """
-                    )
-                    .padding(.trailing, 50)
+                    Text(L("app.appearance.customIconDynamic.note"))
+                        .padding(.trailing, 50)
                 }
         }
     }
@@ -234,7 +232,7 @@ private struct MenuBarIconSettings: View {
     @ViewBuilder
     private func iceIconMenuItem(for imageSet: ControlItemImageSet) -> some View {
         Label {
-            Text(imageSet.name.rawValue)
+            Text(imageSet.name.localized)
         } icon: {
             if let nsImage = imageSet.hidden.nsImage(for: appState) {
                 switch imageSet.name {
@@ -267,9 +265,9 @@ private struct UnlabeledPartialEditor: View {
 
     @ViewBuilder
     private var tintPicker: some View {
-        LabeledContent("Tint") {
+        LabeledContent(L("app.appearance.tint")) {
             HStack {
-                IcePicker("Tint", selection: $configuration.tintKind) {
+                IcePicker(L("app.appearance.tint"), selection: $configuration.tintKind) {
                     ForEach(MenuBarTintKind.allCases) { tintKind in
                         Text(tintKind.localized).tag(tintKind)
                     }
@@ -301,19 +299,19 @@ private struct UnlabeledPartialEditor: View {
 
     @ViewBuilder
     private var shadowToggle: some View {
-        Toggle("Shadow", isOn: $configuration.hasShadow)
+        Toggle(L("app.appearance.shadow"), isOn: $configuration.hasShadow)
     }
 
     @ViewBuilder
     private var borderToggle: some View {
-        Toggle("Border", isOn: $configuration.hasBorder)
+        Toggle(L("app.appearance.border"), isOn: $configuration.hasBorder)
     }
 
     @ViewBuilder
     private var borderColor: some View {
         if configuration.hasBorder {
             ColorPicker(
-                "Border Color",
+                L("app.appearance.borderColor"),
                 selection: $configuration.borderColor,
                 supportsOpacity: true
             )
@@ -324,7 +322,7 @@ private struct UnlabeledPartialEditor: View {
     private var borderWidth: some View {
         if configuration.hasBorder {
             IcePicker(
-                "Border Width",
+                L("app.appearance.borderWidth"),
                 selection: $configuration.borderWidth
             ) {
                 Text("1").tag(1.0)
@@ -356,7 +354,7 @@ private struct LabeledPartialEditor: View {
     @ViewBuilder
     private var labelStack: some View {
         HStack {
-            Text(appearance.titleKey)
+            Text(appearance.localized)
                 .font(.headline)
                 .onFrameChange(update: $textFrame)
 
@@ -406,7 +404,7 @@ private struct PreviewButton: View {
     }
 
     var body: some View {
-        Button("Hold to Preview") { }
+        Button(L("app.appearance.holdToPreview")) { }
             .buttonStyle(PreviewButtonStyle(isPressed: $isPressed))
             .onChange(of: isPressed) {
                 manager.previewConfiguration = isPressed ? previewConfiguration : nil

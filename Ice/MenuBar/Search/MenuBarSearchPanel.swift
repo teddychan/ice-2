@@ -4,6 +4,7 @@
 //
 
 import Combine
+import DragonKit
 import Ifrit
 import OSLog
 import SwiftUI
@@ -208,9 +209,9 @@ private struct MenuBarSearchContentView: View {
     private var promptText: Text {
         switch model.mode {
         case .clickOrShow:
-            Text("Search menu bar items…")
+            Text(L("app.search.prompt.clickOrShow"))
         case .temporarilyShow:
-            Text("Temporarily show menu bar item…")
+            Text(L("app.search.prompt.temporarilyShow"))
         }
     }
 
@@ -270,7 +271,7 @@ private struct MenuBarSearchContentView: View {
                 .scrollContentBackground(.hidden)
         } else {
             VStack {
-                Text("Loading menu bar items…")
+                Text(L("app.common.loadingItems"))
                     .font(.title2)
                 ProgressView()
                     .controlSize(.small)
@@ -326,13 +327,15 @@ private struct MenuBarSearchContentView: View {
                 }
 
                 let headerItem = ListItem.header(id: .header(name)) {
-                    Text(name.displayString)
+                    Text(name.localized)
                         .fontWeight(.semibold)
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.vertical, 10)
                 }
-                items.append(SearchItem(headerItem, name.displayString))
+                // The localized name, matching what the header renders: searching for a
+                // section by the words on screen has to work in the selected language too.
+                items.append(SearchItem(headerItem, name.localized))
 
                 for item in itemManager.itemCache[name].reversed() {
                     if model.mode == .temporarilyShow, name == .visible {
@@ -457,9 +460,15 @@ private struct ShowItemButton: View {
     private var actionTitle: String {
         switch mode {
         case .clickOrShow:
-            "\(Bridging.isWindowOnScreen(item.windowID) ? "Click" : "Show") Item"
+            // An if-expression rather than a ternary: SwiftLint's `void_function_in_ternary`
+            // misreads a ternary in implicit-return position here, and this reads better anyway.
+            if Bridging.isWindowOnScreen(item.windowID) {
+                L("app.search.clickItem")
+            } else {
+                L("app.search.showItem")
+            }
         case .temporarilyShow:
-            "Show Item"
+            L("app.search.showItem")
         }
     }
 }

@@ -4,6 +4,7 @@
 //
 
 import Cocoa
+import DragonKit
 import Combine
 import OSLog
 
@@ -61,7 +62,7 @@ final class MenuBarSpacerManager: ObservableObject {
     func createSpacer() {
         let spacer = MenuBarSpacer(
             id: UUID(),
-            name: "Spacer \(spacers.count + 1)",
+            name: String(format: L("app.layout.spacerName"), spacers.count + 1),
             width: 24
         )
         spacers.append(spacer)

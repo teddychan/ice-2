@@ -126,8 +126,8 @@ final class UpdatesManager {
     /// Sparkle's delegate that ``DragonUpdaterConfig`` does not expose.
     private static func notifyUpdateAvailable() {
         let content = UNMutableNotificationContent()
-        content.title = "A new update is available"
-        content.body = "\(Constants.displayName) found a newer version."
+        content.title = L("app.updates.notification.title")
+        content.body = String(format: L("app.updates.notification.body"), Constants.displayName)
         UNUserNotificationCenter.current().add(
             UNNotificationRequest(identifier: "UpdateCheck", content: content, trigger: nil)
         )

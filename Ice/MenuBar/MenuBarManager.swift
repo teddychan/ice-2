@@ -4,6 +4,7 @@
 //
 
 import Combine
+import DragonKit
 import OSLog
 import SwiftUI
 
@@ -269,12 +270,12 @@ final class MenuBarManager: ObservableObject {
         return AXHelpers.role(for: element) == .menuBar
     }
 
-    /// Shows the secondary context menu.
+    /// Shows the secondary context menu: Ice 2's own appearance shortcut, then Settings.
     func showSecondaryContextMenu(at point: CGPoint) {
         let menu = NSMenu(title: Constants.displayName)
 
         let editAppearanceItem = NSMenuItem(
-            title: "Edit Menu Bar Appearance…",
+            title: L("app.menu.editAppearance"),
             action: #selector(showAppearanceEditorPanel),
             keyEquivalent: ""
         )
@@ -283,14 +284,56 @@ final class MenuBarManager: ObservableObject {
 
         menu.addItem(.separator())
 
-        let settingsItem = NSMenuItem(
-            title: "\(Constants.displayName) Settings…",
-            action: #selector(AppDelegate.openSettingsWindow),
-            keyEquivalent: ","
-        )
-        menu.addItem(settingsItem)
+        for item in canonicalSettingsItems() {
+            menu.addItem(item)
+        }
 
         menu.popUp(positioning: nil, at: point, in: nil)
+    }
+
+    /// The canonical "Settings…" item, taken from ``DragonAppMenu`` rather than rebuilt.
+    ///
+    /// This menu used to hand-roll it as `"\(Constants.displayName) Settings…"` with no SF
+    /// Symbol — the drift CONFORMANCE.md §R1 exists to stop, and one the checker missed only
+    /// because the construction spanned two lines. The kit owns the title, the ellipsis, the
+    /// `gearshape` symbol and the ⌘, equivalent.
+    ///
+    /// Only Settings is wanted here: this is a right-click affordance on an empty stretch of
+    /// menu bar, not the app's dropdown, which the control item already builds from the full
+    /// `items(_:)` block. The kit exposes the block rather than its parts, so it is filtered —
+    /// on the ⌘, key equivalent, which `DragonAppMenu` documents as canon and which, unlike the
+    /// title, reads the same in all seven languages. If the canon ever stops producing it, the
+    /// whole block is added instead so Settings is never unreachable from here.
+    private func canonicalSettingsItems() -> [NSMenuItem] {
+        let items = DragonAppMenu.items(DragonAppMenu.Config(
+            appName: Constants.displayName,
+            onAbout: { [weak self] in self?.openSettings(navigatingTo: .about) },
+            onSettings: { [weak self] in self?.openSettings(navigatingTo: nil) },
+            onCheckForUpdates: nil,
+            includeQuit: false
+        ))
+        guard let settings = items.first(where: { $0.keyEquivalent == "," }) else {
+            logger.error("DragonAppMenu produced no ⌘, item; showing the whole app block instead")
+            return items
+        }
+        return [settings]
+    }
+
+    /// Brings the app forward and opens Settings, optionally on a specific pane.
+    ///
+    /// The delay mirrors ``AppDelegate/openSettingsWindow()``: activating and opening a window
+    /// back-to-back is unreliable for an accessory (LSUIElement) app.
+    private func openSettings(navigatingTo identifier: SettingsNavigationIdentifier?) {
+        guard let appState else {
+            return
+        }
+        if let identifier {
+            appState.navigationState.settingsNavigationIdentifier = identifier
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            appState.activate(withPolicy: .regular)
+            appState.openWindow(.settings)
+        }
     }
 
     /// Hides the application menus.

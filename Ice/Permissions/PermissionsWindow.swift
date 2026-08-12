@@ -3,6 +3,7 @@
 //  Ice
 //
 
+import DragonKit
 import SwiftUI
 
 struct PermissionsWindow: Scene {
@@ -11,6 +12,7 @@ struct PermissionsWindow: Scene {
     var body: some Scene {
         IceWindow(id: .permissions) {
             PermissionsView()
+                .dragonLocalized()
                 .onWindowChange { window in
                     guard let window else {
                         return

@@ -24,14 +24,16 @@ struct IceGradientPicker<Label: View>: View {
         self.label = label()
     }
 
+    /// - Parameter label: An already-localized label, normally `L("app.…")`. See ``IcePicker``
+    ///   for why this is a `String` and not a `LocalizedStringKey`.
     init(
-        _ labelKey: LocalizedStringKey,
+        _ label: String,
         gradient: Binding<IceGradient>,
         supportsOpacity: Bool = true
     ) where Label == Text {
         self._gradient = gradient
         self.supportsOpacity = supportsOpacity
-        self.label = Text(labelKey)
+        self.label = Text(label)
     }
 
     /// Creates a new gradient picker.

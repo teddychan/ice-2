@@ -3,6 +3,7 @@
 //  Ice
 //
 
+import DragonKit
 import SwiftUI
 
 /// A representation of a section in a menu bar.
@@ -32,9 +33,14 @@ final class MenuBarSection {
             }
         }
 
-        /// Localized string key representation.
-        var localized: LocalizedStringKey {
-            LocalizedStringKey(displayString)
+        /// The section name as shown in the UI. `displayString` stays English — it is also the
+        /// menu-item and log wording — so the display name is resolved separately.
+        @MainActor var localized: String {
+            switch self {
+            case .visible: L("app.section.visible")
+            case .hidden: L("app.section.hidden")
+            case .alwaysHidden: L("app.section.alwaysHidden")
+            }
         }
     }
 

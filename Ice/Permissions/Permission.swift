@@ -15,10 +15,15 @@ class Permission: ObservableObject, Identifiable {
     /// A Boolean value that indicates whether the app has this permission.
     @Published private(set) var hasPermission = false
 
-    /// The title of the permission.
+    /// Localization key for the title of the permission.
+    ///
+    /// A key, not a resolved string: a `Permission` is created once at launch and outlives any
+    /// number of language changes, so resolving here would freeze whichever language was
+    /// selected when the app started. ``PermissionsView`` resolves both through ``L(_:)`` as it
+    /// renders, which is what lets the window follow `LanguagePicker` live.
     let title: String
 
-    /// Descriptive details for the permission.
+    /// Localization keys for the descriptive details of the permission.
     let details: [String]
 
     /// A Boolean value that indicates if the app can work without this permission.
@@ -46,8 +51,8 @@ class Permission: ObservableObject, Identifiable {
     /// Creates a permission.
     ///
     /// - Parameters:
-    ///   - title: The title of the permission.
-    ///   - details: Descriptive details for the permission.
+    ///   - title: Localization key for the title of the permission.
+    ///   - details: Localization keys for the descriptive details of the permission.
     ///   - isRequired: A Boolean value that indicates if the app can work without this permission.
     ///   - settingsURLs: The URLs of the settings panes to open.
     ///   - check: A function that checks permissions.
@@ -197,10 +202,10 @@ class Permission: ObservableObject, Identifiable {
 final class AccessibilityPermission: Permission {
     init() {
         super.init(
-            title: "Accessibility",
+            title: "DragonKit.permission.accessibility.title",
             details: [
-                "Get real-time information about the menu bar.",
-                "Arrange menu bar items.",
+                "app.permission.accessibility.detail.info",
+                "app.permission.accessibility.detail.arrange",
             ],
             isRequired: true,
             mayRequireRelaunch: false,
@@ -223,10 +228,10 @@ final class AccessibilityPermission: Permission {
 final class ScreenRecordingPermission: Permission {
     init() {
         super.init(
-            title: "Screen Recording",
+            title: "DragonKit.permission.screenRecording.title",
             details: [
-                "Change the menu bar's appearance.",
-                "Display images of individual menu bar items.",
+                "app.permission.screenRecording.detail.appearance",
+                "app.permission.screenRecording.detail.images",
             ],
             isRequired: false,
             mayRequireRelaunch: true,

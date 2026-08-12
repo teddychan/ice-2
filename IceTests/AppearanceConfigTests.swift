@@ -22,20 +22,26 @@ struct AppearanceConfigTests {
 
     // MARK: MenuBarShapeKind / TintKind
 
+    @MainActor
     @Test func shapeKindMetadata() {
         #expect(MenuBarShapeKind.allCases.map(\.rawValue) == [0, 1, 2])
         #expect(MenuBarShapeKind.split.id == 2)
-        #expect(MenuBarShapeKind.noShape.localized == "None")
-        #expect(MenuBarShapeKind.full.localized == "Full")
-        #expect(MenuBarShapeKind.split.localized == "Split")
+        withEnglish {
+            #expect(MenuBarShapeKind.noShape.localized == "None")
+            #expect(MenuBarShapeKind.full.localized == "Full")
+            #expect(MenuBarShapeKind.split.localized == "Split")
+        }
     }
 
+    @MainActor
     @Test func tintKindMetadata() {
         #expect(MenuBarTintKind.allCases.map(\.rawValue) == [0, 1, 2])
         #expect(MenuBarTintKind.gradient.id == 2)
-        #expect(MenuBarTintKind.noTint.localized == "None")
-        #expect(MenuBarTintKind.solid.localized == "Solid")
-        #expect(MenuBarTintKind.gradient.localized == "Gradient")
+        withEnglish {
+            #expect(MenuBarTintKind.noTint.localized == "None")
+            #expect(MenuBarTintKind.solid.localized == "Solid")
+            #expect(MenuBarTintKind.gradient.localized == "Gradient")
+        }
     }
 
     // MARK: Full shape info

@@ -3,6 +3,7 @@
 //  Ice
 //
 
+import DragonKit
 import SwiftUI
 
 /// A type that specifies how the menu bar is tinted.
@@ -16,12 +17,12 @@ enum MenuBarTintKind: Int, CaseIterable, Codable, Identifiable {
 
     var id: Int { rawValue }
 
-    /// Localized string key representation.
-    var localized: LocalizedStringKey {
+    /// The name shown in the tint picker.
+    @MainActor var localized: String {
         switch self {
-        case .noTint: "None"
-        case .solid: "Solid"
-        case .gradient: "Gradient"
+        case .noTint: L("app.common.none")
+        case .solid: L("app.appearance.tint.solid")
+        case .gradient: L("app.appearance.tint.gradient")
         }
     }
 }

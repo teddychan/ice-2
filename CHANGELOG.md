@@ -1,5 +1,51 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- **Ice 2 speaks seven languages.** English, Español, Français, 日本語, 한국어, 简体中文 and
+  繁體中文, chosen from a new **Language** control in Settings ▸ General. The whole app switches
+  the moment you pick one — settings, the menu bar dropdown, alerts and the permissions window —
+  with no relaunch. Set it to **Automatic** to follow macOS.
+
+  This is the last of the five Dragon apps to ship localization; the other four already had these
+  same seven. Ice 2 previously had none at all: no `.lproj`, no String Catalog, and 213 English
+  strings hardcoded across 31 files.
+
+### Changed
+
+- **The right-click menu's Settings item now reads "Settings…", with the gear icon every other
+  Dragon app shows.** It said "Ice 2 Settings…" and carried no icon, because it was built by hand
+  instead of coming from the shared `DragonAppMenu` — the exact drift dragon-kit's conformance
+  spec exists to prevent, and one its §R1 check happened to miss because the construction spanned
+  two lines. "Edit Menu Bar Appearance…" above it is Ice 2's own and is unchanged.
+
+- **The backup folder button reads "Choose…" rather than "Change…".** It now uses DragonKit's
+  string, so this row matches the same row in every other Dragon app.
+
+### Internal
+
+- Every user-visible string resolves through DragonKit's `L(_:)` rather than SwiftUI's
+  `LocalizedStringKey`. A `LocalizedStringKey` is looked up against the localizations the process
+  read at launch, so the picker could only ever have taken effect on the *next* run; `L(_:)`
+  re-resolves per call and `.dragonLocalized()` on the settings and permissions windows rebuilds
+  them when the choice changes. Keys are semantic (`app.general.showOnClick`), never English text.
+
+- Shared wording — OK, Cancel, the sidebar pane titles, and the whole Backup, Uninstall and
+  Updates chrome — is read from DragonKit's own table instead of being copied into Ice 2's. An app
+  that redefines a `DragonKit.` key cannot win the lookup anyway; duplicating them is how the
+  shared menu's casing drifted across apps before.
+
+- `LocalizationCoverageTests` pins the invariants that otherwise break silently: all seven tables
+  define exactly the same keys, their `%@`/`%d` specifiers match English positionally, none claims
+  a kit-owned key, and switching language re-resolves both app- and kit-owned strings in-process.
+  It reads the *built* bundle, so it also proves the `.lproj` folders were copied in.
+
+- `.dragon-conformance.json`'s `strings` glob now points at the shipped locale files. It matched
+  nothing before, so conformance §R8 (no app-defined kit keys) and §R13 (the picker offers exactly
+  what the app ships) were both passing by having nothing to check.
+
 ## 2.14.7 - 2026-08-11
 
 ### Fixed

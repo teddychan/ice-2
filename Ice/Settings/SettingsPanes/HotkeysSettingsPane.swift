@@ -12,16 +12,22 @@ struct HotkeysSettingsPane: View {
 
     var body: some View {
         DragonForm {
-            DragonSection("Menu Bar Sections") {
+            DragonSection {
+                Text(L("app.advanced.section.menuBarSections"))
+            } content: {
                 hotkeyRecorder(forSection: .hidden)
                 hotkeyRecorder(forSection: .alwaysHidden)
                 hotkeyRecorder(forAction: .toggleSectionDividerIcons)
             }
-            DragonSection("Menu Bar Items") {
+            DragonSection {
+                Text(L("app.hotkeys.section.menuBarItems"))
+            } content: {
                 hotkeyRecorder(forAction: .searchMenuBarItems)
                 hotkeyRecorder(forAction: .temporarilyShowMenuBarItem)
             }
-            DragonSection("Other") {
+            DragonSection {
+                Text(L("app.advanced.section.other"))
+            } content: {
                 hotkeyRecorder(forAction: .enableIceBar)
                 hotkeyRecorder(forAction: .toggleAutoRehide)
                 hotkeyRecorder(forAction: .toggleApplicationMenus)
@@ -35,21 +41,21 @@ struct HotkeysSettingsPane: View {
             HotkeyRecorder(hotkey: hotkey) {
                 switch action {
                 case .toggleHiddenSection:
-                    Text("Toggle the hidden section")
+                    Text(L("app.hotkeys.toggleHidden"))
                 case .toggleAlwaysHiddenSection:
-                    Text("Toggle the always-hidden section")
+                    Text(L("app.hotkeys.toggleAlwaysHidden"))
                 case .toggleSectionDividerIcons:
-                    Text("Toggle section divider icons")
+                    Text(L("app.hotkeys.toggleDividerIcons"))
                 case .searchMenuBarItems:
-                    Text("Search menu bar items")
+                    Text(L("app.hotkeys.search"))
                 case .temporarilyShowMenuBarItem:
-                    Text("Temporarily show a menu bar item")
+                    Text(L("app.hotkeys.temporarilyShow"))
                 case .enableIceBar:
-                    Text("Enable the Ice 2 Bar")
+                    Text(L("app.hotkeys.enableIceBar"))
                 case .toggleAutoRehide:
-                    Text("Toggle auto rehide")
+                    Text(L("app.hotkeys.toggleAutoRehide"))
                 case .toggleApplicationMenus:
-                    Text("Toggle application menus")
+                    Text(L("app.hotkeys.toggleAppMenus"))
                 }
             }
         }

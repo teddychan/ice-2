@@ -13,6 +13,7 @@ import Testing
 /// contract is asserted here rather than trusted to review: the domain that gets wiped, every
 /// path removed alongside it, the checklist the user is shown, and — just as importantly —
 /// that all of it stays scoped to the *running* bundle id.
+@MainActor
 struct UninstallConfigTests {
     private var config: UninstallConfig { IceUninstallConfig.config }
 
@@ -35,14 +36,29 @@ struct UninstallConfigTests {
     }
 
     @Test func namesExactlyWhatIsRemoved() {
-        #expect(config.checklistItems == [
-            "The app and its login item",
-            "Settings, layout profiles, and hotkeys",
-            "Saved application state",
-            // The caches/support folders `extraCleanupPaths` adds are deleted, so the
-            // confirmation has to say so — the sheet must not under-report the damage.
-            "Caches and support files",
-        ])
+        // Pinned in English so the assertion means the same thing on every machine; the
+        // checklist is localized now, and `L(_:)` follows the OS language by default.
+        withEnglish {
+            #expect(config.checklistItems == [
+                "The app and its login item",
+                "Settings, layout profiles, and hotkeys",
+                "Saved application state",
+                // The caches/support folders `extraCleanupPaths` adds are deleted, so the
+                // confirmation has to say so — the sheet must not under-report the damage.
+                "Caches and support files",
+            ])
+        }
+    }
+
+    @Test func everyChecklistKeyActuallyResolves() {
+        // `L(_:)` falls back to the key itself when nothing matches, so a typo'd key does not
+        // crash or blank the row — it renders "app.uninstall.item.app" to the user, inside the
+        // confirmation for an unrecoverable delete. The test above cannot catch that on its
+        // own: it would still pass if the English table were the thing that was wrong.
+        for item in config.checklistItems {
+            #expect(!item.hasPrefix("app."), "unresolved localization key in the checklist: \(item)")
+            #expect(!item.isEmpty)
+        }
     }
 
     @Test func removesThePerBundleLibraryFolders() {

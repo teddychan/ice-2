@@ -21,15 +21,19 @@ struct IcePicker<Label: View, SelectionValue: Hashable, Content: View>: View {
         self.content = content()
     }
 
+    /// - Parameter title: An already-localized title, normally `L("app.…")`. Deliberately a
+    ///   `String` rather than a `LocalizedStringKey`: a key is resolved against the process's
+    ///   preferred localizations, which are fixed at launch, so it would ignore the language
+    ///   chosen in `LanguagePicker` until the next relaunch.
     init(
-        _ titleKey: LocalizedStringKey,
+        _ title: String,
         selection: Binding<SelectionValue>,
         @ViewBuilder content: () -> Content
     ) where Label == Text {
         self.init(selection: selection) {
             content()
         } label: {
-            Text(titleKey)
+            Text(title)
         }
     }
 

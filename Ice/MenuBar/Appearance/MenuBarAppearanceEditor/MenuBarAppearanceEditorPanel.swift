@@ -4,6 +4,7 @@
 //
 
 import Combine
+import DragonKit
 import SwiftUI
 
 /// A panel that contains a portable version of the menu bar
@@ -31,7 +32,7 @@ final class MenuBarAppearanceEditorPanel: NSPanel {
             backing: .buffered,
             defer: false
         )
-        self.title = "Menu Bar Appearance"
+        self.title = L("app.appearance.panelTitle")
         self.titlebarAppearsTransparent = true
         self.allowsToolTipsWhenApplicationIsInactive = true
         self.isFloatingPanel = true

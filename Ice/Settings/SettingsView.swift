@@ -7,6 +7,29 @@ import DragonKit
 import DragonKitUpdates
 import SwiftUI
 
+/// Ice 2's settings window.
+///
+/// **This shell is deliberately Ice 2's own, not DragonKit's `SettingsShell`.** The kit's shell
+/// is the data-driven generalization of this view, and adopting it is the obvious move — but it
+/// models one flat sidebar section of `Image(systemName:)` rows against a `String?` selection,
+/// and five things here have no expression in it:
+///
+/// - the second sidebar group (What's New, Updates, About, Uninstall sit apart at the bottom);
+/// - `.assetCatalog(.iceCubeStroke)` for About — `SettingsPane` exposes only
+///   `var systemImage: String`, so the kit cannot name a non-SF-Symbol icon at all;
+/// - the sidebar width tracking `\.sidebarRowSize`;
+/// - the row text dimming with `\.appearsActive` when the window is in the background;
+/// - `.navigationTitle` following the selected pane, and a non-optional selection, so there is
+///   no "Select a setting" empty state to render.
+///
+/// The icon is the smallest of the five, which is why an icon abstraction on `SettingsPane`
+/// would not have unblocked this on its own — it would have left four. Teaching the kit all five
+/// is a much larger, speculative change than one app needs, and nothing requires it: §R4 governs
+/// design *primitives* (`DragonForm` / `DragonSection` / `.dragonAnnotation`), which this pane
+/// tree already uses throughout; §R5 requires the kit's *panes*, which are rendered below via
+/// `.paneBody`; and §R9 reads pane order from whatever file the app names in
+/// `.dragon-conformance.json`. So the app shell stays, and the asset-catalog icon is not
+/// silently dropped to fit a protocol.
 struct SettingsView: View {
     @EnvironmentObject var appState: AppState
     @ObservedObject var navigationState: AppNavigationState
@@ -28,7 +51,7 @@ struct SettingsView: View {
         appearsActive ? .primary : .secondary
     }
 
-    private var navigationTitle: LocalizedStringKey {
+    private var navigationTitle: String {
         navigationState.settingsNavigationIdentifier.localized
     }
 

@@ -55,15 +55,20 @@ struct UtilityHelpersTests {
 
     // MARK: SystemAppearance
 
-    @Test func systemAppearanceTitleKeys() {
-        #expect(SystemAppearance.light.titleKey == "Light Appearance")
-        #expect(SystemAppearance.dark.titleKey == "Dark Appearance")
+    @MainActor
+    @Test func systemAppearanceTitles() {
+        withEnglish {
+            #expect(SystemAppearance.light.localized == "Light Appearance")
+            #expect(SystemAppearance.dark.localized == "Dark Appearance")
+        }
     }
 
     @MainActor
     @Test func currentSystemAppearanceResolvesToALightOrDarkTitle() {
         // Exercises the exact/best-match resolution against the host appearance.
-        let title = SystemAppearance.current.titleKey
-        #expect(title == "Light Appearance" || title == "Dark Appearance")
+        withEnglish {
+            let title = SystemAppearance.current.localized
+            #expect(title == "Light Appearance" || title == "Dark Appearance")
+        }
     }
 }

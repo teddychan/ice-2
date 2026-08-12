@@ -4,6 +4,7 @@
 //
 
 import Combine
+import DragonKit
 import SwiftUI
 
 // MARK: - SettingsWindow
@@ -15,6 +16,9 @@ struct SettingsWindow: Scene {
     var body: some Scene {
         IceWindow(id: .settings) {
             SettingsView(navigationState: appState.navigationState)
+                // Rebuilds the whole window when `LanguagePicker` changes language, so every
+                // `L(_:)` in Ice 2's panes and in DragonKit's re-resolves without a relaunch.
+                .dragonLocalized()
                 .onWindowChange { window in
                     model.observeWindowToolbar(window)
                 }

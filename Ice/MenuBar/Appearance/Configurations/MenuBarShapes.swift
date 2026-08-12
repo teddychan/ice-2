@@ -3,6 +3,7 @@
 //  Ice
 //
 
+import DragonKit
 import SwiftUI
 
 /// An end cap in a menu bar shape.
@@ -25,12 +26,12 @@ enum MenuBarShapeKind: Int, CaseIterable, Codable, Identifiable {
 
     var id: Int { rawValue }
 
-    /// Localized string key representation.
-    var localized: LocalizedStringKey {
+    /// The name shown in the shape-kind picker.
+    @MainActor var localized: String {
         switch self {
-        case .noShape: "None"
-        case .full: "Full"
-        case .split: "Split"
+        case .noShape: L("app.common.none")
+        case .full: L("app.appearance.shape.full")
+        case .split: L("app.appearance.shape.split")
         }
     }
 }

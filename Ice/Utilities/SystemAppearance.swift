@@ -3,6 +3,7 @@
 //  Ice
 //
 
+import DragonKit
 import SwiftUI
 
 /// A value corresponding to a light or dark appearance.
@@ -74,10 +75,10 @@ enum SystemAppearance {
     }
 
     /// The title key to display in the interface.
-    var titleKey: LocalizedStringKey {
+    @MainActor var localized: String {
         switch self {
-        case .light: "Light Appearance"
-        case .dark: "Dark Appearance"
+        case .light: L("app.appearance.light")
+        case .dark: L("app.appearance.dark")
         }
     }
 }

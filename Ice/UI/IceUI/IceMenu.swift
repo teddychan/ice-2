@@ -29,11 +29,12 @@ struct IceMenu<Title: View, Label: View, Content: View>: View {
     /// Creates a menu with the given content, title, and label key.
     ///
     /// - Parameters:
-    ///   - labelKey: A string key for the menu's external label.
+    ///   - label: An already-localized external label, normally `L("app.…")`. See
+    ///     ``IcePicker`` for why this is a `String` and not a `LocalizedStringKey`.
     ///   - content: A group of menu items.
     ///   - title: A view to display inside the menu.
     init(
-        _ labelKey: LocalizedStringKey,
+        _ label: String,
         @ViewBuilder content: () -> Content,
         @ViewBuilder title: () -> Title
     ) where Label == Text {
@@ -42,7 +43,7 @@ struct IceMenu<Title: View, Label: View, Content: View>: View {
         } title: {
             title()
         } label: {
-            Text(labelKey)
+            Text(label)
         }
     }
 

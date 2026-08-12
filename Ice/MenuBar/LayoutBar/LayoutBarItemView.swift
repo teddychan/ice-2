@@ -5,6 +5,7 @@
 
 import Cocoa
 import Combine
+import DragonKit
 
 // MARK: - LayoutBarItemView
 
@@ -158,15 +159,21 @@ final class LayoutBarItemView: NSView {
     /// Provides an alert to display when the item view is disabled.
     func provideAlertForDisabledItem() -> NSAlert {
         let alert = NSAlert()
-        alert.messageText = "Menu bar item is not movable."
-        alert.informativeText = "macOS prohibits \"\(item.displayName)\" from being moved."
+        alert.messageText = L("app.layout.alert.notMovable.title")
+        alert.informativeText = String(
+            format: L("app.layout.alert.notMovable.message"),
+            item.displayName
+        )
         return alert
     }
 
     /// Provides an alert to display when a menu bar item is unresponsive.
     func provideAlertForUnresponsiveItem() -> NSAlert {
         let alert = provideAlertForDisabledItem()
-        alert.informativeText = "\(item.displayName) is unresponsive. Until it is restarted, it cannot be moved. Movement of other menu bar items may also be affected until this is resolved."
+        alert.informativeText = String(
+            format: L("app.layout.alert.unresponsive.message"),
+            item.displayName
+        )
         return alert
     }
 

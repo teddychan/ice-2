@@ -12,11 +12,11 @@ struct PermissionsView: View {
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var manager: AppPermissions
 
-    private var continueButtonText: LocalizedStringKey {
+    private var continueButtonText: String {
         if case .hasRequired = manager.permissionsState {
-            "Continue in Limited Mode"
+            L("app.permissions.continueLimited")
         } else {
-            "Continue"
+            L("app.permissions.continue")
         }
     }
 
@@ -58,7 +58,7 @@ struct PermissionsView: View {
     @ViewBuilder
     private var headerView: some View {
         Label {
-            Text("Permissions")
+            Text(L("DragonKit.pane.permissions"))
                 .font(.system(size: 40, weight: .medium))
         } icon: {
             if let nsImage = NSImage(named: NSImage.applicationIconName) {
@@ -74,9 +74,9 @@ struct PermissionsView: View {
     private var explanationBox: some View {
         DragonSection {
             VStack {
-                Text("Ice 2 needs your permission to manage the menu bar.")
+                Text(L("app.permissions.intro"))
                     .fontWeight(.medium)
-                Text("Absolutely no personal information is collected or stored.")
+                Text(L("app.permissions.privacy"))
                     .bold()
                     .foregroundStyle(Color(red: 0.5, green: 0.75, blue: 1))
             }
@@ -110,7 +110,7 @@ struct PermissionsView: View {
         Button {
             NSApp.terminate(nil)
         } label: {
-            Text("Quit")
+            Text(L("app.permissions.quit"))
                 .frame(maxWidth: .infinity)
         }
     }
@@ -120,7 +120,7 @@ struct PermissionsView: View {
         Button {
             manager.refreshAllPermissions()
         } label: {
-            Text("Check Again")
+            Text(L("app.common.checkAgain"))
                 .frame(maxWidth: .infinity)
         }
     }
@@ -153,12 +153,12 @@ struct PermissionsView: View {
     private func permissionBox(_ permission: Permission) -> some View {
         DragonSection {
             VStack(spacing: 12) {
-                Text(permission.title)
+                Text(L(permission.title))
                     .font(.title.weight(.medium))
                     .underline()
 
                 VStack(spacing: 2) {
-                    Text("Ice 2 needs this to:")
+                    Text(L("app.permissions.needsThisTo"))
                         .font(.title3)
                         .bold()
 
@@ -166,7 +166,7 @@ struct PermissionsView: View {
                         ForEach(permission.details, id: \.self) { detail in
                             HStack {
                                 Text("•").bold()
-                                Text(detail).fontWeight(.medium)
+                                Text(L(detail)).fontWeight(.medium)
                             }
                         }
                     }
@@ -183,29 +183,29 @@ struct PermissionsView: View {
                     }
                 } label: {
                     if permission.hasPermission {
-                        Text("Permission Granted")
+                        Text(L("app.permissions.granted"))
                             .foregroundStyle(.green)
                     } else {
-                        Text("Grant Permission")
+                        Text(L("app.permissions.grant"))
                     }
                 }
                 .allowsHitTesting(!permission.hasPermission)
 
                 if permission.mayRequireRelaunch && !permission.hasPermission {
                     VStack(spacing: 6) {
-                        Text("After granting this permission in System Settings, relaunch Ice 2 to enable capture on macOS 26.")
+                        Text(L("app.permissions.relaunchNote"))
                             .font(.footnote)
                             .multilineTextAlignment(.center)
                             .foregroundStyle(.secondary)
 
-                        Button("Relaunch Ice 2") {
+                        Button(L("app.common.relaunch")) {
                             appState.relaunch()
                         }
                     }
                 }
 
                 if !permission.isRequired {
-                    CalloutBox("Ice 2 can work in a limited mode without this permission.") {
+                    CalloutBox(L("app.permissions.limitedMode.callout")) {
                         Image(systemName: "checkmark.shield")
                             .foregroundStyle(.green)
                     }

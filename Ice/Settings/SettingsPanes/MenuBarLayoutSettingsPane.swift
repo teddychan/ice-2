@@ -44,9 +44,9 @@ struct MenuBarLayoutSettingsPane: View {
     private var header: some View {
         DragonSection {
             VStack(spacing: 3) {
-                Text("Drag to arrange your menu bar items into different sections.")
+                Text(L("app.layout.header.title"))
                     .font(.title3.bold())
-                Text("Items can also be arranged by ⌘ Command + dragging them in the menu bar.")
+                Text(L("app.layout.header.subtitle"))
                     .font(.system(size: 12, weight: .medium))
                     .foregroundStyle(.secondary)
             }
@@ -77,11 +77,13 @@ struct MenuBarLayoutSettingsPane: View {
 
     @ViewBuilder
     private var profiles: some View {
-        DragonSection("Profiles") {
+        DragonSection {
+            Text(L("app.layout.section.profiles"))
+        } content: {
             profileCreationRow
 
             if profileSettings.profiles.isEmpty {
-                Text("No saved layout profiles.")
+                Text(L("app.layout.noProfiles"))
                     .foregroundStyle(.secondary)
             } else {
                 ForEach(profileSettings.profiles) { profile in
@@ -90,7 +92,7 @@ struct MenuBarLayoutSettingsPane: View {
             }
         }
         .alert(isPresented: $isPresentingError, error: presentedError) {
-            Button("OK") {
+            Button(L("DragonKit.ok")) {
                 presentedError = nil
                 isPresentingError = false
             }
@@ -100,9 +102,9 @@ struct MenuBarLayoutSettingsPane: View {
     @ViewBuilder
     private var profileCreationRow: some View {
         HStack {
-            TextField("Profile name", text: $newProfileName)
+            TextField(L("app.layout.profileName"), text: $newProfileName)
 
-            Button("Save Current Layout") {
+            Button(L("app.layout.saveCurrent")) {
                 saveCurrentLayout()
             }
             .disabled(!hasItems || isCapturingLayout)
@@ -137,17 +139,17 @@ struct MenuBarLayoutSettingsPane: View {
                     .controlSize(.small)
             }
 
-            Button("Apply") {
+            Button(L("app.common.apply")) {
                 applyProfile(profile)
             }
             .disabled(applyingProfileID != nil || isCapturingLayout)
 
-            Button("Update") {
+            Button(L("app.layout.updateProfile")) {
                 updateProfile(profile)
             }
             .disabled(!hasItems || applyingProfileID != nil || isCapturingLayout)
 
-            Button("Delete", role: .destructive) {
+            Button(L("app.common.delete"), role: .destructive) {
                 profileSettings.deleteProfile(profile)
             }
             .disabled(applyingProfileID != nil || isCapturingLayout)
@@ -162,11 +164,13 @@ struct MenuBarLayoutSettingsPane: View {
         }
     }
 
-    private func profileSummary(_ profile: MenuBarLayoutProfile) -> LocalizedStringKey {
-        let visibleCount = profile.itemCount(for: .visible)
-        let hiddenCount = profile.itemCount(for: .hidden)
-        let alwaysHiddenCount = profile.itemCount(for: .alwaysHidden)
-        return "\(visibleCount) visible, \(hiddenCount) hidden, \(alwaysHiddenCount) always-hidden"
+    private func profileSummary(_ profile: MenuBarLayoutProfile) -> String {
+        String(
+            format: L("app.layout.profileSummary"),
+            profile.itemCount(for: .visible),
+            profile.itemCount(for: .hidden),
+            profile.itemCount(for: .alwaysHidden)
+        )
     }
 
     private func applyProfile(_ profile: MenuBarLayoutProfile) {
@@ -186,14 +190,16 @@ struct MenuBarLayoutSettingsPane: View {
 
     @ViewBuilder
     private var spacers: some View {
-        DragonSection("Spacers") {
+        DragonSection {
+            Text(L("app.layout.section.spacers"))
+        } content: {
             HStack {
-                Text("Add flexible space between menu bar items.")
+                Text(L("app.layout.spacers.note"))
                     .foregroundStyle(.secondary)
 
                 Spacer()
 
-                Button("Add Spacer") {
+                Button(L("app.layout.addSpacer")) {
                     spacerManager.createSpacer()
                 }
             }
@@ -218,12 +224,12 @@ struct MenuBarLayoutSettingsPane: View {
                 step: 1
             )
 
-            Text("\(Int(spacer.width)) pt")
+            Text(String(format: L("app.layout.points"), Int(spacer.width)))
                 .monospacedDigit()
                 .foregroundStyle(.secondary)
                 .frame(width: 42, alignment: .trailing)
 
-            Button("Delete", role: .destructive) {
+            Button(L("app.common.delete"), role: .destructive) {
                 spacerManager.deleteSpacer(spacer)
             }
         }
@@ -231,7 +237,7 @@ struct MenuBarLayoutSettingsPane: View {
 
     @ViewBuilder
     private var cannotArrange: some View {
-        Text("Ice 2 cannot arrange menu bar items in automatically hidden menu bars.")
+        Text(L("app.layout.cannotArrange"))
             .font(.title3)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
     }
@@ -239,21 +245,21 @@ struct MenuBarLayoutSettingsPane: View {
     @ViewBuilder
     private var missingScreenRecordingPermissions: some View {
         VStack {
-            Text("Menu bar layout requires screen recording permissions.")
+            Text(L("app.layout.needsScreenRecording"))
                 .font(.title2)
 
-            Text("On macOS 26, Ice 2 may need to relaunch after you grant this permission.")
+            Text(L("app.layout.needsScreenRecording.note"))
                 .foregroundStyle(.secondary)
 
             HStack {
                 Button {
                     appState.navigationState.settingsNavigationIdentifier = .advanced
                 } label: {
-                    Text("Go to Advanced Settings")
+                    Text(L("app.layout.goToAdvanced"))
                 }
                 .buttonStyle(.link)
 
-                Button("Relaunch Ice 2") {
+                Button(L("app.common.relaunch")) {
                     appState.relaunch()
                 }
             }
@@ -263,7 +269,7 @@ struct MenuBarLayoutSettingsPane: View {
     @ViewBuilder
     private var loadingMenuBarItems: some View {
         VStack {
-            Text("Loading menu bar items…")
+            Text(L("app.common.loadingItems"))
             ProgressView()
         }
         .font(.title)
@@ -272,16 +278,16 @@ struct MenuBarLayoutSettingsPane: View {
     @ViewBuilder
     private var noMenuBarItems: some View {
         VStack(spacing: 8) {
-            Text("No manageable menu bar items found.")
+            Text(L("app.layout.noItems"))
 
             HStack {
-                Button("Check Again") {
+                Button(L("app.common.checkAgain")) {
                     Task {
                         await itemManager.cacheItemsRegardless()
                     }
                 }
 
-                Button("Restore Ice 2 Icon") {
+                Button(L("app.layout.restoreIceIcon")) {
                     restoreIceIcon()
                 }
             }

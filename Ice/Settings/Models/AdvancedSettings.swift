@@ -4,6 +4,7 @@
 //
 
 import Combine
+import DragonKit
 import SwiftUI
 
 // MARK: - AdvancedSettings
@@ -119,11 +120,11 @@ enum SectionDividerStyle: Int, CaseIterable, Identifiable {
 
     var id: Int { rawValue }
 
-    /// Localized string key representation.
-    var localized: LocalizedStringKey {
+    /// The name shown in the section-divider-style picker.
+    @MainActor var localized: String {
         switch self {
-        case .noDivider: "None"
-        case .chevron: "Chevron"
+        case .noDivider: L("app.common.none")
+        case .chevron: L("app.advanced.dividerStyle.chevron")
         }
     }
 }

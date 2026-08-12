@@ -58,13 +58,13 @@ struct CalloutBox<Content: View, Icon: View, ForegroundStyle: ShapeStyle>: View 
     }
 
     init(
-        _ titleKey: LocalizedStringKey,
+        _ title: String,
         alignment: HorizontalAlignment = .center,
         font: Font? = .calloutBox,
         foregroundStyle: ForegroundStyle = .secondary
     ) where Content == Text, Icon == EmptyView {
         self.init(
-            content: Text(titleKey),
+            content: Text(title),
             icon: EmptyView(),
             alignment: alignment,
             font: font,
@@ -73,14 +73,14 @@ struct CalloutBox<Content: View, Icon: View, ForegroundStyle: ShapeStyle>: View 
     }
 
     init(
-        _ titleKey: LocalizedStringKey,
+        _ title: String,
         alignment: HorizontalAlignment = .center,
         font: Font? = .calloutBox,
         foregroundStyle: ForegroundStyle = .secondary,
         @ViewBuilder icon: () -> Icon
     ) where Content == Text {
         self.init(
-            content: Text(titleKey),
+            content: Text(title),
             icon: icon(),
             alignment: alignment,
             font: font,
@@ -105,14 +105,14 @@ struct CalloutBox<Content: View, Icon: View, ForegroundStyle: ShapeStyle>: View 
     }
 
     init(
-        _ titleKey: LocalizedStringKey,
+        _ title: String,
         systemImage: String,
         alignment: HorizontalAlignment = .center,
         font: Font? = .calloutBox,
         foregroundStyle: ForegroundStyle = .secondary
     ) where Content == Text, Icon == Image {
         self.init(
-            content: Text(titleKey),
+            content: Text(title),
             icon: Image(systemName: systemImage),
             alignment: alignment,
             font: font,

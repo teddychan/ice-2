@@ -11,13 +11,13 @@ protocol NavigationIdentifier: CaseIterable, Hashable, Identifiable, RawRepresen
     var iconResource: IconResource { get }
 
     /// A localized description for the identifier's navigation destination.
-    var localized: LocalizedStringKey { get }
+    ///
+    /// Resolved through DragonKit's ``L(_:)``, not `LocalizedStringKey`: a `LocalizedStringKey`
+    /// is looked up against the process's preferred localizations, which are read once at
+    /// launch, so it cannot follow a language chosen from `LanguagePicker` without a relaunch.
+    @MainActor var localized: String { get }
 }
 
 extension NavigationIdentifier where ID == Int {
     var id: Int { hashValue }
-}
-
-extension NavigationIdentifier where RawValue == String {
-    var localized: LocalizedStringKey { LocalizedStringKey(rawValue) }
 }

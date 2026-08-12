@@ -5,6 +5,7 @@
 
 import Combine
 import AppKit
+import DragonKit
 import OSLog
 import SwiftUI
 
@@ -337,11 +338,11 @@ enum IceBarAutoEnableMode: Int, CaseIterable, Identifiable {
 
     var id: Int { rawValue }
 
-    /// Localized string key representation.
-    var localized: LocalizedStringKey {
+    /// The name shown in the auto-enable-mode picker.
+    @MainActor var localized: String {
         switch self {
-        case .screenWidth: "Screen width"
-        case .screensWithNotch: "Screen notch"
+        case .screenWidth: L("app.general.autoEnable.screenWidth")
+        case .screensWithNotch: L("app.general.autoEnable.notch")
         }
     }
 }
@@ -359,12 +360,12 @@ enum RehideStrategy: Int, CaseIterable, Identifiable {
 
     var id: Int { rawValue }
 
-    /// Localized string key representation.
-    var localized: LocalizedStringKey {
+    /// The name shown in the rehide-strategy picker.
+    @MainActor var localized: String {
         switch self {
-        case .smart: "Smart"
-        case .timed: "Timed"
-        case .focusedApp: "Focused app"
+        case .smart: L("app.general.strategy.smart")
+        case .timed: L("app.general.strategy.timed")
+        case .focusedApp: L("app.general.strategy.focusedApp")
         }
     }
 }

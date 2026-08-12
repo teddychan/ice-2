@@ -1,7 +1,7 @@
 {
   "app": "Ice 2",
   "sources": ["Ice", "Shared", "MenuBarItemService"],
-  "strings": ["Ice/**/*.lproj/*.strings"],
+  "strings": ["Ice/Resources/*.lproj/Localizable.strings"],
   "pin": {
     "file": "Ice.xcodeproj/project.pbxproj",
     "pattern": "dragon-kit\";[^}]*minimumVersion = ([0-9.]+)"

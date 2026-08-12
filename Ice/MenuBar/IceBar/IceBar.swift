@@ -4,6 +4,7 @@
 //
 
 import Combine
+import DragonKit
 import OSLog
 import SwiftUI
 
@@ -378,7 +379,7 @@ private struct IceBarContentView: View {
     private var content: some View {
         if !ScreenCapture.cachedCheckPermissions() {
             HStack {
-                Text("The Ice 2 Bar requires screen recording permissions.")
+                Text(L("app.icebar.needsScreenRecording"))
 
                 Button {
                     menuBarManager.section(withName: section)?.hide()
@@ -386,18 +387,18 @@ private struct IceBarContentView: View {
                     appState.activate(withPolicy: .regular)
                     appState.openWindow(.settings)
                 } label: {
-                    Text("Open Ice 2 Settings")
+                    Text(L("app.icebar.openSettings"))
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(.link)
             }
             .padding(.horizontal, 10)
         } else if menuBarManager.isMenuBarHiddenBySystemUserDefaults {
-            Text("Ice 2 cannot display menu bar items for automatically hidden menu bars")
+            Text(L("app.icebar.cannotDisplay"))
                 .padding(.horizontal, 10)
         } else if itemManager.itemCache.managedItems.isEmpty {
             HStack {
-                Text("Loading menu bar items…")
+                Text(L("app.common.loadingItems"))
                 ProgressView()
                     .controlSize(.small)
             }

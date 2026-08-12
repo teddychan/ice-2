@@ -3,6 +3,7 @@
 //  Ice
 //
 
+import DragonKit
 import SwiftUI
 
 /// A view that displays a badge indicating a beta feature.
@@ -12,7 +13,7 @@ struct BetaBadge: View {
     }
 
     var body: some View {
-        Text("BETA")
+        Text(L("app.common.beta"))
             .font(.system(size: 10, weight: .medium))
             .padding(.horizontal, 6)
             .padding(.vertical, 1)

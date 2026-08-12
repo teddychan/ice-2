@@ -36,6 +36,7 @@
 		95AE1A0B775C85363C4404DC /* SettingsEnumsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7E9DDFB62D4FA07946CC797 /* SettingsEnumsTests.swift */; };
 		986A47EC7057DE6842643937 /* SettingsBackupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12990E4E70C4107E87D970D7 /* SettingsBackupTests.swift */; };
 		B1C4E7A20D53F8916AE2C094 /* ScratchDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = A70E2C41B96D5387F04A1DE3 /* ScratchDefaults.swift */; };
+		A1B2C3D40000000000000002 /* LocalizedTextSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D40000000000000001 /* LocalizedTextSupport.swift */; };
 		B7A44344DAD9EC55EEE80484 /* AppearanceConfigurationV2Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F665A8F8A6DCDEFFC549933 /* AppearanceConfigurationV2Tests.swift */; };
 		BAA1F5944C8280680E42F490 /* DefaultsAndSettingsLoadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A415CBF1182F36DCF75316EC /* DefaultsAndSettingsLoadTests.swift */; };
 		C1A2B3D4E5F60718293A4B5C /* RelaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1A2B3D4E5F60718293A4B5D /* RelaunchTests.swift */; };
@@ -107,6 +108,7 @@
 		A15FF0BDD5C41C98A91805B7 /* ObjectStorageTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ObjectStorageTests.swift; sourceTree = "<group>"; };
 		A415CBF1182F36DCF75316EC /* DefaultsAndSettingsLoadTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DefaultsAndSettingsLoadTests.swift; sourceTree = "<group>"; };
 		A70E2C41B96D5387F04A1DE3 /* ScratchDefaults.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScratchDefaults.swift; sourceTree = "<group>"; };
+		A1B2C3D40000000000000001 /* LocalizedTextSupport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalizedTextSupport.swift; sourceTree = "<group>"; };
 		AAF2282483FF8E16A487D9C3 /* SharedExtensionsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SharedExtensionsTests.swift; sourceTree = "<group>"; };
 		BC782BAB2CBAE725214BC3D2 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.0.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		BDEBB5C379A572DC09662235 /* CodeSigningTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CodeSigningTests.swift; sourceTree = "<group>"; };
@@ -283,6 +285,7 @@
 				BDEBB5C379A572DC09662235 /* CodeSigningTests.swift */,
 				C4E01B7739AD62F08C15D4B3 /* UninstallConfigTests.swift */,
 				A70E2C41B96D5387F04A1DE3 /* ScratchDefaults.swift */,
+				A1B2C3D40000000000000001 /* LocalizedTextSupport.swift */,
 				19C0D62701AD4D98A47CC601 /* AcknowledgementsTests.swift */,
 				6D93B2E5C08A47F19E2340BC /* NewMenuBarItemPlacementTests.swift */,
 			);
@@ -392,6 +395,12 @@
 			knownRegions = (
 				en,
 				Base,
+				es,
+				fr,
+				ja,
+				ko,
+				"zh-Hans",
+				"zh-Hant",
 			);
 			mainGroup = 716683212A767E6A006ABF84;
 			packageReferences = (
@@ -494,6 +503,7 @@
 				EB7044F527F93442F4101F0D /* CodeSigningTests.swift in Sources */,
 				ED2C71A45B90F3186AC4D027 /* UninstallConfigTests.swift in Sources */,
 				B1C4E7A20D53F8916AE2C094 /* ScratchDefaults.swift in Sources */,
+				A1B2C3D40000000000000002 /* LocalizedTextSupport.swift in Sources */,
 				58AB34D95A7DF7474565BA28 /* AcknowledgementsTests.swift in Sources */,
 				2F7C41A80B9E4D3286C15DA9 /* NewMenuBarItemPlacementTests.swift in Sources */,
 			);

@@ -3,6 +3,8 @@
 //  Ice
 //
 
+import DragonKit
+
 /// The navigation identifier type for the "Settings" interface.
 enum SettingsNavigationIdentifier: String, NavigationIdentifier {
     // Sidebar order follows the shared Dragon convention (see dragon-kit README):
@@ -36,6 +38,27 @@ enum SettingsNavigationIdentifier: String, NavigationIdentifier {
     /// failed capture stayed on screen as a placeholder for as long as the Layout pane
     /// was open.
     static let rendersMenuBarItemImages = Self.layout
+
+    /// The sidebar label. Every canonical slot reuses DragonKit's own `DragonKit.pane.*` key
+    /// rather than an app copy — including Backup, whose pane is Ice 2's but whose slot the kit
+    /// names. §R8 makes an app key beginning `DragonKit.` a violation, and the module bundle wins
+    /// the lookup anyway, so a duplicate would be dead weight that merely looks authoritative.
+    /// Only Ice 2's own five panes carry `app.` keys.
+    var localized: String {
+        switch self {
+        case .general: L("app.nav.general")
+        case .appearance: L("app.nav.appearance")
+        case .layout: L("app.nav.layout")
+        case .hotkeys: L("app.nav.hotkeys")
+        case .advanced: L("app.nav.advanced")
+        case .permissions: L("DragonKit.pane.permissions")
+        case .backup: L("DragonKit.pane.backup")
+        case .whatsNew: L("DragonKit.pane.whatsNew")
+        case .updates: L("DragonKit.pane.updates")
+        case .about: L("DragonKit.pane.about")
+        case .uninstall: L("DragonKit.pane.uninstall")
+        }
+    }
 
     var iconResource: IconResource {
         switch self {

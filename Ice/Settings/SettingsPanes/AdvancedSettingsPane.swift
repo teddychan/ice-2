@@ -15,26 +15,23 @@ struct AdvancedSettingsPane: View {
         appState.menuBarManager
     }
 
-    private func formattedToSeconds(_ interval: TimeInterval) -> LocalizedStringKey {
-        let formatted = interval.formatted()
-        return if interval == 1 {
-            LocalizedStringKey(formatted + " second")
-        } else {
-            LocalizedStringKey(formatted + " seconds")
-        }
-    }
-
     var body: some View {
         DragonForm {
-            DragonSection("Menu Bar Sections") {
+            DragonSection {
+                Text(L("app.advanced.section.menuBarSections"))
+            } content: {
                 enableAlwaysHiddenSection
                 showAllSectionsOnUserDrag
                 sectionDividerStyle
             }
-            DragonSection("Triggers") {
+            DragonSection {
+                Text(L("app.advanced.section.triggers"))
+            } content: {
                 menuBarTriggers
             }
-            DragonSection("Other") {
+            DragonSection {
+                Text(L("app.advanced.section.other"))
+            } content: {
                 hideApplicationMenus
                 enableSecondaryContextMenu
                 tempShowInterval
@@ -45,7 +42,7 @@ struct AdvancedSettingsPane: View {
     @ViewBuilder
     private var enableAlwaysHiddenSection: some View {
         Toggle(
-            "Enable the always-hidden section",
+            L("app.advanced.enableAlwaysHidden"),
             isOn: $settings.enableAlwaysHiddenSection
         )
     }
@@ -53,14 +50,14 @@ struct AdvancedSettingsPane: View {
     @ViewBuilder
     private var showAllSectionsOnUserDrag: some View {
         Toggle(
-            "Show all sections when ⌘ Command + dragging menu bar items",
+            L("app.advanced.showAllOnDrag"),
             isOn: $settings.showAllSectionsOnUserDrag
         )
     }
 
     @ViewBuilder
     private var sectionDividerStyle: some View {
-        IcePicker("Section divider style", selection: $settings.sectionDividerStyle) {
+        IcePicker(L("app.advanced.dividerStyle"), selection: $settings.sectionDividerStyle) {
             ForEach(SectionDividerStyle.allCases) { style in
                 Text(style.localized).tag(style)
             }
@@ -73,13 +70,13 @@ struct AdvancedSettingsPane: View {
         let currentApplicationName = triggerSettings.candidateApplicationName
 
         LabeledContent {
-            Button("Add Current App") {
+            Button(L("app.advanced.addCurrentApp")) {
                 triggerSettings.createFrontmostApplicationTrigger()
             }
             .disabled(currentApplicationName == nil)
         } label: {
             VStack(alignment: .leading, spacing: 2) {
-                Text("Show items for focused app")
+                Text(L("app.advanced.showForFocusedApp"))
                 if let currentApplicationName {
                     Text(currentApplicationName)
                         .font(.caption)
@@ -87,11 +84,11 @@ struct AdvancedSettingsPane: View {
                 }
             }
         }
-        .dragonAnnotation("When the app becomes focused, Ice shows the hidden section.")
+        .dragonAnnotation { Text(L("app.advanced.showForFocusedApp.note")) }
 
         ForEach(triggerSettings.triggers, id: \.id) { trigger in
             LabeledContent {
-                Button("Delete") {
+                Button(L("app.common.delete")) {
                     triggerSettings.deleteTrigger(trigger)
                 }
             } label: {
@@ -108,44 +105,31 @@ struct AdvancedSettingsPane: View {
     private func triggerTargetSummary(_ trigger: MenuBarTrigger) -> String {
         switch trigger.action {
         case .showHiddenSection:
-            "Hidden section"
+            L("app.advanced.trigger.hiddenSection")
         }
     }
 
     @ViewBuilder
     private var hideApplicationMenus: some View {
         Toggle(
-            "Hide app menus when showing menu bar items",
+            L("app.advanced.hideAppMenus"),
             isOn: $settings.hideApplicationMenus
         )
         .dragonAnnotation {
-            Text(
-                """
-                Make more room in the menu bar by hiding the current app menus if \
-                needed. macOS requires Ice 2 to make itself visible in the Dock while \
-                this setting is in effect.
-                """
-            )
-            .padding(.trailing, 75)
+            Text(L("app.advanced.hideAppMenus.note"))
+                .padding(.trailing, 75)
         }
     }
 
     @ViewBuilder
     private var enableSecondaryContextMenu: some View {
         Toggle(
-            "Enable Ice 2 context menus on right click",
+            L("app.advanced.secondaryContextMenu"),
             isOn: $settings.enableSecondaryContextMenu
         )
         .dragonAnnotation {
-            Text(
-                """
-                Right-click Ice 2's control items or an empty area of the menu bar to \
-                display Ice 2's menu. Disable this setting if you encounter conflicts \
-                with other menu bar utilities. When disabled, Option-Command-click \
-                in the menu bar opens Ice 2 Settings.
-                """
-            )
-            .padding(.trailing, 75)
+            Text(L("app.advanced.secondaryContextMenu.note"))
+                .padding(.trailing, 75)
         }
     }
 
@@ -153,18 +137,18 @@ struct AdvancedSettingsPane: View {
     private var tempShowInterval: some View {
         LabeledContent {
             IceSlider(
-                formattedToSeconds(settings.tempShowInterval),
+                formattedSeconds(settings.tempShowInterval),
                 value: $settings.tempShowInterval,
                 in: 0...60,
                 step: 1
             )
         } label: {
-            Text("Temporarily shown item delay")
+            Text(L("app.advanced.tempShowInterval"))
                 .frame(minWidth: maxSliderLabelWidth, alignment: .leading)
                 .onFrameChange { frame in
                     maxSliderLabelWidth = max(maxSliderLabelWidth, frame.width)
                 }
         }
-        .dragonAnnotation("The amount of time to wait before hiding temporarily shown menu bar items.")
+        .dragonAnnotation { Text(L("app.advanced.tempShowInterval.note")) }
     }
 }

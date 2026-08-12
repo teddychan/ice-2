@@ -25,8 +25,10 @@ struct IceSlider<Value: BinaryFloatingPoint, ValueLabel: View>: View {
         self.valueLabel = valueLabel()
     }
 
+    /// - Parameter valueLabel: An already-localized label, normally `L("app.…")`. See
+    ///   ``IcePicker`` for why this is a `String` and not a `LocalizedStringKey`.
     init(
-        _ valueLabelKey: LocalizedStringKey,
+        _ valueLabel: String,
         value: Binding<Value>,
         in bounds: ClosedRange<Value>,
         step: Value? = nil
@@ -34,7 +36,7 @@ struct IceSlider<Value: BinaryFloatingPoint, ValueLabel: View>: View {
         self._value = value
         self.bounds = bounds
         self.step = step
-        self.valueLabel = Text(valueLabelKey)
+        self.valueLabel = Text(valueLabel)
     }
 
     private var borderShape: some InsettableShape {
