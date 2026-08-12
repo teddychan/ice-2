@@ -11,7 +11,9 @@ profiles, and searches your items.
 
 ## Screenshots
 
-![Banner](https://github.com/user-attachments/assets/4423085c-4e4b-4f3d-ad0f-90a217c03470)
+#### Settings, in any of seven languages
+
+![General settings](Resources/screenshots/settings-general.png)
 
 #### Show hidden menu bar items below the menu bar
 
@@ -19,7 +21,7 @@ profiles, and searches your items.
 
 #### Drag-and-drop interface to arrange menu bar items
 
-![Menu Bar Layout](https://github.com/user-attachments/assets/095442ba-f2d0-4bb4-9632-91e26ef8d45b)
+![Menu bar layout](Resources/screenshots/settings-layout.png)
 
 #### Customize the menu bar's appearance
 
@@ -29,9 +31,9 @@ profiles, and searches your items.
 
 ![Menu Bar Item Search](https://github.com/user-attachments/assets/d1a7df3a-4989-4077-a0b1-8e7d5a1ba5b8)
 
-#### Custom menu bar item spacing
+#### Back up your settings, or sync them across Macs
 
-![Menu Bar Item Spacing](https://github.com/user-attachments/assets/b196aa7e-184a-4d4c-b040-502f4aae40a6)
+![Backup and restore](Resources/screenshots/settings-backup.png)
 
 [![Download](https://img.shields.io/badge/download-latest-brightgreen?style=flat-square)](https://github.com/teddychan/ice-2/releases/latest)
 ![Platform](https://img.shields.io/badge/platform-macOS-blue?style=flat-square)
