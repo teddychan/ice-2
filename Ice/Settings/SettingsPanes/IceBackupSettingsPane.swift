@@ -6,11 +6,24 @@
 import DragonKit
 import SwiftUI
 
-/// Ice 2's own folder-based backup pane. Deliberately not DragonKit's
-/// `BackupSettingsPane`, which snapshots a single UserDefaults suite — Ice 2 keeps
-/// versioned backup files in a user-chosen folder so settings can sync across Macs
-/// (see dragon-kit CONFORMANCE.md §R11). The `Ice` prefix keeps the name from
-/// shadowing the kit's pane (§R3).
+/// Ice 2's own folder-based backup pane — **temporary, and on its way out.**
+///
+/// DragonKit's `BackupSettingsPane` + `DragonBackup` is the target for every Dragon app. This
+/// pane and ClipMenu 2's `SyncBackupPane` are the two that have not migrated yet, because their
+/// data and workflows have to be mapped across safely first. That is approved migration debt,
+/// tracked in dragon-kit's `TechDebt.md` — a sequenced difference, not a permanent one, and the
+/// same handling applies to all five apps.
+///
+/// **Not a CONFORMANCE §R11 exception**, which this comment used to cite: ice-2 declares no
+/// `exceptions` at all, and none is needed. §R3 and §R4 never fire on this pane — the `Ice`
+/// prefix keeps the name from shadowing the kit's, and it hand-rolls no grouped `Form` — so an
+/// exception here would sanction a violation that does not exist, which §R11's own table records
+/// as the mistake to avoid. What actually carries this pane is **§R9**, whose Backup slot
+/// recognizes the app-specific spelling and still holds it to the canonical sidebar position.
+///
+/// Ice 2 keeps versioned backup files in a user-chosen folder so settings can sync across Macs;
+/// `DragonBackup` snapshots a single UserDefaults suite. The migration adds that capability once,
+/// in the kit — it is not preserved here.
 struct IceBackupSettingsPane: View {
     @EnvironmentObject var appState: AppState
 
