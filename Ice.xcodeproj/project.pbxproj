@@ -125,18 +125,10 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		7188A6912E27F9ED008F131D /* Exceptions for "MenuBarItemService" folder in "MenuBarItemService" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Resources/Info.plist,
-			);
-			target = 7188A6822E27F9ED008F131D /* MenuBarItemService */;
-		};
 		71BDFC6C2C978E2A00EF145F /* Exceptions for "Ice" folder in "Ice" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Resources/Acknowledgements.rtf,
-				Resources/Info.plist,
 			);
 			target = 716683292A767E6A006ABF84 /* Ice */;
 		};
@@ -146,7 +138,6 @@
 		7188A6842E27F9ED008F131D /* MenuBarItemService */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				7188A6912E27F9ED008F131D /* Exceptions for "MenuBarItemService" folder in "MenuBarItemService" target */,
 			);
 			explicitFileTypes = {
 			};
@@ -723,7 +714,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Ice/Resources/Info.plist;
+				INFOPLIST_FILE = App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Ice 2 Debug";
 				INFOPLIST_KEY_CFBundleName = "Ice 2 Debug";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -759,7 +750,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Ice/Resources/Info.plist;
+				INFOPLIST_FILE = App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Ice 2";
 				INFOPLIST_KEY_CFBundleName = "Ice 2";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -788,7 +779,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = MenuBarItemService/Resources/Info.plist;
+				INFOPLIST_FILE = App/MenuBarItemService/Info.plist;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.dragonapp.ice.debug.MenuBarItemService;
@@ -814,7 +805,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = MenuBarItemService/Resources/Info.plist;
+				INFOPLIST_FILE = App/MenuBarItemService/Info.plist;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.dragonapp.ice.MenuBarItemService;

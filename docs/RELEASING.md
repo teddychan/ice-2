@@ -7,7 +7,7 @@ publishes the signed Sparkle appcast to `docs/ice-2/appcast.xml` **in this
 repo**, and bumps the Homebrew cask `teddychan/tap/ice-2`.
 
 The app-owned feed is the one the app reads — `SUFeedURL` in
-`Ice/Resources/Info.plist` is
+`App/Info.plist` is
 `https://raw.githubusercontent.com/teddychan/ice-2/main/docs/ice-2/appcast.xml`.
 The same appcast is also copied to `teddychan/www.dragonapp.com`
 (`https://www.dragonapp.com/ice-2/appcast.xml`), but that copy is only a
@@ -31,7 +31,7 @@ Reuse the same values already on `clipmenu-2` (same Apple Team `4AF3KGGV29`):
   *this* repo is published with the built-in `GITHUB_TOKEN`, which
   `permissions: contents: write` in `release.yml` covers.)
 - `SPARKLE_EDDSA_PRIVATE_KEY` (the shared EdDSA private key; its public half
-  `p+F/ivF5bAYcmuNuCMNHcRv123A6LHFpCBagFm7Adu8=` is in `Ice/Resources/Info.plist`)
+  `p+F/ivF5bAYcmuNuCMNHcRv123A6LHFpCBagFm7Adu8=` is in `App/Info.plist`)
 
 ### 2. Runner
 The workflow runs on a **GitHub-hosted** macOS runner — public repos get free
