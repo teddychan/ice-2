@@ -38,6 +38,7 @@ on:
 # so grant write here or the reusable call is rejected at startup.
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   release:
