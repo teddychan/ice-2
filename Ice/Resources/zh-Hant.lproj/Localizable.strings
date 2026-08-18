@@ -222,6 +222,6 @@
 "app.uninstall.item.state" = "已儲存的應用程式狀態";
 "app.updates.notification.body" = "%@ 找到了更新的版本。";
 "app.updates.notification.title" = "有新的更新可用";
-"app.whatsNew.2_15_0.added.languages" = "English、Español、Français、日本語、한국어、简体中文、繁體中文。在「設定 ▸ 一般」中選擇，或保持「自動」以跟隨 macOS。設定、選單列選單、提醒和權限視窗會同時切換，無需重新啟動。";
-"app.whatsNew.2_15_0.changed.settingsItem" = "選單列右鍵選單中的「設定」項目現在顯示為帶齒輪圖像的「設定…」，與所有 Dragon App 一致，不再是沒有圖像的「Ice 2 設定…」。";
-"app.whatsNew.2_15_0.summary" = "Ice 2 現已支援七種語言，可在「設定 ▸ 一般」中選擇，無需重新啟動即可生效。";
+"app.whatsNew.2_15_1.changed.dragonKit" = "Ice 2 現在基於共用框架 DragonKit 4.1.0 建構，先前為 4.0.0。設定視窗、「關於」和「新功能」面板以及更新檢查都由該框架提供，因此讓參照保持最新，可讓這四處與其他 Dragon App 保持一致。它在 App 內唯一的痕跡，就是「關於」面板「建構於」一行列出的框架版本。";
+"app.whatsNew.2_15_1.changed.housekeeping" = "內部整理：描述 Ice 2 App 套件及其內建選單列輔助程式的檔案現已集中到專案中的同一位置，與所有 Dragon App 的結構一致。App 的建構方式和使用體驗均未改變。";
+"app.whatsNew.2_15_1.summary" = "這是一個維護版本：你能看到的行為都沒有變化。Ice 2 遷移到 Dragon App 共用框架的 4.1.0 版本，其餘都是內部整理。";

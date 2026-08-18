@@ -222,6 +222,6 @@
 "app.uninstall.item.state" = "Saved application state";
 "app.updates.notification.body" = "%@ found a newer version.";
 "app.updates.notification.title" = "A new update is available";
-"app.whatsNew.2_15_0.added.languages" = "English, Español, Français, 日本語, 한국어, 简体中文 and 繁體中文. Pick one under Settings ▸ General, or leave it on Automatic to follow macOS. Everything switches at once — settings, the menu bar menu, alerts and the permissions window — with no relaunch.";
-"app.whatsNew.2_15_0.changed.settingsItem" = "The Settings item in the menu bar's right-click menu now reads “Settings…” with the gear icon every Dragon app shows, instead of “Ice 2 Settings…” with no icon.";
-"app.whatsNew.2_15_0.summary" = "Ice 2 now speaks seven languages, chosen in Settings ▸ General and applied without a relaunch.";
+"app.whatsNew.2_15_1.changed.dragonKit" = "Ice 2 now builds against version 4.1.0 of the shared DragonKit framework, up from 4.0.0. That framework owns the Settings window, the About and What’s New panes, and the update checker, so keeping the pin current keeps all four in step with the other Dragon apps. The only trace of it anywhere in the app is the framework version About lists under Built with.";
+"app.whatsNew.2_15_1.changed.housekeeping" = "Internal housekeeping: the files that describe Ice 2’s app bundle and its bundled menu bar helper now sit together in one place in the project, matching the layout every Dragon app uses. Nothing about how the app is built or how it behaves changed.";
+"app.whatsNew.2_15_1.summary" = "A maintenance release: nothing you can see behaves differently. Ice 2 moves to version 4.1.0 of the shared Dragon app framework, and the rest is internal housekeeping.";

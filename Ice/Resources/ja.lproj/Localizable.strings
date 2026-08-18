@@ -222,6 +222,6 @@
 "app.uninstall.item.state" = "保存されたアプリケーションの状態";
 "app.updates.notification.body" = "%@ が新しいバージョンを見つけました。";
 "app.updates.notification.title" = "新しいアップデートがあります";
-"app.whatsNew.2_15_0.added.languages" = "English、Español、Français、日本語、한국어、简体中文、繁體中文。設定 ▸ 一般 で選択するか、「自動」のままにすると macOS に従います。設定、メニューバーのメニュー、アラート、アクセス許可のウインドウまで、再起動せずに一度に切り替わります。";
-"app.whatsNew.2_15_0.changed.settingsItem" = "メニューバーの右クリックメニューの項目が、アイコンのない「Ice 2 の設定…」から、Dragon の各 App 共通の歯車アイコン付き「設定…」になりました。";
-"app.whatsNew.2_15_0.summary" = "Ice 2 が 7 つの言語に対応しました。設定 ▸ 一般 で選ぶと、再起動せずに切り替わります。";
+"app.whatsNew.2_15_1.changed.dragonKit" = "Ice 2 は共通フレームワーク DragonKit のバージョン 4.1.0 でビルドされるようになりました（これまでは 4.0.0）。設定ウインドウ、情報パネル、新機能パネル、アップデートの確認はこのフレームワークが担っているため、参照を最新に保つことでこの 4 つが他の Dragon の App と揃います。App 内で確認できる違いは、情報パネルの「使用技術」に表示されるフレームワークのバージョンだけです。";
+"app.whatsNew.2_15_1.changed.housekeeping" = "内部の整理です。Ice 2 の App バンドルと同梱のメニューバーヘルパーを記述するファイルを、プロジェクト内の 1 か所にまとめ、Dragon の各 App と同じ構成にしました。ビルド方法も App の動作も変わりません。";
+"app.whatsNew.2_15_1.summary" = "メンテナンスリリースです。目に見える動作は何も変わりません。Ice 2 が Dragon の共通フレームワークのバージョン 4.1.0 に移行し、あとは内部の整理のみです。";

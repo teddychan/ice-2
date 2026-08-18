@@ -222,6 +222,6 @@
 "app.uninstall.item.state" = "Estado guardado de la aplicación";
 "app.updates.notification.body" = "%@ ha encontrado una versión más reciente.";
 "app.updates.notification.title" = "Hay una nueva actualización disponible";
-"app.whatsNew.2_15_0.added.languages" = "English, Español, Français, 日本語, 한국어, 简体中文 y 繁體中文. Elige uno en Ajustes ▸ General o déjalo en Automático para seguir a macOS. Todo cambia a la vez —ajustes, el menú de la barra de menús, las alertas y la ventana de permisos— sin reiniciar.";
-"app.whatsNew.2_15_0.changed.settingsItem" = "El ítem Ajustes del menú contextual de la barra de menús ahora dice «Ajustes…» con el icono de engranaje que muestran todas las apps de Dragon, en lugar de «Ajustes de Ice 2…» sin icono.";
-"app.whatsNew.2_15_0.summary" = "Ice 2 ya habla siete idiomas, que se eligen en Ajustes ▸ General y se aplican sin reiniciar.";
+"app.whatsNew.2_15_1.changed.dragonKit" = "Ice 2 se compila ahora con la versión 4.1.0 del framework compartido DragonKit, frente a la 4.0.0. Ese framework es el dueño de la ventana de Ajustes, de los paneles Acerca de y Novedades y del buscador de actualizaciones, así que mantener la referencia al día mantiene los cuatro en línea con las demás apps de Dragon. Su único rastro en la app es la versión del framework que Acerca de indica en «Desarrollado con».";
+"app.whatsNew.2_15_1.changed.housekeeping" = "Mantenimiento interno: los archivos que describen el paquete de la app de Ice 2 y su ayudante de la barra de menús están ahora juntos en un mismo lugar del proyecto, igual que en todas las apps de Dragon. No cambia nada en cómo se compila la app ni en cómo funciona.";
+"app.whatsNew.2_15_1.summary" = "Una versión de mantenimiento: nada de lo que ves se comporta de forma distinta. Ice 2 pasa a la versión 4.1.0 del framework compartido de las apps de Dragon, y el resto es mantenimiento interno.";

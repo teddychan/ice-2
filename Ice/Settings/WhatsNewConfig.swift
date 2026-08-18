@@ -22,18 +22,21 @@ enum WhatsNewConfig {
     @MainActor
     static var content: WhatsNewContent {
         WhatsNewContent(
-            date: "2026-08-13",
-            summary: L("app.whatsNew.2_15_0.summary"),
+            date: "2026-08-18",
+            summary: L("app.whatsNew.2_15_1.summary"),
             sections: [
                 // The keys carry the version, so each release replaces them rather than editing
                 // the previous release's text in place. That is what lets `whats_new_path` in
                 // release.yml gate on a real diff in all seven .strings files: reusing a key would
                 // leave those files untouched while the notes changed completely.
-                ChangeSection(kind: .added, entries: [
-                    L("app.whatsNew.2_15_0.added.languages"),
-                ]),
+                //
+                // One `.changed` section and nothing else, because that is what this release is:
+                // the DragonKit pin moved 4.0.0 -> 4.1.0 and both bundles' Info.plist moved into
+                // App/. Neither changes anything a user can see. 2.14.5 set the precedent for
+                // saying that outright rather than dressing a pin bump up as a fix.
                 ChangeSection(kind: .changed, entries: [
-                    L("app.whatsNew.2_15_0.changed.settingsItem"),
+                    L("app.whatsNew.2_15_1.changed.dragonKit"),
+                    L("app.whatsNew.2_15_1.changed.housekeeping"),
                 ]),
             ]
         )

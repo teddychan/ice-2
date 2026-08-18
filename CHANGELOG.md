@@ -1,5 +1,29 @@
 # Changelog
 
+## 2.15.1 - 2026-08-18
+
+### Internal
+
+- **Nothing about the app behaves differently.** Ice 2 now builds against version 4.1.0 of the
+  shared Dragon app framework, up from 4.0.0. Since 2.15.0 this repository gained exactly two
+  changes to the app, and this is one of them; there is no user-facing fix or feature in this
+  release, and the notes in the What's New pane say so rather than inventing one.
+
+  The bump is for pin currency rather than to adopt anything. The shared conformance rules
+  require each app's declared framework version to be at least the newest one published, so
+  publishing 4.1.0 put this app in breach of that rule the moment it landed — every pull request
+  here failed §R10 until the pin moved. No code here had to change to take the bump.
+
+  The one place you can see any of it is **Settings ▸ About**, which reports the framework it was
+  built with and now reads `DragonKit v4.1.0`.
+
+- **Both bundles' `Info.plist` moved into `App/`.** DragonKit's conformance §R16 places every
+  app's bundle inputs under `App/` at the repo root, so the app's plist is `App/Info.plist` and
+  the bundled menu bar helper's is `App/MenuBarItemService/Info.plist`. Only `INFOPLIST_FILE` in
+  the Xcode project moved with them; neither file's contents changed, and neither carries a
+  version key — Ice 2's version is `MARKETING_VERSION` in `Ice.xcodeproj`, and the release
+  workflow stamps `CFBundleVersion` with the commit count.
+
 ## 2.15.0 - 2026-08-13
 
 ### Added
