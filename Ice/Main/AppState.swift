@@ -120,6 +120,14 @@ final class AppState: ObservableObject {
         }
 
         NSApp.terminate(nil)
+
+        // Only reachable when AppKit declined to quit: a successful terminate never
+        // returns. The helper is still parked on this PID and would reopen the app the
+        // next time it ends — including a quit the user meant to stick. Its own timeout
+        // would eventually clear it, but until then every quit is armed, so retract the
+        // reopen now that we know the relaunch is not happening.
+        logger.error("Relaunch aborted - termination refused; stopping relaunch helper")
+        process.terminate()
     }
 
     /// Arguments for the detached `/bin/sh` that reopens the bundle at `bundlePath`
@@ -132,10 +140,21 @@ final class AppState: ObservableObject {
     /// `open -n` rather than plain `open`: more than one bundle can claim the same id
     /// (stale builds in other DerivedData folders do), and `-n` launches the bundle at
     /// this exact path instead of whichever one LaunchServices resolves the id to.
+    ///
+    /// The wait is bounded because `NSApp.terminate` is a request AppKit can refuse. An
+    /// unbounded helper outlives the refused relaunch and stays parked on this PID, so
+    /// the reopen it owes gets paid out against whatever ends the process next — which
+    /// is normally the user quitting on purpose, long after they asked for a relaunch.
+    /// Abandoning the reopen loses nothing: the relaunch already failed to happen.
+    ///
+    /// Sixty seconds' worth of ticks: teardown of an accessory app is sub-second, so any
+    /// wait this long means the quit is never coming.
+    static let relaunchHelperTimeoutTicks = 600
+
     static func relaunchHelperArguments(bundlePath: String, pid: Int32) -> [String] {
         [
             "-c",
-            "while kill -0 \(pid) 2>/dev/null; do sleep 0.1; done; exec /usr/bin/open -n \"$1\"",
+            "i=0; while kill -0 \(pid) 2>/dev/null; do sleep 0.1; i=$((i+1)); if [ $i -ge \(relaunchHelperTimeoutTicks) ]; then exit 0; fi; done; exec /usr/bin/open -n \"$1\"",
             "sh", // $0
             bundlePath, // $1
         ]
