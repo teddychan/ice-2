@@ -61,7 +61,7 @@ jobs:
       # The config file FIRST — the version and section checks read that one — then every
       # translation. Ice 2's entries used to be raw Swift string literals, and this input named
       # that one file; as of v2.15.0 they are abstract `L()` keys
-      # ("app.whatsNew.2_15_0.summary"), so the text a user actually reads lives in these
+      # ("app.whatsNew.summary"), so the text a user actually reads lives in these
       # .strings and the .swift can sit still through a complete rewrite of the notes. Watching
       # only the .swift would reject that real rewrite and wave through a release whose notes
       # never changed. Needs dragon-release-ci >= v6.2.0, which is what made the input accept a

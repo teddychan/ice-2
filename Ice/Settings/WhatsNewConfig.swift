@@ -23,12 +23,13 @@ enum WhatsNewConfig {
     static var content: WhatsNewContent {
         WhatsNewContent(
             date: "2026-08-20",
-            summary: L("app.whatsNew.2_15_2.summary"),
+            summary: L("app.whatsNew.summary"),
             sections: [
-                // The keys carry the version, so each release replaces them rather than editing
-                // the previous release's text in place. That is what lets `whats_new_path` in
-                // release.yml gate on a real diff in all seven .strings files: reusing a key would
-                // leave those files untouched while the notes changed completely.
+                // The keys are stable across releases (app.whatsNew.summary, .fixed1, .changed1, …)
+                // rather than version-namespaced: each release overwrites the same keys' text in all
+                // seven .strings files instead of adding new ones and abandoning the last release's,
+                // so nothing is left behind for `whats_new_path` in release.yml to gate on — it
+                // diffs the text at these keys, not the key names themselves.
                 //
                 // One user-facing change this release: DragonKit 4.1.1 makes Uninstall refuse to
                 // run when more than one copy of the app is on the Mac, because settings, the login
@@ -38,10 +39,10 @@ enum WhatsNewConfig {
                 // builds — no user could hit it — so per this fleet's "never claim what users
                 // cannot see" rule, it is left out here and only noted in CHANGELOG.md.
                 ChangeSection(kind: .fixed, entries: [
-                    L("app.whatsNew.2_15_2.fixed.uninstall"),
+                    L("app.whatsNew.fixed1"),
                 ]),
                 ChangeSection(kind: .changed, entries: [
-                    L("app.whatsNew.2_15_2.changed.dragonKit"),
+                    L("app.whatsNew.changed1"),
                 ]),
             ]
         )
