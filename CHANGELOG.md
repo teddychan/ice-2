@@ -1,5 +1,27 @@
 # Changelog
 
+## 2.15.2 - 2026-08-20
+
+### Fixed
+
+- **Uninstall now refuses to run when it finds more than one copy of Ice 2 on the Mac.** Moving
+  the copy you are running to the Trash was always safe, but settings, the login item, support
+  files and the Homebrew record are keyed by the app's identity, not its location — so two copies
+  on disk share all of them, and there is no way to tell which copy's data belongs to which.
+  Uninstalling a spare copy could have removed the settings belonging to the copy actually in use.
+  It now stops before removing anything and lists where the copies are, so the ones you do not
+  want can be trashed and the uninstall retried. Anyone with a single copy, which is nearly
+  everyone, sees no change.
+
+### Internal
+
+- **Ice 2 now builds against version 4.1.1** of the shared Dragon app framework, up from 4.1.0.
+  The uninstall fix above is what changed. DragonKit 4.1.1 also fixed a raw developer error that
+  could surface in Settings ▸ Updates, but only in local debug builds of the apps that depend on
+  it — no shipped copy of Ice 2 could ever hit it, so it is not claimed in the What's New pane,
+  per this repo's rule against announcing fixes for something no user could see. **Settings ▸
+  About** reports `DragonKit v4.1.1` under Built with.
+
 ## 2.15.1 - 2026-08-18
 
 ### Internal

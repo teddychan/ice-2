@@ -22,21 +22,26 @@ enum WhatsNewConfig {
     @MainActor
     static var content: WhatsNewContent {
         WhatsNewContent(
-            date: "2026-08-18",
-            summary: L("app.whatsNew.2_15_1.summary"),
+            date: "2026-08-20",
+            summary: L("app.whatsNew.2_15_2.summary"),
             sections: [
                 // The keys carry the version, so each release replaces them rather than editing
                 // the previous release's text in place. That is what lets `whats_new_path` in
                 // release.yml gate on a real diff in all seven .strings files: reusing a key would
                 // leave those files untouched while the notes changed completely.
                 //
-                // One `.changed` section and nothing else, because that is what this release is:
-                // the DragonKit pin moved 4.0.0 -> 4.1.0 and both bundles' Info.plist moved into
-                // App/. Neither changes anything a user can see. 2.14.5 set the precedent for
-                // saying that outright rather than dressing a pin bump up as a fix.
+                // One user-facing change this release: DragonKit 4.1.1 makes Uninstall refuse to
+                // run when more than one copy of the app is on the Mac, because settings, the login
+                // item, support files and the Homebrew record are keyed by the app's identity, not
+                // its location, so two copies share all of them. DragonKit 4.1.1 also fixed a raw
+                // developer error in Settings > Updates, but that only ever surfaced in local debug
+                // builds — no user could hit it — so per this fleet's "never claim what users
+                // cannot see" rule, it is left out here and only noted in CHANGELOG.md.
+                ChangeSection(kind: .fixed, entries: [
+                    L("app.whatsNew.2_15_2.fixed.uninstall"),
+                ]),
                 ChangeSection(kind: .changed, entries: [
-                    L("app.whatsNew.2_15_1.changed.dragonKit"),
-                    L("app.whatsNew.2_15_1.changed.housekeeping"),
+                    L("app.whatsNew.2_15_2.changed.dragonKit"),
                 ]),
             ]
         )
