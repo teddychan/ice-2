@@ -9,12 +9,13 @@ repo**, and bumps the Homebrew cask `teddychan/tap/ice-2`.
 The app-owned feed is the one the app reads — `SUFeedURL` in
 `App/Info.plist` is
 `https://raw.githubusercontent.com/teddychan/ice-2/main/docs/ice-2/appcast.xml`.
-The same appcast is also copied to `teddychan/www.dragonapp.com`
-(`https://www.dragonapp.com/ice-2/appcast.xml`), but that copy is only a
-**temporary mirror** for installs still on v2.14.3 or older, and is scheduled
-to be dropped at the next minor release. See the `appcast_mirror_repo` comment
+The same appcast was also copied to `teddychan/www.dragonapp.com`
+(`https://www.dragonapp.com/ice-2/appcast.xml`) during the v2.14.3–v2.15.0
+migration, as a **temporary mirror** for installs still on v2.14.3 or older.
+That mirror was retired at v2.15.0; `docs/ice-2/appcast.xml` in this repo has
+been the only production feed since. See the `appcast_mirror_repo` comment
 in `.github/workflows/release.yml` — that comment is the source of truth for
-the migration and its retirement trigger.
+the migration and its retirement.
 
 ## One-time setup
 
@@ -26,10 +27,10 @@ Reuse the same values already on `clipmenu-2` (same Apple Team `4AF3KGGV29`):
 - `NOTARY_KEY_P8_BASE64`
 - `NOTARY_KEY_ID`
 - `NOTARY_ISSUER_ID`
-- `PUBLIC_RELEASE_TOKEN` (PAT with write access to `teddychan/homebrew-tap`
-  and — while the mirror lasts — `teddychan/www.dragonapp.com`. The appcast in
-  *this* repo is published with the built-in `GITHUB_TOKEN`, which
-  `permissions: contents: write` in `release.yml` covers.)
+- `PUBLIC_RELEASE_TOKEN` (PAT with write access to `teddychan/homebrew-tap`,
+  used only for the Homebrew cask bump. The appcast in *this* repo is
+  published with the built-in `GITHUB_TOKEN`, which `permissions: contents:
+  write` in `release.yml` covers.)
 - `SPARKLE_EDDSA_PRIVATE_KEY` (the shared EdDSA private key; its public half
   `p+F/ivF5bAYcmuNuCMNHcRv123A6LHFpCBagFm7Adu8=` is in `App/Info.plist`)
 
@@ -51,10 +52,10 @@ step then picks the newest Xcode on the image.
      curl -s https://raw.githubusercontent.com/teddychan/ice-2/main/docs/ice-2/appcast.xml | grep sparkle:shortVersionString
      ```
 
-     Check this URL, not `https://www.dragonapp.com/ice-2/appcast.xml`: the
-     site copy is only the mirror, and it is served by the GitHub Pages CDN,
-     which can keep returning the previous appcast for minutes after a
-     successful publish — which looks exactly like a failed release.
+     Check this URL, not `https://www.dragonapp.com/ice-2/appcast.xml`: that
+     copy is the retired mirror, frozen at v2.14.7 since the release path
+     stopped publishing to it at v2.15.0 — it will never show a new release,
+     cache or no cache.
    - `brew update && brew livecheck teddychan/tap/ice-2` → X.Y.Z
    - `spctl -a -t install` accepts the downloaded zip's app.
 
