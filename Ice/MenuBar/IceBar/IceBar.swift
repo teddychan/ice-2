@@ -397,12 +397,24 @@ private struct IceBarContentView: View {
             Text(L("app.icebar.cannotDisplay"))
                 .padding(.horizontal, 10)
         } else if itemManager.itemCache.managedItems.isEmpty {
-            HStack {
-                Text(L("app.common.loadingItems"))
-                ProgressView()
-                    .controlSize(.small)
+            if itemManager.hasCompletedInitialCache {
+                VStack(spacing: 8) {
+                    Text(L("app.layout.noItems"))
+                    Button(L("app.common.checkAgain")) {
+                        Task {
+                            await itemManager.cacheItemsRegardless()
+                        }
+                    }
+                }
+                .padding(.horizontal, 10)
+            } else {
+                HStack {
+                    Text(L("app.common.loadingItems"))
+                    ProgressView()
+                        .controlSize(.small)
+                }
+                .padding(.horizontal, 10)
             }
-            .padding(.horizontal, 10)
         } else {
             ScrollView(.horizontal) {
                 HStack(spacing: 0) {

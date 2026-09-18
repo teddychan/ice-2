@@ -48,6 +48,7 @@ final class Hotkey: ObservableObject {
     /// Enables the hotkey.
     func enable() {
         disable()
+        guard action.isAvailable else { return }
         listener = Listener(hotkey: self, eventKind: .keyDown)
     }
 

@@ -75,6 +75,10 @@ final class MenuBarLayoutProfilesSettings: ObservableObject {
             guard let appState else {
                 return [:]
             }
+            if NativeMenuBarManager.usesNativeBackend {
+                await appState.menuBarManager.nativeManager.refresh()
+                return appState.menuBarManager.nativeManager.captureLayout()
+            }
             // Refresh first: rearranging items in the layout bar does not
             // update the item cache on its own, so without this the capture
             // would read the pre-rearrangement layout (the "Update doesn't
@@ -149,6 +153,10 @@ final class MenuBarLayoutProfilesSettings: ObservableObject {
     func applyProfile(_ profile: MenuBarLayoutProfile) async throws {
         guard let appState else {
             throw ApplyError.missingAppState
+        }
+        if NativeMenuBarManager.usesNativeBackend {
+            try await appState.menuBarManager.nativeManager.applyProfile(profile)
+            return
         }
         if
             !appState.settings.advanced.enableAlwaysHiddenSection,

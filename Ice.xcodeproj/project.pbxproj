@@ -725,6 +725,7 @@
 				);
 				MARKETING_VERSION = 2.15.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.dragonapp.ice.debug;
+				SWIFT_OBJC_BRIDGING_HEADER = Ice/MenuBar/Native/NativeMenuBarBridge.h;
 				PRODUCT_MODULE_NAME = Ice_2;
 				PRODUCT_NAME = "Ice 2 Debug";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -761,6 +762,7 @@
 				);
 				MARKETING_VERSION = 2.15.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.dragonapp.ice;
+				SWIFT_OBJC_BRIDGING_HEADER = Ice/MenuBar/Native/NativeMenuBarBridge.h;
 				PRODUCT_NAME = "Ice 2";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

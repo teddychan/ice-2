@@ -33,7 +33,11 @@ final class ControlItem {
         /// Returns the length associated with this identifier and
         /// the given hiding state.
         func length(for state: HidingState) -> CGFloat {
-            switch self {
+            if NativeMenuBarManager.usesNativeBackend {
+                // The native backend never uses an oversized divider to hide items.
+                return self == .visible || state == .showSection ? Lengths.standard : 0
+            }
+            return switch self {
             case .visible:
                 Lengths.standard
             case .hidden, .alwaysHidden:
@@ -528,6 +532,10 @@ final class ControlItem {
             searchItem.keyEquivalentModifierMask = keyCombination.modifiers.nsEventFlags
         }
         searchItem.target = self
+        if !HotkeyAction.searchMenuBarItems.isAvailable {
+            searchItem.action = nil
+            searchItem.isEnabled = false
+        }
         menu.addItem(searchItem)
 
         // Add items to toggle the hidden and always-hidden sections.

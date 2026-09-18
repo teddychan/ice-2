@@ -2,6 +2,19 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.dragonapp.ice.section-assignment</string>
+			<key>UTTypeDescription</key>
+			<string>Ice section assignment</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+		</dict>
+	</array>
 	<!-- The commit this build came from, which DragonKit renders after the build number:
 	     "v2.13.0 (1346) · 2026-Aug-09 12:00:00 UTC". The release workflow passes
 	     `git log -1 --format=%cI` as the DRAGON_COMMIT_DATE build setting; mapping it here is

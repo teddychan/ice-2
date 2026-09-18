@@ -84,6 +84,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_ notification: Notification) {
+        appState.menuBarManager.nativeManager.restore()
         // Keep the (possibly synced) backup folder current on quit. Best-effort:
         // a failure here must never block termination.
         guard SettingsBackup.automaticBackupEnabled() else {

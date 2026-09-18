@@ -60,7 +60,9 @@ final class AppState: ObservableObject {
         settings.performSetup(with: self)
         menuBarManager.performSetup(with: self)
 
-        await MenuBarItemService.Connection.shared.start()
+        if !NativeMenuBarManager.usesNativeBackend {
+            await MenuBarItemService.Connection.shared.start()
+        }
 
         spacerManager.performSetup(with: self)
         appearanceManager.performSetup(with: self)

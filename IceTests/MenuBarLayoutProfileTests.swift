@@ -7,6 +7,204 @@ import Foundation
 import Testing
 @testable import Ice_2
 
+@MainActor
+struct NativeMenuBarPolicyTests {
+    @MainActor private final class Assertions {
+        var issued = [NSObject]()
+        var callbacks = [(Error?) -> Void]()
+        var invalidated = [ObjectIdentifier]()
+
+        func manager() -> NativeMenuBarManager {
+            NativeMenuBarManager(activate: { _, _, completion in
+                let handle = NSObject()
+                self.issued.append(handle)
+                self.callbacks.append(completion)
+                return handle
+            }, invalidate: { handle in
+                if let handle { self.invalidated.append(ObjectIdentifier(handle)) }
+            })
+        }
+    }
+
+    @Test func assertionReplacementKeepsOldStateUntilSuccess() async {
+        let assertions = Assertions()
+        let manager = assertions.manager()
+        let first = NativeMenuBarPolicy.Configuration(bundles: ["one"], systemItems: [0])
+        let second = NativeMenuBarPolicy.Configuration(bundles: ["two"], systemItems: [0])
+        manager.apply(first)
+        assertions.callbacks[0](nil)
+        // The bridge callback is delivered to the main actor asynchronously.
+        await Task.yield()
+        manager.apply(second)
+        #expect(assertions.invalidated.isEmpty)
+        assertions.callbacks[1](nil)
+        await Task.yield()
+        #expect(assertions.invalidated == [ObjectIdentifier(assertions.issued[0])])
+        manager.restore()
+        #expect(assertions.invalidated == assertions.issued.map(ObjectIdentifier.init))
+    }
+
+    @Test func staleFailureCannotCancelReplacement() async {
+        let assertions = Assertions()
+        let manager = assertions.manager()
+        manager.apply(.init(bundles: ["one"], systemItems: [0]))
+        manager.apply(.init(bundles: ["two"], systemItems: [0]))
+        assertions.callbacks[0](NSError(domain: "test", code: 1))
+        assertions.callbacks[1](nil)
+        await Task.yield()
+        #expect(manager.errorMessage == nil)
+        #expect(assertions.invalidated == [ObjectIdentifier(assertions.issued[0])])
+        manager.restore()
+    }
+
+    @Test func activationFailureRestoresOldAndPendingAssertions() async {
+        let assertions = Assertions()
+        let manager = assertions.manager()
+        manager.apply(.init(bundles: ["one"], systemItems: [0]))
+        assertions.callbacks[0](nil)
+        await Task.yield()
+        manager.apply(.init(bundles: ["two"], systemItems: [0]))
+        assertions.callbacks[1](NSError(domain: "test", code: 1))
+        await Task.yield()
+        #expect(manager.errorMessage != nil)
+        #expect(Set(assertions.invalidated) == Set(assertions.issued.map(ObjectIdentifier.init)))
+    }
+
+    @Test func showAllInvalidatesPendingAndIgnoresItsLateCallback() async {
+        let assertions = Assertions()
+        let manager = assertions.manager()
+        manager.apply(.init(bundles: ["one"], systemItems: [0]))
+        manager.apply(nil)
+        assertions.callbacks[0](nil)
+        await Task.yield()
+        manager.restore()
+        #expect(assertions.invalidated == [ObjectIdentifier(assertions.issued[0])])
+    }
+
+    @Test func unchangedConfigurationDoesNotReassert() {
+        let assertions = Assertions()
+        let manager = assertions.manager()
+        let config = NativeMenuBarPolicy.Configuration(bundles: ["one"], systemItems: [0])
+        manager.apply(config)
+        manager.apply(config)
+        #expect(assertions.issued.count == 1)
+        manager.restore()
+    }
+
+    private func configuration(
+        _ assignments: [String: MenuBarSection.Name],
+        shown: Bool = false,
+        alwaysShown: Bool = false,
+        alwaysEnabled: Bool = true,
+        running: Set<String> = ["com.example.one", "com.example.two"]
+    ) -> NativeMenuBarPolicy.Configuration? {
+        NativeMenuBarPolicy.configuration(
+            assignments: assignments, runningBundles: running,
+            hiddenShown: shown, alwaysHiddenShown: alwaysShown, alwaysHiddenEnabled: alwaysEnabled
+        )
+    }
+
+    @Test func noHiddenItemsDoesNotActivateAssessment() {
+        #expect(configuration([:]) == nil)
+        #expect(configuration(["bundle:com.example.one": .visible]) == nil)
+        #expect(configuration(["bundle:com.absent": .hidden]) == nil)
+    }
+
+    @Test func hiddenAndAlwaysHiddenRevealIndependently() throws {
+        let assignments: [String: MenuBarSection.Name] = ["bundle:com.example.one": .hidden, "bundle:com.example.two": .alwaysHidden]
+        let collapsed = try #require(configuration(assignments))
+        #expect(!collapsed.bundles.contains("com.example.one"))
+        #expect(!collapsed.bundles.contains("com.example.two"))
+        let partial = try #require(configuration(assignments, shown: true))
+        #expect(partial.bundles.contains("com.example.one"))
+        #expect(!partial.bundles.contains("com.example.two"))
+        #expect(configuration(assignments, shown: true, alwaysShown: true) == nil)
+        #expect(configuration(assignments, shown: true, alwaysEnabled: false) == nil)
+    }
+
+    @Test func newlyLaunchedAppsStayVisibleAndIceCannotHideItself() throws {
+        let config = try #require(configuration(
+            ["bundle:com.example.one": .hidden, "bundle:com.dragonapp.ice": .hidden],
+            running: ["com.example.one", "com.newapp", "com.dragonapp.ice"]
+        ))
+        #expect(config.bundles.contains("com.newapp"))
+        #expect(config.bundles.contains("com.dragonapp.ice"))
+        #expect(config.bundles.contains("com.dragonapp.ice.debug"))
+    }
+
+    @Test func systemVisibilityIsIndependentAndProtectedItemsStayAllowed() throws {
+        let config = try #require(configuration(["system:0": .hidden, "system:2": .hidden, "system:8": .alwaysHidden]))
+        #expect(!config.systemItems.contains(0))
+        #expect(config.systemItems.contains(2))
+        #expect(config.systemItems.contains(8))
+        #expect(config.bundles.contains("com.example.one"))
+        #expect(configuration(["system:2": .hidden, "system:99": .hidden, "unmanaged:focus": .hidden]) == nil)
+    }
+
+    @Test func discoveryGroupsAppIconsWithoutInventingWindowIDs() {
+        let item = NativeMenuBarPolicy.item(bundle: "com.example.one", identifier: nil, name: "One")
+        #expect(item?.id == "bundle:com.example.one")
+        #expect(item?.canAssign == true)
+        #expect(NativeMenuBarPolicy.item(bundle: "com.dragonapp.ice.debug", identifier: nil, name: "Ice") == nil)
+        #expect(NativeMenuBarPolicy.item(bundle: "com.apple.TextInputMenuAgent", identifier: nil, name: "Input")?.id == "system:4")
+        #expect(NativeMenuBarPolicy.item(bundle: nil, identifier: "com.apple.menuextra.focusmode", name: "Focus")?.canAssign == false)
+    }
+
+    @Test func nativeProfileTagsRoundTrip() {
+        for id in ["bundle:com.example.one", "system:0", "system:7"] {
+            let tag = NativeMenuBarPolicy.tag(for: id)
+            #expect(tag.flatMap(NativeMenuBarPolicy.nativeID(for:)) == id)
+        }
+    }
+
+    @Test func oldProfileMigrationPrefersVisibleAndPreservesSource() {
+        let first = MenuBarItemTag(namespace: .string("com.example.one"), title: "A")
+        let second = MenuBarItemTag(namespace: .string("com.example.one"), title: "B")
+        let unknown = MenuBarItemTag(namespace: .uuid(UUID()), title: "Unknown")
+        let battery = MenuBarItemTag(namespace: .controlCenter, title: "Battery")
+        let profile = MenuBarLayoutProfile(id: UUID(), name: "Old", createdAt: .distantPast, updatedAt: .distantPast, sections: [
+            .init(section: .visible, itemTags: [first, .visibleControlItem]),
+            .init(section: .hidden, itemTags: [second, battery, unknown]),
+            .init(section: .alwaysHidden, itemTags: [second]),
+        ])
+        let original = profile
+        let result = NativeMenuBarPolicy.migrate(profile)
+        #expect(result.assignments["bundle:com.example.one"] == .visible)
+        #expect(result.assignments["system:0"] == .hidden)
+        #expect(result.conflicts == ["bundle:com.example.one"])
+        #expect(result.unmatched == 1)
+        #expect(profile == original)
+    }
+
+    @Test func hiddenWinsOverAlwaysHiddenInConflictingLegacyProfile() {
+        let tag = MenuBarItemTag(namespace: .string("com.example.one"), title: "A")
+        let profile = MenuBarLayoutProfile(id: UUID(), name: "Old", createdAt: .distantPast, updatedAt: .distantPast, sections: [
+            .init(section: .alwaysHidden, itemTags: [tag]),
+            .init(section: .hidden, itemTags: [tag]),
+        ])
+        #expect(NativeMenuBarPolicy.migrate(profile).assignments["bundle:com.example.one"] == .hidden)
+    }
+
+    @Test func sectionAssignmentsSurviveCodableRoundTrip() throws {
+        let assignments: [String: MenuBarSection.Name] = ["bundle:com.example.one": .alwaysHidden, "system:5": .hidden]
+        let data = try JSONEncoder().encode(assignments)
+        #expect(try JSONDecoder().decode([String: MenuBarSection.Name].self, from: data) == assignments)
+    }
+
+    @Test func applyingUnmappableProfileDoesNotReplaceAssignments() async throws {
+        let manager = NativeMenuBarManager()
+        let profile = MenuBarLayoutProfile(id: UUID(), name: "Unmappable", createdAt: .distantPast, updatedAt: .distantPast, sections: [
+            .init(section: .hidden, itemTags: [.init(namespace: .uuid(UUID()), title: "Unknown")]),
+        ])
+        do {
+            try await manager.applyProfile(profile)
+            Issue.record("An unmappable profile must fail without saving an empty native layout")
+        } catch {
+            #expect(manager.assignments.isEmpty)
+        }
+    }
+}
+
 struct MenuBarLayoutProfileTests {
     private func tag(_ title: String) -> MenuBarItemTag {
         MenuBarItemTag(namespace: .string("com.example"), title: title)

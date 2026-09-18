@@ -65,7 +65,11 @@ struct GeneralSettingsPane: View {
             DragonSection {
                 Text(L("app.general.section.iceBar"))
             } content: {
-                iceBarOptions
+                if NativeMenuBarManager.usesNativeBackend {
+                    Text(L("app.native.inlineReveal"))
+                } else {
+                    iceBarOptions
+                }
             }
             DragonSection {
                 advancedOptions

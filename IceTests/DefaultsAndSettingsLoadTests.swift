@@ -37,6 +37,38 @@ struct DefaultsAndSettingsLoadTests {
         try await body(scratch)
     }
 
+    @Test @MainActor func nativeMembershipPersistsEverySectionAndCapturesOneBundle() throws {
+        try withScratchStore { _ in
+            let manager = NativeMenuBarManager()
+            let item = NativeMenuBarItem(id: "bundle:com.example.multiple-icons", name: "Multiple Icons")
+            for section in MenuBarSection.Name.allCases {
+                manager.setSection(section, for: item)
+                let data = try #require(Defaults.data(forKey: .nativeMenuBarSections))
+                let saved = try JSONDecoder().decode([String: MenuBarSection.Name].self, from: data)
+                #expect(saved == [item.id: section])
+                let captured = manager.captureLayout()
+                #expect(captured[section]?.count == 1)
+                #expect(captured.values.flatMap { $0 }.count == 1)
+            }
+        }
+    }
+
+    @Test @MainActor func nativeProtectedItemsAndUnknownDropsCannotChangeSavedLayout() throws {
+        try withScratchStore { _ in
+            let manager = NativeMenuBarManager()
+            let item = NativeMenuBarItem(id: "bundle:com.example.saved", name: "Saved")
+            manager.setSection(.hidden, for: item)
+            let before = try #require(Defaults.data(forKey: .nativeMenuBarSections))
+            for id in ["system:2", "system:8", "bundle:com.dragonapp.ice.debug", "unmanaged:extra"] {
+                manager.setSection(.alwaysHidden, for: NativeMenuBarItem(id: id, name: id))
+                #expect(!manager.moveItem(id: id, to: .alwaysHidden))
+            }
+            #expect(!manager.moveItem(id: "bundle:unknown", to: .visible))
+            #expect(Defaults.data(forKey: .nativeMenuBarSections) == before)
+            #expect(manager.assignments == [item.id: .hidden])
+        }
+    }
+
     // MARK: - Defaults wrapper
 
     @Test func typedAccessorsReadThroughStore() {

@@ -139,7 +139,8 @@ struct SettingsView: View {
             MenuBarLayoutSettingsPane(
                 itemManager: appState.itemManager,
                 profileSettings: appState.settings.layoutProfiles,
-                spacerManager: appState.spacerManager
+                spacerManager: appState.spacerManager,
+                nativeManager: appState.menuBarManager.nativeManager
             )
         case .hotkeys:
             HotkeysSettingsPane(settings: appState.settings.hotkeys)

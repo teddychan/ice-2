@@ -11,6 +11,7 @@ struct MenuBarLayoutSettingsPane: View {
     @ObservedObject var itemManager: MenuBarItemManager
     @ObservedObject var profileSettings: MenuBarLayoutProfilesSettings
     @ObservedObject var spacerManager: MenuBarSpacerManager
+    @ObservedObject var nativeManager: NativeMenuBarManager
     @State private var newProfileName = ""
     @State private var applyingProfileID: MenuBarLayoutProfile.ID?
     @State private var isCapturingLayout = false
@@ -18,7 +19,9 @@ struct MenuBarLayoutSettingsPane: View {
     @State private var presentedError: LocalizedErrorWrapper?
 
     private var hasItems: Bool {
-        !itemManager.itemCache.managedItems.isEmpty
+        NativeMenuBarManager.usesNativeBackend
+            ? nativeManager.items.contains(where: \.canAssign)
+            : !itemManager.itemCache.managedItems.isEmpty
     }
 
     private var isLoadingItems: Bool {
@@ -26,7 +29,12 @@ struct MenuBarLayoutSettingsPane: View {
     }
 
     var body: some View {
-        if !ScreenCapture.cachedCheckPermissions() {
+        if NativeMenuBarManager.usesNativeBackend {
+            DragonForm {
+                NativeMenuBarLayoutView(manager: nativeManager)
+                profiles
+            }
+        } else if !ScreenCapture.cachedCheckPermissions() {
             missingScreenRecordingPermissions
         } else if appState.menuBarManager.isMenuBarHiddenBySystemUserDefaults {
             cannotArrange

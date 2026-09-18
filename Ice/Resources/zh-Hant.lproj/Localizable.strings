@@ -225,3 +225,42 @@
 "app.whatsNew.changed1" = "已更新到 DragonKit 4.1.1，這是支援「設定」「關於」「新功能」和軟體更新檢查的共用框架。上述修正正來自其中；這些面板的外觀與行為均未改變。";
 "app.whatsNew.fixed1" = "如果在 Mac 上發現同一 App 有多個副本，解除安裝現在會先停止操作。將正在執行的副本移到垃圾桶一直都是安全的，但你的設定、登入項目和支援檔案都是依 App 的身分而非位置來儲存，因此兩個副本會共用這些內容，也就無法分辨哪個是哪個。解除安裝多餘的副本，可能會刪除你實際在用的那個副本的設定。現在它會在刪除任何內容之前先停止，並列出各副本所在的位置，方便你把不需要的副本移到垃圾桶後再試一次。如果你只有一個副本——這是絕大多數人的情況——則不會有任何變化。";
 "app.whatsNew.summary" = "解除安裝功能中的一項安全性修正，繼承自 Ice 2 所基於的共用框架。選單列管理方式未變。";
+
+/* macOS 27 native menu bar — English fallback. */
+"app.native.title" = "Menu bar sections on macOS 27";
+"app.native.explanation" = "Choose a section for each app. All menu bar icons from the same app share a section. Use the Ice icon or your hotkeys to show and hide sections.";
+"app.native.limitations" = "Focus and some system extras may also disappear while items are hidden. Section visibility applies across displays. Use Command-drag in the menu bar to change icon order; profiles save section membership on macOS 27.";
+"app.native.inlineReveal" = "On macOS 27, hidden items appear directly in the menu bar. The separate Ice Bar is unavailable.";
+"app.native.assignments" = "Apps and system items";
+"app.native.systemManaged" = "Managed by macOS";
+"app.native.showAll" = "Show All";
+"app.native.showHidden" = "Show Hidden";
+"app.native.hide" = "Hide Sections";
+"app.native.unavailable" = "Native menu bar hiding is unavailable on this macOS build. All sections have been restored.";
+"app.native.needsAccessibility" = "Enable Accessibility permission for Ice 2, then check again.";
+"app.native.timeout" = "macOS did not confirm hiding. All sections have been restored; try again.";
+"app.native.invalidSavedLayout" = "The saved macOS 27 layout could not be read. Items remain visible until you assign sections again.";
+"app.native.noProfileMatches" = "This profile contains no items that can be mapped to macOS 27. Your current section assignments have not changed.";
+"app.native.profileResult" = "Profile applied. %ld app(s) appeared in multiple sections and were kept in the more visible section. %ld item(s) could not be mapped; their saved profile entries are unchanged.";
+"app.native.unavailableActions" = "Per-icon search, temporary reveal, and the separate Ice Bar are unavailable on macOS 27. Use section toggles or Layout instead.";
+
+// Native section editor
+"app.native.editor.title" = "Organize your menu bar";
+"app.native.editor.instructions" = "Drag an app into a section. Changes save automatically.";
+"app.native.editor.grouping" = "All menu bar icons from an app move together. This does not change their order in the menu bar.";
+"app.native.editor.refresh" = "Refresh Apps";
+"app.native.editor.visible" = "Always shown.";
+"app.native.editor.hidden" = "Revealed through the normal Ice toggle.";
+"app.native.editor.alwaysHidden" = "Revealed only when explicitly requested.";
+"app.native.editor.dropHere" = "Drop an app here";
+"app.native.editor.moveTo" = "Move to %@";
+"app.native.editor.moved" = "%@ moved to %@. Assignment saved.";
+"app.native.editor.appIcon" = "App icon";
+"app.native.editor.noPreview" = "Preview unavailable";
+"app.native.editor.cardHelp" = "Drag to assign a section, or use the menu to choose one. All menu bar icons from this app share visibility.";
+"app.native.editor.visibility" = "Show or hide section items";
+"app.native.editor.visibilityNote" = "Changes what is shown now. Your section assignments stay the same.";
+"app.native.editor.hideBoth" = "Hide Hidden and Always-Hidden Items";
+"app.native.editor.showHidden" = "Show Hidden Items";
+"app.native.editor.showAll" = "Show All Items";
+"app.native.editor.moveApp" = "Move %@";

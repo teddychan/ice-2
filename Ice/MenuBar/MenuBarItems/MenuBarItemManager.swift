@@ -55,6 +55,10 @@ final class MenuBarItemManager: ObservableObject {
     /// Sets up the manager.
     func performSetup(with appState: AppState) async {
         self.appState = appState
+        if NativeMenuBarManager.usesNativeBackend {
+            hasCompletedInitialCache = true
+            return
+        }
         await cacheItemsRegardless()
         configureCancellables(with: appState)
     }
@@ -392,6 +396,11 @@ extension MenuBarItemManager {
     /// the hidden and always-hidden sections are correctly ordered,
     /// arranging them into valid positions if needed.
     func cacheItemsRegardless(_ currentItemWindowIDs: [CGWindowID]? = nil) async {
+        if NativeMenuBarManager.usesNativeBackend {
+            await appState?.menuBarManager.nativeManager.refresh()
+            hasCompletedInitialCache = true
+            return
+        }
         await cacheActor.runCacheTask { [weak self] in
             guard let self else {
                 return
@@ -434,6 +443,10 @@ extension MenuBarItemManager {
     /// the hidden and always-hidden sections are correctly ordered,
     /// arranging them into valid positions if needed.
     func cacheItemsIfNeeded() async {
+        if NativeMenuBarManager.usesNativeBackend {
+            await appState?.menuBarManager.nativeManager.refresh()
+            return
+        }
         let itemWindowIDs = Bridging.getMenuBarWindowList(option: [.itemsOnly, .activeSpace])
         if await cacheActor.cachedItemWindowIDs != itemWindowIDs {
             await cacheItemsRegardless(itemWindowIDs)

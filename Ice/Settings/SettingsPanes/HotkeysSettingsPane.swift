@@ -24,6 +24,9 @@ struct HotkeysSettingsPane: View {
             } content: {
                 hotkeyRecorder(forAction: .searchMenuBarItems)
                 hotkeyRecorder(forAction: .temporarilyShowMenuBarItem)
+                if NativeMenuBarManager.usesNativeBackend {
+                    Text(L("app.native.unavailableActions")).foregroundStyle(.secondary)
+                }
             }
             DragonSection {
                 Text(L("app.advanced.section.other"))
@@ -58,6 +61,7 @@ struct HotkeysSettingsPane: View {
                     Text(L("app.hotkeys.toggleAppMenus"))
                 }
             }
+            .disabled(!action.isAvailable)
         }
     }
 

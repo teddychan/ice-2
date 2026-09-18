@@ -44,6 +44,9 @@ final class MenuBarManager: ObservableObject {
     /// The panel that contains the Ice Bar interface.
     let iceBarPanel = IceBarPanel()
 
+    /// macOS 27 uses app and system identities instead of individual windows.
+    let nativeManager = NativeMenuBarManager()
+
     /// The panel that contains the menu bar search interface.
     let searchPanel = MenuBarSearchPanel()
 
@@ -74,11 +77,21 @@ final class MenuBarManager: ObservableObject {
         for section in sections {
             section.performSetup(with: appState)
         }
+        nativeManager.performSetup(with: appState)
     }
 
     /// Configures the internal observers for the manager.
     private func configureCancellables() {
         var c = Set<AnyCancellable>()
+
+        if NativeMenuBarManager.usesNativeBackend, let appState {
+            Publishers.MergeMany(sections.map { $0.controlItem.$state })
+                .map { _ in () }
+                .merge(with: appState.settings.advanced.$enableAlwaysHiddenSection.map { _ in () })
+                .debounce(for: .milliseconds(30), scheduler: DispatchQueue.main)
+                .sink { [weak self] _ in self?.nativeManager.synchronizeVisibility() }
+                .store(in: &c)
+        }
 
         NSApp.publisher(for: \.currentSystemPresentationOptions)
             .receive(on: DispatchQueue.main)

@@ -487,7 +487,7 @@ extension HIDEventManager {
         guard
             appState.settings.general.showOnHoverEmptyMenuBar
                 || appState.settings.general.showOnHoverOverIceIcon,
-            !appState.settings.general.useIceBar
+            NativeMenuBarManager.usesNativeBackend || !appState.settings.general.useIceBar
         else {
             return
         }

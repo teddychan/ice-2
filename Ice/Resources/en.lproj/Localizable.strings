@@ -175,6 +175,23 @@
 "app.layout.needsScreenRecording" = "Menu bar layout requires screen recording permissions.";
 "app.layout.needsScreenRecording.note" = "On macOS 26, Ice 2 may need to relaunch after you grant this permission.";
 "app.layout.noItems" = "No manageable menu bar items found.";
+
+"app.native.title" = "Menu bar sections on macOS 27";
+"app.native.explanation" = "Choose a section for each app. All menu bar icons from the same app share a section. Use the Ice icon or your hotkeys to show and hide sections.";
+"app.native.limitations" = "Focus and some system extras may also disappear while items are hidden. Section visibility applies across displays. Use Command-drag in the menu bar to change icon order; profiles save section membership on macOS 27.";
+"app.native.inlineReveal" = "On macOS 27, hidden items appear directly in the menu bar. The separate Ice Bar is unavailable.";
+"app.native.unavailableActions" = "Per-icon search, temporary reveal, and the separate Ice Bar are unavailable on macOS 27. Use section toggles or Layout instead.";
+"app.native.assignments" = "Apps and system items";
+"app.native.systemManaged" = "Managed by macOS";
+"app.native.showAll" = "Show All";
+"app.native.showHidden" = "Show Hidden";
+"app.native.hide" = "Hide Sections";
+"app.native.unavailable" = "Native menu bar hiding is unavailable on this macOS build. All sections have been restored.";
+"app.native.needsAccessibility" = "Enable Accessibility permission for Ice 2, then check again.";
+"app.native.timeout" = "macOS did not confirm hiding. All sections have been restored; try again.";
+"app.native.invalidSavedLayout" = "The saved macOS 27 layout could not be read. Items remain visible until you assign sections again.";
+"app.native.noProfileMatches" = "This profile contains no items that can be mapped to macOS 27. Your current section assignments have not changed.";
+"app.native.profileResult" = "Profile applied. %ld app(s) appeared in multiple sections and were kept in the more visible section. %ld item(s) could not be mapped; their saved profile entries are unchanged.";
 "app.layout.noProfiles" = "No saved layout profiles.";
 "app.layout.points" = "%d pt";
 "app.layout.profileName" = "Profile name";
@@ -225,3 +242,24 @@
 "app.whatsNew.changed1" = "Updated to DragonKit 4.1.1, the shared framework behind Settings, About, What's New and software updates. The fix above comes from it; none of those panes look or behave differently.";
 "app.whatsNew.fixed1" = "Uninstall now stops if it finds more than one copy of Ice 2 on your Mac. Moving the copy you are running to the Trash was always safe, but your settings, login item and support files are stored under the app's identity rather than its location — so two copies share all of them, and there is no way to tell whose is whose. Uninstalling a spare copy could remove the settings belonging to the copy you actually use. It now stops before removing anything and lists where the copies are, so you can trash the ones you do not want and try again. If you have one copy, which is nearly everyone, nothing changes.";
 "app.whatsNew.summary" = "A safety fix in Uninstall, inherited from the shared framework Ice 2 is built on. Menu bar management is unchanged.";
+
+// Native section editor
+"app.native.editor.title" = "Organize your menu bar";
+"app.native.editor.instructions" = "Drag an app into a section. Changes save automatically.";
+"app.native.editor.grouping" = "All menu bar icons from an app move together. This does not change their order in the menu bar.";
+"app.native.editor.refresh" = "Refresh Apps";
+"app.native.editor.visible" = "Always shown.";
+"app.native.editor.hidden" = "Revealed through the normal Ice toggle.";
+"app.native.editor.alwaysHidden" = "Revealed only when explicitly requested.";
+"app.native.editor.dropHere" = "Drop an app here";
+"app.native.editor.moveTo" = "Move to %@";
+"app.native.editor.moved" = "%@ moved to %@. Assignment saved.";
+"app.native.editor.appIcon" = "App icon";
+"app.native.editor.noPreview" = "Preview unavailable";
+"app.native.editor.cardHelp" = "Drag to assign a section, or use the menu to choose one. All menu bar icons from this app share visibility.";
+"app.native.editor.visibility" = "Show or hide section items";
+"app.native.editor.visibilityNote" = "Changes what is shown now. Your section assignments stay the same.";
+"app.native.editor.hideBoth" = "Hide Hidden and Always-Hidden Items";
+"app.native.editor.showHidden" = "Show Hidden Items";
+"app.native.editor.showAll" = "Show All Items";
+"app.native.editor.moveApp" = "Move %@";

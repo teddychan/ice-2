@@ -18,8 +18,17 @@ enum HotkeyAction: String, Codable, CaseIterable {
     case toggleAutoRehide = "ToggleAutoRehide"
     case toggleApplicationMenus = "ToggleApplicationMenus"
 
+    var isAvailable: Bool {
+        guard NativeMenuBarManager.usesNativeBackend else { return true }
+        return switch self {
+        case .searchMenuBarItems, .temporarilyShowMenuBarItem, .enableIceBar: false
+        default: true
+        }
+    }
+
     @MainActor
     func perform(appState: AppState) {
+        guard isAvailable else { return }
         switch self {
         case .toggleHiddenSection:
             guard let section = appState.menuBarManager.section(withName: .hidden) else {

@@ -161,6 +161,7 @@ extension Defaults {
         case rehideInterval = "RehideInterval"
         case itemSpacingOffset = "ItemSpacingOffset"
         case menuBarLayoutProfiles = "MenuBarLayoutProfiles"
+        case nativeMenuBarSections = "NativeMenuBarSections"
         case menuBarSpacers = "MenuBarSpacers"
         case menuBarTriggers = "MenuBarTriggers"
 

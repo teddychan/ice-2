@@ -62,7 +62,7 @@ final class MenuBarSection {
 
     /// A Boolean value that indicates whether the Ice Bar should be used.
     private var useIceBar: Bool {
-        appState?.settings.general.useIceBar ?? false
+        !NativeMenuBarManager.usesNativeBackend && (appState?.settings.general.useIceBar ?? false)
     }
 
     /// A weak reference to the menu bar manager.
