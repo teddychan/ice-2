@@ -22,7 +22,7 @@ enum WhatsNewConfig {
     @MainActor
     static var content: WhatsNewContent {
         WhatsNewContent(
-            date: "2026-08-20",
+            date: "2026-09-18",
             summary: L("app.whatsNew.summary"),
             sections: [
                 // The keys are stable across releases (app.whatsNew.summary, .fixed1, .changed1, …)
@@ -31,13 +31,18 @@ enum WhatsNewConfig {
                 // so nothing is left behind for `whats_new_path` in release.yml to gate on — it
                 // diffs the text at these keys, not the key names themselves.
                 //
-                // One user-facing change this release: DragonKit 4.1.1 makes Uninstall refuse to
-                // run when more than one copy of the app is on the Mac, because settings, the login
-                // item, support files and the Homebrew record are keyed by the app's identity, not
-                // its location, so two copies share all of them. DragonKit 4.1.1 also fixed a raw
-                // developer error in Settings > Updates, but that only ever surfaced in local debug
-                // builds — no user could hit it — so per this fleet's "never claim what users
-                // cannot see" rule, it is left out here and only noted in CHANGELOG.md.
+                // This release restores menu bar hiding on macOS 27, which stopped working when
+                // macOS 27 rebuilt the menu bar so that individual item windows are no longer
+                // exposed, and adds the drag-and-drop Layout editor built on the new backend.
+                // `changed1` is where the macOS 27 limitations are stated plainly: the separate
+                // Ice Bar, per-icon search and temporary per-icon reveal do not exist there. They
+                // belong in the pane rather than only in the docs, because a user who upgrades to
+                // macOS 27 loses three features and would otherwise read that as a new bug.
+                // Nothing here is claimed for macOS 26, where the backend is untouched.
+                ChangeSection(kind: .added, entries: [
+                    L("app.whatsNew.added1"),
+                    L("app.whatsNew.added2"),
+                ]),
                 ChangeSection(kind: .fixed, entries: [
                     L("app.whatsNew.fixed1"),
                 ]),

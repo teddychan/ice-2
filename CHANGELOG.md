@@ -1,5 +1,59 @@
 # Changelog
 
+## 2.16.0 - 2026-09-18
+
+### Added
+
+- **Menu bar hiding works again on macOS 27.** macOS 27 represents the whole menu bar as a single
+  window rather than one window per item, which is what every item-discovery path in Ice 2 was
+  built on — so the list came back empty, nothing hid, and Layout never finished loading. A new
+  backend, used only on macOS 27 and later, discovers menu bar apps and supported system items
+  through Accessibility and hides them with runtime-loaded `MenuBarClientCore` assessment-mode
+  assertions instead of an oversized divider. The Ice icon, the Hidden and Always-Hidden sections,
+  section hotkeys and automatic rehiding behave as before. Accessibility permission is required;
+  without it the app says so and leaves everything visible. Closes #53.
+- **A Layout editor built for the new backend.** Three labelled drop targets — Visible, Hidden and
+  Always-Hidden — take a dragged app card, or a section can be chosen from the card's menu;
+  assignments persist immediately. One card represents one app bundle, because on macOS 27 all of
+  an app's menu bar icons share visibility. Saved layout profiles still apply: migration maps
+  stable identities, prefers the more visible section on conflict, reports what could not be
+  matched, and refuses a wholly unmappable profile rather than overwriting current assignments.
+  Native profiles save section membership, not ordering. Assignments are stored separately under
+  the new `NativeMenuBarSections` defaults key, so old per-window layouts are left intact.
+
+### Fixed
+
+- **The Ice Bar no longer spins on "Loading menu bar items…" forever when there is nothing to
+  load.** A completed but empty item cache now shows an empty state with a Check Again button
+  instead of an indefinite progress indicator. This was the visible symptom of the macOS 27 break,
+  but the empty state applies on every supported version. Closes #116.
+
+### Changed
+
+- **Three features are unavailable on macOS 27:** the separate Ice Bar, per-icon search, and
+  temporarily showing a single icon. None of them has a representation in the new backend — hidden
+  items reveal directly in the system menu bar instead of in a separate bar. Their controls and
+  hotkeys are disabled on macOS 27 only; saved preferences and key bindings are kept untouched, so
+  they return unchanged on macOS 26. Assessment mode can also conceal Focus and some other system
+  extras as a side effect, section visibility applies across all displays at once, and Clock,
+  Control Center and unmapped system items cannot be assigned. Physical icon order is still changed
+  by Command-dragging in the menu bar.
+
+### Internal
+
+- macOS 26 and earlier are untouched: `NativeMenuBarManager.usesNativeBackend` gates every new code
+  path on `operatingSystemVersion.majorVersion >= 27`, and the legacy window-based backend, the
+  `MenuBarItemService` XPC connection and the existing Layout editor run exactly as before.
+- Every failure path fails open. A failed or timed-out activation, a missing private framework and
+  revoked Accessibility permission all release the assertions and restore every section, so a
+  regression in the private API leaves items visible rather than stranded. An assertion is replaced
+  only after its successor activates, and generation checks discard stale callbacks; quit and sleep
+  release assertions, wake and Space changes refresh discovery.
+- The private API is reached through a small Objective-C bridge with runtime class and selector
+  checks; nothing is linked against `MenuBarClientCore` at build time. Implementation notes and the
+  manual checklist are in `docs/testing/macos27-integration.md`; the isolated feasibility probe is
+  retained in `docs/testing/macos27-prototype.md` and `scripts/macos27-prototype.m`.
+
 ## 2.15.2 - 2026-08-20
 
 ### Fixed
