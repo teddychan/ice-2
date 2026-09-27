@@ -82,22 +82,46 @@ struct LocalizationCoverageTests {
         }
     }
 
+    /// The `String(format:)` specifiers in `value`, in order, each spelled exactly as written.
+    ///
+    /// Matches the whole grammar, `%` [`n$`] [flags] [width] [`.`precision] [length] conversion,
+    /// because any part the pattern has no room for makes that specifier invisible, and an
+    /// invisible specifier compares `[]` to `[]` and passes. That is how `%ld` went unchecked
+    /// until the length modifier was added. `%%` is matched so the `%d` in `100%%d` is not read
+    /// as a specifier, and so a translation that turns `%%` into a bare `%` fails. The space flag
+    /// is left out on purpose: with it, the `% o` in "50% off" would read as an octal conversion.
+    static func formatSpecifiers(in value: String) -> [String] {
+        let pattern = #/%%|%(?:\d+\$)?[-+#0']*(?:\d+|\*)?(?:\.(?:\d+|\*)?)?(?:hh|ll|[hlqLzjt])?[@dDiuUoOxXfFeEgGaAcCsSp]/#
+        return value.matches(of: pattern).map { String($0.0) }
+    }
+
+    @Test func formatSpecifierPatternReadsEveryPartOfTheGrammar() {
+        #expect(Self.formatSpecifiers(in: "%@ has %d") == ["%@", "%d"])
+        #expect(Self.formatSpecifiers(in: "%1$@ has %2$ld") == ["%1$@", "%2$ld"])
+        // Length modifiers. `%u` and `%lu` are the unsigned twins of `%d` and `%ld`: 32-bit
+        // `UInt32` and 64-bit `UInt`. They differ from each other as much as `%d` and `%ld` do.
+        #expect(Self.formatSpecifiers(in: "%lld %hhd %hd %qd %zd %jd %td")
+                == ["%lld", "%hhd", "%hd", "%qd", "%zd", "%jd", "%td"])
+        #expect(Self.formatSpecifiers(in: "%u %lu %i %x %X %o %c %C %S %p %e %g %a")
+                == ["%u", "%lu", "%i", "%x", "%X", "%o", "%c", "%C", "%S", "%p", "%e", "%g", "%a"])
+        // Flags, width and precision, including `*`, which consumes an argument of its own.
+        #expect(Self.formatSpecifiers(in: "%.1f %02d %-8@ %+d %#x %*d %.*f %1$5.2f")
+                == ["%.1f", "%02d", "%-8@", "%+d", "%#x", "%*d", "%.*f", "%1$5.2f"])
+        #expect(Self.formatSpecifiers(in: "100%% of %d") == ["%%", "%d"])
+        #expect(Self.formatSpecifiers(in: "100%%d") == ["%%"])
+        #expect(Self.formatSpecifiers(in: "50% off, up to 100%").isEmpty)
+    }
+
     @Test func formatSpecifiersMatchEnglishInEveryTranslation() throws {
         // Order matters as well as multiset: `%1$d visible, %2$d hidden` reorders safely only
         // because the positional forms are preserved, and a bare `%d`/`%@` swap changes how
-        // `String(format:)` interprets the argument. The length modifier is part of the
-        // specifier too: without it `%ld` never matched at all, so a translation that dropped
-        // one of `app.native.profileResult`'s two `%ld` counts compared `[]` to `[]` and passed.
-        let pattern = try Regex(#"%(?:\d+\$)?(?:hh|ll|[hlqz])?[@dfs]"#)
-        func specifiers(_ value: String) -> [String] {
-            value.matches(of: pattern).map { String($0.0) }
-        }
+        // `String(format:)` interprets the argument.
         let english = try table(.en)
         for language in Self.shipped where language != .en {
             let translated = try table(language)
             for (key, source) in english {
-                let want = specifiers(source)
-                let got = specifiers(translated[key] ?? "")
+                let want = Self.formatSpecifiers(in: source)
+                let got = Self.formatSpecifiers(in: translated[key] ?? "")
                 #expect(want == got, "\(language.rawValue) \(key): expected \(want), got \(got)")
             }
         }
