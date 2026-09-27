@@ -3,11 +3,17 @@
 //  Ice
 //
 
-import CompactSlider
 import SwiftUI
 
-struct IceSlider<Value: BinaryFloatingPoint, ValueLabel: View>: View {
+/// A system `Slider` with its current value shown as text after the track.
+///
+/// The readout's width only ever grows. The slider fills whatever the readout leaves, so a
+/// readout that shrank and grew with the value ("9 sec" → "10 sec") would resize the track
+/// under the pointer mid-drag, and the value at the pointer could flip back and forth.
+struct IceSlider<Value: BinaryFloatingPoint, ValueLabel: View>: View where Value.Stride: BinaryFloatingPoint {
     @Binding private var value: Value
+
+    @State private var valueLabelWidth: CGFloat = 0
 
     private let bounds: ClosedRange<Value>
     private let step: Value?
@@ -39,31 +45,31 @@ struct IceSlider<Value: BinaryFloatingPoint, ValueLabel: View>: View {
         self.valueLabel = Text(valueLabel)
     }
 
-    private var borderShape: some InsettableShape {
-        RoundedRectangle(cornerRadius: 6, style: .continuous)
-    }
-
-    private var height: CGFloat {
-        24
-    }
-
     var body: some View {
-        CompactSlider(
-            value: $value,
-            in: bounds,
-            step: step ?? 0,
-            handleVisibility: .hovering(width: 0),
-            minHeight: 0
-        ) {
+        HStack {
+            slider
+                .labelsHidden()
             valueLabel
-                .frame(height: height)
+                .monospacedDigit()
+                .fixedSize()
+                .onFrameChange { frame in
+                    valueLabelWidth = max(valueLabelWidth, frame.width)
+                }
+                .frame(minWidth: valueLabelWidth, alignment: .trailing)
+                .accessibilityHidden(true) // The slider already carries it as its label.
         }
-        .compactSliderDisabledHapticFeedback(true)
-        .compactSliderSecondaryColor(
-            progressColor: .accentColor.opacity(0.5),
-            focusedProgressColor: .accentColor.opacity(0.75)
-        )
-        .clipShape(borderShape)
-        .contentShape([.interaction, .focusEffect], borderShape)
+    }
+
+    @ViewBuilder
+    private var slider: some View {
+        if let step {
+            Slider(value: $value, in: bounds, step: Value.Stride(step)) {
+                valueLabel
+            }
+        } else {
+            Slider(value: $value, in: bounds) {
+                valueLabel
+            }
+        }
     }
 }
