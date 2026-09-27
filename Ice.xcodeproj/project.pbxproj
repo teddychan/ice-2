@@ -7,10 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		00C28D6AD2F2E8F0F5FB6C83 /* ControlItemLengthTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4F2030182E7D91BA9AA8458 /* ControlItemLengthTests.swift */; };
 		12863111709580A862D997E4 /* UtilityHelpersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3EE3A5FEDD60DB5B5DF93F /* UtilityHelpersTests.swift */; };
 		1787C4272B16890B002F50DF /* AXSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 1787C4262B16890B002F50DF /* AXSwift */; };
 		17EA92DE1008D6773AC39E03 /* IceColorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C23731A85E77C82F006FD936 /* IceColorTests.swift */; };
-		17F71BB52B880B4500905CBA /* CompactSlider in Frameworks */ = {isa = PBXBuildFile; productRef = 17F71BB42B880B4500905CBA /* CompactSlider */; };
 		1B8351CC0D124C9F10C178D1 /* SmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76B9EDF33EEA9E254E354B9C /* SmokeTests.swift */; };
 		207AAA1C30BD781DF04675E0 /* ObjectStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A15FF0BDD5C41C98A91805B7 /* ObjectStorageTests.swift */; };
 		298CE54C9B0BE7DB32C3D2C3 /* MenuBarTriggerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 943118A230952141233F87D3 /* MenuBarTriggerTests.swift */; };
@@ -118,6 +118,7 @@
 		C4E01B7739AD62F08C15D4B3 /* UninstallConfigTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UninstallConfigTests.swift; sourceTree = "<group>"; };
 		CEC00E31681F07866FE98D6B /* HotkeyActionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HotkeyActionTests.swift; sourceTree = "<group>"; };
 		D5D9FF7076B412B16B603C8C /* KeyCombinationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = KeyCombinationTests.swift; sourceTree = "<group>"; };
+		E4F2030182E7D91BA9AA8458 /* ControlItemLengthTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ControlItemLengthTests.swift; sourceTree = "<group>"; };
 		E7E9DDFB62D4FA07946CC797 /* SettingsEnumsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SettingsEnumsTests.swift; sourceTree = "<group>"; };
 		EF413CD9CC7D016105A22EF0 /* WindowInfoTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WindowInfoTests.swift; sourceTree = "<group>"; };
 		F29224478E4DA927C88733C8 /* ExtensionsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExtensionsTests.swift; sourceTree = "<group>"; };
@@ -178,7 +179,6 @@
 			files = (
 				7127A9FF2C4886D100D99DEF /* IfritStatic in Frameworks */,
 				1787C4272B16890B002F50DF /* AXSwift in Frameworks */,
-				17F71BB52B880B4500905CBA /* CompactSlider in Frameworks */,
 				71A065092E680C620087DB38 /* Semaphore in Frameworks */,
 				DA6DC1703A2B3C4D5E6F7083 /* DragonKit in Frameworks */,
 				DA6DC1713A2B3C4D5E6F7085 /* DragonKitUpdates in Frameworks */,
@@ -279,6 +279,7 @@
 				A1B2C3D40000000000000001 /* LocalizedTextSupport.swift */,
 				19C0D62701AD4D98A47CC601 /* AcknowledgementsTests.swift */,
 				6D93B2E5C08A47F19E2340BC /* NewMenuBarItemPlacementTests.swift */,
+				E4F2030182E7D91BA9AA8458 /* ControlItemLengthTests.swift */,
 			);
 			name = IceTests;
 			path = IceTests;
@@ -327,7 +328,6 @@
 			name = Ice;
 			packageProductDependencies = (
 				1787C4262B16890B002F50DF /* AXSwift */,
-				17F71BB42B880B4500905CBA /* CompactSlider */,
 				7127A9FE2C4886D100D99DEF /* IfritStatic */,
 				71A065082E680C620087DB38 /* Semaphore */,
 				DA6DC1702A2B3C4D5E6F7082 /* DragonKit */,
@@ -396,7 +396,6 @@
 			mainGroup = 716683212A767E6A006ABF84;
 			packageReferences = (
 				1787C4252B16890B002F50DF /* XCRemoteSwiftPackageReference "AXSwift" */,
-				17F71BB32B880B4500905CBA /* XCRemoteSwiftPackageReference "CompactSlider" */,
 				7127A9FB2C4881BC00D99DEF /* XCRemoteSwiftPackageReference "Ifrit" */,
 				71A065072E680C620087DB38 /* XCRemoteSwiftPackageReference "Semaphore" */,
 				DA6DC1701A2B3C4D5E6F7081 /* XCRemoteSwiftPackageReference "dragon-kit" */,
@@ -497,6 +496,7 @@
 				A1B2C3D40000000000000002 /* LocalizedTextSupport.swift in Sources */,
 				58AB34D95A7DF7474565BA28 /* AcknowledgementsTests.swift in Sources */,
 				2F7C41A80B9E4D3286C15DA9 /* NewMenuBarItemPlacementTests.swift in Sources */,
+				00C28D6AD2F2E8F0F5FB6C83 /* ControlItemLengthTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -872,14 +872,6 @@
 				minimumVersion = 0.3.2;
 			};
 		};
-		17F71BB32B880B4500905CBA /* XCRemoteSwiftPackageReference "CompactSlider" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/buh/CompactSlider";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.1.5;
-			};
-		};
 		7127A9FB2C4881BC00D99DEF /* XCRemoteSwiftPackageReference "Ifrit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ukushu/Ifrit";
@@ -911,11 +903,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1787C4252B16890B002F50DF /* XCRemoteSwiftPackageReference "AXSwift" */;
 			productName = AXSwift;
-		};
-		17F71BB42B880B4500905CBA /* CompactSlider */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 17F71BB32B880B4500905CBA /* XCRemoteSwiftPackageReference "CompactSlider" */;
-			productName = CompactSlider;
 		};
 		7127A9FE2C4886D100D99DEF /* IfritStatic */ = {
 			isa = XCSwiftPackageProductDependency;
