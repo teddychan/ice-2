@@ -85,8 +85,10 @@ struct LocalizationCoverageTests {
     @Test func formatSpecifiersMatchEnglishInEveryTranslation() throws {
         // Order matters as well as multiset: `%1$d visible, %2$d hidden` reorders safely only
         // because the positional forms are preserved, and a bare `%d`/`%@` swap changes how
-        // `String(format:)` interprets the argument.
-        let pattern = try Regex(#"%(?:\d+\$)?[@dfs]"#)
+        // `String(format:)` interprets the argument. The length modifier is part of the
+        // specifier too: without it `%ld` never matched at all, so a translation that dropped
+        // one of `app.native.profileResult`'s two `%ld` counts compared `[]` to `[]` and passed.
+        let pattern = try Regex(#"%(?:\d+\$)?(?:hh|ll|[hlqz])?[@dfs]"#)
         func specifiers(_ value: String) -> [String] {
             value.matches(of: pattern).map { String($0.0) }
         }
