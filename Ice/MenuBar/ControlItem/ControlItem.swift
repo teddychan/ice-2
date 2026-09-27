@@ -31,11 +31,18 @@ final class ControlItem {
         }
 
         /// Returns the length associated with this identifier and
-        /// the given hiding state.
-        func length(for state: HidingState) -> CGFloat {
-            if NativeMenuBarManager.usesNativeBackend {
-                // The native backend never uses an oversized divider to hide items.
-                return self == .visible || state == .showSection ? Lengths.standard : 0
+        /// the given hiding state, or `nil` if the control item should
+        /// take up no space in the menu bar.
+        func length(
+            for state: HidingState,
+            usesNativeBackend: Bool = NativeMenuBarManager.usesNativeBackend
+        ) -> CGFloat? {
+            if usesNativeBackend {
+                // The native backend never uses an oversized divider to hide items,
+                // so a collapsed divider takes up no space. This must be `nil`, not
+                // a length of zero: the item keeps a minimum width until its content
+                // view's constraint is removed, which leaves a blank gap.
+                return self == .visible || state == .showSection ? Lengths.standard : nil
             }
             return switch self {
             case .visible:
@@ -402,15 +409,16 @@ final class ControlItem {
     /// section. Setting `statusItem.isVisible` to `false` completely removes
     /// the item. Instead, we toggle the width constraint on the item's content
     /// view, update the item's length, then adjust the content size of the
-    /// item's window if needed.
+    /// item's window if needed. An item with no length for its current state
+    /// (see ``Identifier/length(for:usesNativeBackend:)``) is hidden the same way.
     private func updateStatusItemVisibility(_ isVisible: Bool) {
         guard let appState else {
             return
         }
 
-        if isVisible {
+        if isVisible, let length = identifier.length(for: state) {
             constraint?.isActive = true
-            statusItem.length = identifier.length(for: state)
+            statusItem.length = length
         } else {
             let showOnDrag = appState.settings.advanced.showAllSectionsOnUserDrag
             let isDragging = appState.isDraggingMenuBarItem
