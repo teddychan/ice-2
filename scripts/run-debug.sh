@@ -79,9 +79,18 @@ if [[ "$built_id" != "$DEBUG_ID" ]]; then
   exit 1
 fi
 
-echo "==> Stopping any running debug build…"
-pkill -f "$app/Contents/MacOS" 2>/dev/null || true
-sleep 1
+# Every running copy, not just this path's: one started from another DerivedData folder or
+# by a relative path still holds the menu bar and this id's defaults. The name ends in
+# " Debug", so the pattern can never match the installed "Ice 2.app".
+[[ "$DEBUG_NAME" == *" Debug" ]] || { echo "error: refusing to kill a non-Debug name" >&2; exit 1; }
+debug_process="$DEBUG_NAME.app/Contents/MacOS/$DEBUG_NAME"
+echo "==> Stopping any running ${DEBUG_NAME}…"
+pkill -f "$debug_process" 2>/dev/null || true
+for _ in {1..10}; do
+  pgrep -f "$debug_process" >/dev/null || break
+  sleep 0.5
+done
+pkill -9 -f "$debug_process" 2>/dev/null || true
 
 # Build number is the git commit count, never the hardcoded CURRENT_PROJECT_VERSION
 # in the project — that value goes stale the moment anyone commits without bumping
@@ -132,19 +141,32 @@ if "$pb" -c "Print :SUEnableAutomaticChecks" "$plist" >/dev/null 2>&1; then
 fi
 "$pb" -c "Delete :SUFeedURL" "$plist" 2>/dev/null || true
 
-# Editing Info.plist invalidates the code signature, so re-sign. Ad-hoc and deep:
-# the bundle carries Sparkle.framework and the MenuBarItemService XPC, and a broken
-# signature on either makes the app fail to launch rather than fail visibly.
-echo "==> Re-signing after stamping Debug channel, v$short_version ($build_number)…"
-codesign --force --deep --sign - "$app" >/dev/null 2>&1
+# Editing Info.plist invalidates the code signature, so re-sign, deep: the bundle carries
+# Sparkle.framework and the MenuBarItemService XPC, and a broken signature on either makes
+# the app fail to launch rather than fail visibly.
+#
+# TCC binds a grant to the designated requirement. Ad-hoc, that is the cdhash, so every
+# rebuild is a new app and Accessibility / Screen Recording must be granted again. Signed
+# with a stable self-signed certificate it is "this identifier + this certificate", which
+# survives rebuilds. "ClipMenu Dev" is the one clipmenu-2's scripts already sign with; the
+# bundle id still keeps each app's grant separate. Without it, fall back to ad-hoc.
+SIGN_IDENTITY="ClipMenu Dev"
+if security find-identity -p codesigning 2>/dev/null | grep -q "\"$SIGN_IDENTITY\""; then
+  identity="$SIGN_IDENTITY"
+else
+  identity="-"
+fi
+echo "==> Re-signing after stamping Debug channel, v$short_version ($build_number), as: $identity"
+codesign --force --deep --sign "$identity" "$app"
 
-# Launched by exec rather than `open` on purpose. Older builds of this repo left
-# stray "Ice 2 Debug.app" copies in other DerivedData folders that still claim
-# this bundle id, and LaunchServices resolves an ambiguous id to whichever copy
-# it likes — including a stale one. Exec'ing the binary runs exactly this build.
+# `open -n` on this exact path, never `open -b <id>`: stray "Ice 2 Debug.app" copies in other
+# DerivedData folders claim the same id, and LaunchServices would pick one it likes. Not an
+# exec from this shell either: a process started from a terminal has the terminal as its
+# responsible process, so TCC checks the terminal's grants and the app reports Accessibility
+# as missing however often it is granted. `open` also parents the app to launchd, so it
+# outlives this shell.
 echo "==> Launching $app"
-"$app/Contents/MacOS/$DEBUG_NAME" >/dev/null 2>&1 &
-sleep 1
+open -n "$app"
 
 cat <<EOF
 
@@ -155,7 +177,11 @@ Launched "$DEBUG_NAME" v$short_version Debug (build $build_number), id $DEBUG_ID
   build channel, not part of the version.
 - Grant Accessibility / Screen Recording to "$DEBUG_NAME" in its Permissions
   window if you want full functionality (separate from your installed Ice 2).
-- Ad-hoc signature changes each rebuild, so macOS may ask you to re-grant.
+$(if [[ "$identity" == "-" ]]; then
+  echo "- Signed ad-hoc (no \"$SIGN_IDENTITY\" identity found), so every rebuild must be re-granted."
+else
+  echo "- Signed with \"$SIGN_IDENTITY\", so grants survive rebuilds."
+fi)
 - Updating is disabled in this build: no scheduled checks, no Check for Updates…
   item in the menu, and no production feed in the bundle.
 EOF

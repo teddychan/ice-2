@@ -11,7 +11,6 @@
 		12863111709580A862D997E4 /* UtilityHelpersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D3EE3A5FEDD60DB5B5DF93F /* UtilityHelpersTests.swift */; };
 		1787C4272B16890B002F50DF /* AXSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 1787C4262B16890B002F50DF /* AXSwift */; };
 		17EA92DE1008D6773AC39E03 /* IceColorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C23731A85E77C82F006FD936 /* IceColorTests.swift */; };
-		17F71BB52B880B4500905CBA /* CompactSlider in Frameworks */ = {isa = PBXBuildFile; productRef = 17F71BB42B880B4500905CBA /* CompactSlider */; };
 		1B8351CC0D124C9F10C178D1 /* SmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76B9EDF33EEA9E254E354B9C /* SmokeTests.swift */; };
 		207AAA1C30BD781DF04675E0 /* ObjectStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A15FF0BDD5C41C98A91805B7 /* ObjectStorageTests.swift */; };
 		298CE54C9B0BE7DB32C3D2C3 /* MenuBarTriggerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 943118A230952141233F87D3 /* MenuBarTriggerTests.swift */; };
@@ -180,7 +179,6 @@
 			files = (
 				7127A9FF2C4886D100D99DEF /* IfritStatic in Frameworks */,
 				1787C4272B16890B002F50DF /* AXSwift in Frameworks */,
-				17F71BB52B880B4500905CBA /* CompactSlider in Frameworks */,
 				71A065092E680C620087DB38 /* Semaphore in Frameworks */,
 				DA6DC1703A2B3C4D5E6F7083 /* DragonKit in Frameworks */,
 				DA6DC1713A2B3C4D5E6F7085 /* DragonKitUpdates in Frameworks */,
@@ -330,7 +328,6 @@
 			name = Ice;
 			packageProductDependencies = (
 				1787C4262B16890B002F50DF /* AXSwift */,
-				17F71BB42B880B4500905CBA /* CompactSlider */,
 				7127A9FE2C4886D100D99DEF /* IfritStatic */,
 				71A065082E680C620087DB38 /* Semaphore */,
 				DA6DC1702A2B3C4D5E6F7082 /* DragonKit */,
@@ -399,7 +396,6 @@
 			mainGroup = 716683212A767E6A006ABF84;
 			packageReferences = (
 				1787C4252B16890B002F50DF /* XCRemoteSwiftPackageReference "AXSwift" */,
-				17F71BB32B880B4500905CBA /* XCRemoteSwiftPackageReference "CompactSlider" */,
 				7127A9FB2C4881BC00D99DEF /* XCRemoteSwiftPackageReference "Ifrit" */,
 				71A065072E680C620087DB38 /* XCRemoteSwiftPackageReference "Semaphore" */,
 				DA6DC1701A2B3C4D5E6F7081 /* XCRemoteSwiftPackageReference "dragon-kit" */,
@@ -876,14 +872,6 @@
 				minimumVersion = 0.3.2;
 			};
 		};
-		17F71BB32B880B4500905CBA /* XCRemoteSwiftPackageReference "CompactSlider" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/buh/CompactSlider";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.1.5;
-			};
-		};
 		7127A9FB2C4881BC00D99DEF /* XCRemoteSwiftPackageReference "Ifrit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ukushu/Ifrit";
@@ -915,11 +903,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 1787C4252B16890B002F50DF /* XCRemoteSwiftPackageReference "AXSwift" */;
 			productName = AXSwift;
-		};
-		17F71BB42B880B4500905CBA /* CompactSlider */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 17F71BB32B880B4500905CBA /* XCRemoteSwiftPackageReference "CompactSlider" */;
-			productName = CompactSlider;
 		};
 		7127A9FE2C4886D100D99DEF /* IfritStatic */ = {
 			isa = XCSwiftPackageProductDependency;
