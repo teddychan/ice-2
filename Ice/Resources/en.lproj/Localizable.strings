@@ -239,11 +239,10 @@
 "app.uninstall.item.state" = "Saved application state";
 "app.updates.notification.body" = "%@ found a newer version.";
 "app.updates.notification.title" = "A new update is available";
-"app.whatsNew.added1" = "Hiding works again on macOS 27. macOS 27 changed how the menu bar is put together, and Ice 2's old method could no longer see the individual icons — so nothing hid, and Layout stayed empty. Ice 2 now finds menu bar apps through Accessibility and asks macOS itself to hide them. The Ice icon, your Hidden and Always-Hidden sections, your hotkeys and automatic rehiding all work as before. Grant Ice 2 Accessibility permission if you have not already.";
-"app.whatsNew.added2" = "A Layout editor built for macOS 27. Drag an app into Visible, Hidden or Always-Hidden, or pick a section from the card's menu; changes save as you make them. One card covers all of an app's menu bar icons, because macOS 27 shows and hides them together. Your saved layout profiles still work: applying one sorts its items into sections and tells you what could not be matched. Assigning a section does not change icon order — for that, Command-drag icons in the menu bar as before.";
-"app.whatsNew.changed1" = "Three things are unavailable on macOS 27: the separate Ice Bar, searching for a single menu bar icon, and temporarily showing one icon. Hidden items now appear directly in the menu bar instead of in a separate bar. Those controls and hotkeys are switched off there, and the settings you saved for them are kept, so they return on macOS 26. Hiding can also take Focus and a few other system extras with it, and section visibility applies to every display at once.";
-"app.whatsNew.fixed1" = "The Ice Bar no longer sits on Loading menu bar items… forever when there is nothing to load. It now says that no items were found and offers a Check Again button.";
-"app.whatsNew.summary" = "Ice 2 can hide menu bar items again on macOS 27. macOS 27 rebuilt the menu bar in a way the old approach could no longer follow, so this release adds a backend built for it, along with a new drag-and-drop Layout editor. On macOS 26 and earlier, nothing changes.";
+"app.whatsNew.changed1" = "The sliders in Settings are now standard macOS sliders, with a tick mark for each step and the value shown next to them.";
+"app.whatsNew.fixed1" = "On macOS 27, the Hidden and Always-Hidden sections no longer leave an empty gap in the menu bar while their items are hidden, so the spacing stays the same each time you show and hide them.";
+"app.whatsNew.fixed2" = "The Layout editor on macOS 27 is now translated. It appeared in English in every other language Ice 2 supports.";
+"app.whatsNew.summary" = "A maintenance update for macOS 27. Hidden sections no longer leave a gap in the menu bar, the Layout editor is now translated, and the sliders in Settings use the standard macOS style.";
 
 // Native section editor
 "app.native.editor.title" = "Organize your menu bar";
