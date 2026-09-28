@@ -22,7 +22,7 @@ enum WhatsNewConfig {
     @MainActor
     static var content: WhatsNewContent {
         WhatsNewContent(
-            date: "2026-09-18",
+            date: "2026-09-28",
             summary: L("app.whatsNew.summary"),
             sections: [
                 // The keys are stable across releases (app.whatsNew.summary, .fixed1, .changed1, …)
@@ -31,20 +31,16 @@ enum WhatsNewConfig {
                 // so nothing is left behind for `whats_new_path` in release.yml to gate on — it
                 // diffs the text at these keys, not the key names themselves.
                 //
-                // This release restores menu bar hiding on macOS 27, which stopped working when
-                // macOS 27 rebuilt the menu bar so that individual item windows are no longer
-                // exposed, and adds the drag-and-drop Layout editor built on the new backend.
-                // `changed1` is where the macOS 27 limitations are stated plainly: the separate
-                // Ice Bar, per-icon search and temporary per-icon reveal do not exist there. They
-                // belong in the pane rather than only in the docs, because a user who upgrades to
-                // macOS 27 loses three features and would otherwise read that as a new bug.
-                // Nothing here is claimed for macOS 26, where the backend is untouched.
-                ChangeSection(kind: .added, entries: [
-                    L("app.whatsNew.added1"),
-                    L("app.whatsNew.added2"),
-                ]),
+                // A patch release with two macOS 27 fixes from issue #120, both visible to users:
+                // collapsed Hidden and Always-Hidden dividers no longer leave a gap (#125), and the
+                // Layout editor strings, which #117 shipped in English in six locales, are now
+                // translated (#122). `changed1` is the visible side of #123: the four Settings
+                // sliders are now system sliders, which look different. The Xcode 27 build fix
+                // behind that change, the stricter locale specifier tests and the run-debug.sh
+                // changes do not affect a shipped build, so they appear only in CHANGELOG.md.
                 ChangeSection(kind: .fixed, entries: [
                     L("app.whatsNew.fixed1"),
+                    L("app.whatsNew.fixed2"),
                 ]),
                 ChangeSection(kind: .changed, entries: [
                     L("app.whatsNew.changed1"),

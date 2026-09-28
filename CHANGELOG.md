@@ -1,5 +1,43 @@
 # Changelog
 
+## 2.16.1 - 2026-09-28
+
+### Fixed
+
+- **A collapsed Hidden or Always-Hidden section no longer leaves a gap in the menu bar on macOS
+  27.** On the macOS 27 backend a collapsed divider set its status item length to 0, but first
+  re-activated a content-view constraint that keeps a status item from reaching zero width. The
+  divider stayed as a blank space while collapsed and shrank to about 1pt when expanded with the
+  None style, so the spacing changed on every toggle. A collapsed native divider now takes no space
+  at all, through the same constraint-off path the None style already used. macOS 26 and earlier
+  keep the oversized divider unchanged. Closes #120.
+- **The macOS 27 Layout editor is translated.** 2.16.0 shipped its 35 `app.native.*` strings in
+  English in all six other locales, so the Layout pane read English inside otherwise localized
+  Settings (#120). Each is now translated with the terms that locale's Settings UI already uses.
+
+### Changed
+
+- **The four Settings sliders are standard macOS sliders.** Hover delay, rehide interval, menu bar
+  item spacing and the temporary-show interval now use the system `Slider`, with a tick mark per
+  step and the current value beside the track, in place of CompactSlider's filled bar with the
+  value inside it. The system control takes the Liquid Glass treatment on macOS 26 and 27 by
+  itself. CompactSlider is gone from the project, so Settings ▸ About no longer credits it.
+
+### Internal
+
+- **Ice 2 builds with Xcode 27.** The macOS 27 SDK rejects CompactSlider 1.2.1, its last 1.x
+  release, with an ambiguous `opacity` call, so the project did not compile on Xcode 27 at all.
+  Replacing the package (above) fixed the build. CI stayed green throughout because it runs
+  Xcode 26.
+- **The locale checks now read every `String(format:)` specifier.** `LocalizationCoverageTests`
+  compares each translation's specifiers with English, but its pattern had no room for length
+  modifiers, so the two `%ld` counts in the Layout profile result message were never compared.
+  It now reads the whole printf grammar (flags, width, precision, length and every conversion,
+  plus `%%`), and a new test pins each form.
+- **`scripts/run-debug.sh` keeps the debug build's permission grants across rebuilds.** It signs
+  with a stable local identity instead of ad hoc, and launches with `open -n` so macOS checks
+  Ice 2 Debug's own grants rather than the terminal's.
+
 ## 2.16.0 - 2026-09-18
 
 ### Added
