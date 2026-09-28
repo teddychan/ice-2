@@ -184,6 +184,18 @@ builds against the macOS 26 SDK. As such, there are no plans to support earlier
 versions of macOS. Older releases remain downloadable on the
 [releases page](https://github.com/teddychan/ice-2/releases).
 
+### Why does Ice 2 need network access?
+
+Only to check for and download updates, using [Sparkle](https://sparkle-project.org).
+Ice 2 has no telemetry, analytics, or crash reporting, and it sends nothing about
+you, your Mac, or your menu bar anywhere. Automatic update checks are off by default,
+so Ice 2 only goes online when you choose **Check for Updates…** or turn on automatic
+checks in **Settings ▸ Updates**.
+
+If you'd rather Ice 2 never goes online, block its network access on your Mac with
+an outbound firewall or your organization's device management. Everything except
+updating keeps working.
+
 ### Can I back up, restore, or sync my settings?
 
 Yes. Open **Settings ▸ Backup & Restore** and choose a backup folder. Use **Back Up Now** to save a snapshot of all your Ice 2 settings (layout profiles, spacers, triggers, hotkeys, and appearance), and Ice 2 also backs up automatically when you quit. The newest 10 backups are kept; you can restore any of them with one click (Ice 2 relaunches to apply).
